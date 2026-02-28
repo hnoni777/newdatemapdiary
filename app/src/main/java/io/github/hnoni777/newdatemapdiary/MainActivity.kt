@@ -336,9 +336,33 @@ class MainActivity : AppCompatActivity() {
         imgView.setImageResource(R.drawable.bg_invitation)
         imgView.setScaleType(ImageView.ScaleType.CENTER_CROP)
 
-        cardView.findViewById<TextView>(R.id.card_message).text = "추억의 장소를 맵에서 확인하세요 🗺️"
+        cardView.findViewById<TextView>(R.id.card_message).text = ""
         cardView.findViewById<TextView>(R.id.card_address).text = deepLinkAddress
-        cardView.findViewById<TextView>(R.id.card_date).text = "지금 바로 함께 떠나볼까요?"
+        cardView.findViewById<TextView>(R.id.card_date).text = ""
+
+        // 🚀 Overlay text onto the image
+        val imageContainer = cardView.findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.card_image_container)
+        val overlayText = TextView(this).apply {
+            text = "추억의 장소를\n앱에서 확인하기 🗺️"
+            setTextColor(Color.WHITE)
+            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 18f)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            gravity = android.view.Gravity.CENTER
+            setPadding(32, 16, 32, 16)
+            setBackgroundResource(R.drawable.bg_gold_pill_button)
+            backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#CC221018"))
+            
+            layoutParams = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams(
+                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT,
+                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
+                startToStart = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
+                endToEnd = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
+                bottomMargin = 64
+            }
+        }
+        imageContainer.addView(overlayText)
 
         findViewById<View>(R.id.btn_create_card).visibility = View.GONE
         container.addView(cardView)
