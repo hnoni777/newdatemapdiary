@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "io.github.hnoni777.newdatemapdiary",
+    "sha256_cert_fingerprints":
+    ["ED:DB:AF:E1:52:9D:ED:6C:BE:74:8C:F5:DE:79:AF:D2:E9:37:53:56:67:DC:5B:B7:85:E3:CF:34:8F:BE:40:8C"]
+  }
+}]
