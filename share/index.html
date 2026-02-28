@@ -1,149 +1,91 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HereWithYou - 특별한 추억 배달 서비스</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background: linear-gradient(135deg, #1A221018 0%, #221018 100%);
             color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             min-height: 100vh;
-            overflow-x: hidden;
         }
-
-        .container {
-            text-align: center;
-            padding: 2rem;
-            max-width: 400px;
-            animation: fadeIn 1s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .icon {
-            font-size: 80px;
-            margin-bottom: 1.5rem;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            color: #FFD9EC;
-            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-        }
-
-        p {
-            font-size: 1rem;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-            color: #ccc;
-        }
-
-        .btn {
-            display: inline-block;
-            background: linear-gradient(90deg, #ec135b 0%, #D4AF37 100%);
-            color: #fff;
-            text-decoration: none;
-            padding: 1rem 2.5rem;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(236, 19, 91, 0.4);
-            transition: transform 0.2s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn:active {
-            transform: scale(0.95);
-        }
-
-        .address-box {
+        .container { text-align: center; padding: 2rem; max-width: 400px; }
+        .icon { font-size: 70px; margin-bottom: 1rem; }
+        h1 { font-size: 2.2rem; margin-bottom: 0.5rem; color: #FFD9EC; }
+        p { font-size: 1rem; color: #ccc; margin-bottom: 2rem; }
+        .card {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-top: 2rem;
-            font-size: 0.9rem;
-            color: #FFB3D9;
+            border-radius: 20px;
+            padding: 1.5rem;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 2rem;
         }
-
-        .footer {
-            margin-top: 3rem;
-            font-size: 0.8rem;
-            color: #888;
+        .btn {
+            display: block; width: 100%;
+            padding: 1.2rem; border-radius: 50px;
+            font-weight: bold; font-size: 1.1rem;
+            text-decoration: none; margin-bottom: 1rem;
+            transition: transform 0.2s; border: none; cursor: pointer;
         }
+        .btn-main { background: #ec135b; color: white; box-shadow: 0 4px 15px rgba(236,19,91,0.4); }
+        .btn-sub { background: white; color: #221018; }
+        .footer { font-size: 0.8rem; color: #888; margin-top: 2rem; }
     </style>
 </head>
-
 <body>
     <div class="container">
-        <div class="icon">💍</div>
-        <h1>HereWithYou</h1>
-        <p>당신에게 소중한 추억이 <br> 도착했습니다!</p>
-        <div id="address" class="address-box" style="display: none;">📍 장소 확인 중...</div>
-        <div style="margin-top: 2.5rem;">
-            <button onclick="openApp()" class="btn">지금 추억 확인하기</button>
-            <div style="margin-top: 25px;">
-                <p style="font-size: 13px; color: #888; margin-bottom: 8px;">앱이 아직 설치되지 않았나요?</p>
-                <a href="https://github.com/hnoni777/newdatemapdiary/raw/master/app/build/outputs/apk/debug/app-debug.apk"
-                    style="color: #FFD9EC; font-size: 14px; font-weight: bold; text-decoration: underline;">
-                    직접 APK 다운로드하여 설치하기
+        <div class="icon">🎁</div>
+        <h1>추억이 도착했습니다!</h1>
+        <p>당신만을 위한 특별한 장소를 확인해보세요.</p>
+
+        <div class="card">
+            <div id="address" style="font-size: 1.1rem; color: #FFB3D9; margin-bottom: 1.5rem;">📍 장소 확인 중...</div>
+            
+            <!-- 🚀 1. Try to open already installed app -->
+            <button onclick="openApp()" class="btn btn-main">앱으로 장소 보기</button>
+            
+            <div style="margin: 1.5rem 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                <div style="font-size: 0.9rem; color: #aaa; margin-bottom: 1rem;">아직 앱이 없으신가요?</div>
+                <!-- 📦 2. Direct Download Link -->
+                <a href="https://github.com/hnoni777/newdatemapdiary/raw/master/app/build/outputs/apk/debug/app-debug.apk" class="btn btn-sub">
+                    앱 설치하기 (APK 받기)
                 </a>
             </div>
         </div>
+
         <div class="footer">&copy; 2026 HereWithYou Project.</div>
     </div>
+
     <script>
         const params = new URLSearchParams(window.location.search);
-        const lat = params.get('lat');
-        const lng = params.get('lng');
-        const addr = params.get('addr');
+        const lat = params.get('lat') || '';
+        const lng = params.get('lng') || '';
+        const addr = params.get('addr') || '';
+
         if (addr) {
-            const addressBox = document.getElementById('address');
-            addressBox.style.display = 'block';
-            addressBox.innerText = "📍 " + decodeURIComponent(addr);
+            document.getElementById('address').innerText = "📍 " + decodeURIComponent(addr);
         }
+
         function openApp() {
             const query = `?lat=${lat}&lng=${lng}&addr=${encodeURIComponent(addr)}`;
-            // 💡 Intent URL format to force app open or fallback
+            // 💡 Try Scheme first (more reliable for some)
+            const schemeUrl = `newdatemapdiary://share${query}`;
+            // 💡 Try Intent next
             const intentUrl = `intent://share${query}#Intent;scheme=newdatemapdiary;package=io.github.hnoni777.newdatemapdiary;S.browser_fallback_url=https://github.com/hnoni777/newdatemapdiary;end`;
-            window.location.href = intentUrl;
+
+            // Try to open via scheme
+            window.location.href = schemeUrl;
+
+            // If it doesn't work after 500ms, try Intent
+            setTimeout(() => {
+                window.location.href = intentUrl;
+            }, 500);
         }
     </script>
 </body>
-
 </html>
