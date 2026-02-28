@@ -403,37 +403,43 @@ class CardEditorActivity : AppCompatActivity() {
 
     private fun showQRCodeOnStickerLayer(cardView: View) {
         try {
-            val addrStr = java.net.URLEncoder.encode(address, "UTF-8")
-            val link = "https://hnoni777.github.io/newdatemapdiary/share?lat=$lat&lng=$lng&addr=$addrStr"
+            // ✂️ Shorten data to make QR code less dense (easier to scan!)
+            val shortLat = String.format("%.6f", lat)
+            val shortLng = String.format("%.6f", lng)
+            val shortAddr = if (address.length > 20) address.substring(0, 20) else address
+            val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
+            
+            val link = "https://hnoni777.github.io/newdatemapdiary/share?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
             val qrBitmap = generateQRCode(link)
             if (qrBitmap != null) {
                 val stickerLayer = cardView.findViewById<FrameLayout>(R.id.sticker_container) ?: return
                 
-                // QR View with slight white background for readability on dark themes
                 val qrView = ImageView(this).apply {
                     id = View.generateViewId()
                     setImageBitmap(qrBitmap)
-                    setBackgroundColor(Color.parseColor("#80FFFFFF")) // Semi-transparent white background
+                    // High contrast white backing
+                    setBackgroundColor(Color.WHITE)
                     setPadding(
-                        (3 * resources.displayMetrics.density).toInt(),
-                        (3 * resources.displayMetrics.density).toInt(),
-                        (3 * resources.displayMetrics.density).toInt(),
-                        (3 * resources.displayMetrics.density).toInt()
+                        (4 * resources.displayMetrics.density).toInt(),
+                        (4 * resources.displayMetrics.density).toInt(),
+                        (4 * resources.displayMetrics.density).toInt(),
+                        (4 * resources.displayMetrics.density).toInt()
                     )
-                    val size = (42 * resources.displayMetrics.density).toInt()
+                    // 📏 Increased size for better focus
+                    val size = (64 * resources.displayMetrics.density).toInt()
                     val params = FrameLayout.LayoutParams(size, size).apply {
                         gravity = android.view.Gravity.BOTTOM or android.view.Gravity.END
-                        rightMargin = (16 * resources.displayMetrics.density).toInt()
+                        rightMargin = (12 * resources.displayMetrics.density).toInt()
                         bottomMargin = (52 * resources.displayMetrics.density).toInt()
                     }
                     layoutParams = params
-                    tag = "QR_STAMP" // Important to distinguish from user stickers
+                    tag = "QR_STAMP"
                 }
                 stickerLayer.addView(qrView)
-                Log.d("QR_CODE", "QR Added to sticker layer: $link")
+                Log.d("QR_CODE", "Optimized QR Added: $link")
             }
         } catch (e: Exception) {
-            Log.e("QR_CODE", "Failed to add QR to sticker layer", e)
+            Log.e("QR_CODE", "Failed to add QR", e)
         }
     }
     
@@ -1508,24 +1514,29 @@ class CardEditorActivity : AppCompatActivity() {
     private fun generateQRCode(url: String): Bitmap? {
         return try {
             val writer = com.google.zxing.qrcode.QRCodeWriter()
+            val hints = mapOf(
+                com.google.zxing.EncodeHintType.MARGIN to 1,
+                com.google.zxing.EncodeHintType.CHARACTER_SET to "UTF-8"
+            ) 
             val bitMatrix = writer.encode(
                 url,
                 com.google.zxing.BarcodeFormat.QR_CODE,
-                256,
-                256
+                512,
+                512,
+                hints
             )
             val width = bitMatrix.width
             val height = bitMatrix.height
             val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             for (x in 0 until width) {
                 for (y in 0 until height) {
-                    // 👑 Solid deep purple/black for maximum scanability
-                    bmp.setPixel(x, y, if (bitMatrix.get(x, y)) Color.parseColor("#221018") else Color.TRANSPARENT)
+                    // Standard Black on Transparent (ImageView background handles white)
+                    bmp.setPixel(x, y, if (bitMatrix.get(x, y)) Color.BLACK else Color.TRANSPARENT)
                 }
             }
             bmp
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("QR_GEN", "Error", e)
             null
         }
     }

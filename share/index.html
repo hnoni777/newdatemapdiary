@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,8 +28,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .icon {
@@ -38,8 +46,15 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
         }
 
         h1 {
@@ -47,7 +62,7 @@
             margin-bottom: 0.5rem;
             letter-spacing: -1px;
             color: #FFD9EC;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
         }
 
         p {
@@ -92,34 +107,54 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="icon">💌</div>
         <h1>HereWithYou</h1>
         <p>당신에게 소중한 장소와 추억이 <br> 도착했습니다!</p>
-        
+
         <div id="address" class="address-box" style="display: none;">
             📍 장소 확인 중...
         </div>
 
         <div style="margin-top: 2.5rem;">
-            <a href="https://github.com/hnoni777/newdatemapdiary" class="btn">앱 설치하고 추억 보기</a>
+            <!-- Try to open the app first, fallback to store/github -->
+            <a href="javascript:void(0);" onclick="openApp()" class="btn">추억 확인하러 가기</a>
+            <p style="font-size: 12px; margin-top: 10px; color: #888;">앱이 없으신가요? 설치 후 확인 가능합니다.</p>
         </div>
 
         <div class="footer">
-            &copy; 2026 NewDateMapDiary All rights reserved.
+            &copy; 2026 HereWithYou Project.
         </div>
     </div>
 
     <script>
-        // URL의 파라미터(lat, lng, addr)를 읽어서 보여주는 간단한 스크립트
         const params = new URLSearchParams(window.location.search);
+        const lat = params.get('lat');
+        const lng = params.get('lng');
         const addr = params.get('addr');
+
         if (addr) {
             const addressBox = document.getElementById('address');
             addressBox.style.display = 'block';
             addressBox.innerText = "📍 " + decodeURIComponent(addr);
         }
+
+        function openApp() {
+            const deepLink = `https://hnoni777.github.io/newdatemapdiary/share?lat=${lat}&lng=${lng}&addr=${encodeURIComponent(addr)}`;
+
+            // 💡 Magic: Try to jump into the app
+            window.location.href = deepLink;
+
+            // 🕰️ Fallback: If still here after 2 seconds, redirect to GitHub/PlayStore
+            setTimeout(function () {
+                if (!document.webkitHidden && !document.hidden) {
+                    window.location.href = "https://github.com/hnoni777/newdatemapdiary";
+                }
+            }, 2000);
+        }
     </script>
 </body>
+
 </html>
