@@ -428,9 +428,9 @@ class CardEditorActivity : AppCompatActivity() {
                     // 📏 Increased size for better focus
                     val size = (64 * resources.displayMetrics.density).toInt()
                     val params = FrameLayout.LayoutParams(size, size).apply {
-                        gravity = android.view.Gravity.BOTTOM or android.view.Gravity.END
-                        rightMargin = (12 * resources.displayMetrics.density).toInt()
-                        bottomMargin = (52 * resources.displayMetrics.density).toInt()
+                        gravity = android.view.Gravity.TOP or android.view.Gravity.END
+                        rightMargin = (16 * resources.displayMetrics.density).toInt()
+                        topMargin = (16 * resources.displayMetrics.density).toInt()
                     }
                     layoutParams = params
                     tag = "QR_STAMP"

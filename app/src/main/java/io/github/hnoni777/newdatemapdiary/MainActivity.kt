@@ -333,12 +333,12 @@ class MainActivity : AppCompatActivity() {
         )
 
         val imgView = cardView.findViewById<ImageView>(R.id.card_image)
-        imgView.setImageResource(R.drawable.vd_lovers)
-        imgView.setBackgroundColor(Color.parseColor("#FFD9EC"))
+        imgView.setImageResource(R.drawable.bg_invitation)
+        imgView.setScaleType(ImageView.ScaleType.CENTER_CROP)
 
-        cardView.findViewById<TextView>(R.id.card_message).text = "우리의 추억이 도착했어요💌"
+        cardView.findViewById<TextView>(R.id.card_message).text = "추억의 장소를 맵에서 확인하세요 🗺️"
         cardView.findViewById<TextView>(R.id.card_address).text = deepLinkAddress
-        cardView.findViewById<TextView>(R.id.card_date).text = "함께 확인해볼까요?"
+        cardView.findViewById<TextView>(R.id.card_date).text = "지금 바로 함께 떠나볼까요?"
 
         findViewById<View>(R.id.btn_create_card).visibility = View.GONE
         container.addView(cardView)
