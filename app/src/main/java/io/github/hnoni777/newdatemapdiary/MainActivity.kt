@@ -56,20 +56,7 @@ class MainActivity : AppCompatActivity() {
         mapView = MapView(this)
         findViewById<FrameLayout>(R.id.map_container).addView(mapView)
 
-        val action: String? = intent?.action
-        val data: Uri? = intent?.data
-        if (Intent.ACTION_VIEW == action && data != null) {
-            val latStr = data.getQueryParameter("lat")
-            val lngStr = data.getQueryParameter("lng")
-            val addrStr = data.getQueryParameter("addr")
-            
-            if (latStr != null && lngStr != null) {
-                currentLat = latStr.toDoubleOrNull() ?: 0.0
-                currentLng = lngStr.toDoubleOrNull() ?: 0.0
-                deepLinkAddress = addrStr ?: ""
-                isFromDeepLink = true
-            }
-        }
+        handleDeepLink(intent)
 
         intent.getStringExtra("photoUri")?.let {
             photoUri = Uri.parse(it)
@@ -84,6 +71,40 @@ class MainActivity : AppCompatActivity() {
             showDeepLinkInvitationCard()
         } else {
             requestLocationPermission()
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent) // 💡 Update the activity's intent
+        handleDeepLink(intent)
+        
+        if (isFromDeepLink) {
+            // Re-initialise map or move camera if needed
+            if (kakaoMap != null) {
+                showLocationOnMap(LatLng.from(currentLat, currentLng))
+            } else {
+                startMap()
+            }
+            addressText.text = deepLinkAddress
+            showDeepLinkInvitationCard()
+        }
+    }
+
+    private fun handleDeepLink(intent: Intent?) {
+        val action: String? = intent?.action
+        val data: Uri? = intent?.data
+        if (Intent.ACTION_VIEW == action && data != null) {
+            val latStr = data.getQueryParameter("lat")
+            val lngStr = data.getQueryParameter("lng")
+            val addrStr = data.getQueryParameter("addr")
+            
+            if (latStr != null && lngStr != null) {
+                currentLat = latStr.toDoubleOrNull() ?: 0.0
+                currentLng = lngStr.toDoubleOrNull() ?: 0.0
+                deepLinkAddress = addrStr ?: ""
+                isFromDeepLink = true
+            }
         }
     }
 
