@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Love, Thoughtfully - Intro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec135b",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221016",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .glow-button {
+            box-shadow: 0 0 20px 2px rgba(236, 19, 91, 0.4);
+        }
+        .vignette-overlay {
+            background: radial-gradient(circle, rgba(34, 16, 22, 0.2) 0%, rgba(34, 16, 22, 0.8) 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<!-- Main Container (iPhone Aspect Ratio Simulation) -->
+<div class="relative flex flex-col h-screen w-full max-w-md mx-auto overflow-hidden bg-background-dark shadow-2xl">
+<!-- Background Image Container -->
+<div class="absolute inset-0 w-full h-full overflow-hidden">
+<div class="absolute inset-0 scale-110 blur-sm brightness-75 bg-cover bg-center transition-transform duration-1000" data-alt="Blurred artistic shot of a couple holding hands gently" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDnSb40Wcv2sEc4dM3O0QSDnx8FTPEGmOODifSiJu9yQF9jOreois4H_PeHS1dfERe2ISHxD2kQWnFyvMjUrk1HnlcO3oEp4jRjArsk8CbPVw7zUtQwAdnrm6Be4za0XZ9KIY98_9StpSzPk4VSlWgJLKdyL0ozK-AEzx6UE3pTFll3Yc4CqJHr9TECoGSugVsnzmj4TuFlKFkQi2NIHJfi0nqXQMdS6ga4UU7iflzn2zkPH-fTtJuw98UWjycqyfRjZS4duy2TZNw");'></div>
+<!-- Dark Gradient Overlays for Readability -->
+<div class="absolute inset-0 bg-gradient-to-b from-background-dark/40 via-transparent to-background-dark/90"></div>
+<div class="absolute inset-0 vignette-overlay"></div>
+</div>
+<!-- Top Navigation / Close -->
+<div class="relative z-10 flex items-center justify-between p-6">
+<div class="text-slate-100/50 hover:text-white cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[28px]">close</span>
+</div>
+<div class="flex items-center gap-1 opacity-80">
+<span class="material-symbols-outlined text-primary text-[18px] fill-1">favorite</span>
+<span class="text-xs font-bold tracking-widest uppercase text-slate-100">L'Amour</span>
+</div>
+<div class="w-7"></div> <!-- Spacer for balance -->
+</div>
+<!-- Content Section -->
+<div class="relative z-10 flex flex-col items-center justify-center flex-1 px-8 text-center">
+<!-- Decorative Icon -->
+<div class="mb-8 p-4 bg-primary/10 rounded-full border border-primary/20 backdrop-blur-md">
+<span class="material-symbols-outlined text-primary text-[40px]">auto_awesome</span>
+</div>
+<!-- Headline -->
+<h1 class="font-serif italic text-white text-5xl md:text-6xl leading-tight mb-4 drop-shadow-lg">
+                Love, <br/> <span class="not-italic font-bold">thoughtfully.</span>
+</h1>
+<!-- Subtitle -->
+<p class="text-slate-200 text-lg font-light leading-relaxed max-w-[260px] opacity-90">
+                Find a connection that lasts and grows with you.
+            </p>
+</div>
+<!-- Action Section -->
+<div class="relative z-10 p-8 pb-12 flex flex-col gap-6 items-center w-full">
+<!-- Get Started Button -->
+<button class="glow-button w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-full transition-all active:scale-95 flex items-center justify-center gap-2 group">
+<span class="text-lg">Get Started</span>
+<span class="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+<!-- Bottom Links -->
+<div class="flex flex-col items-center gap-4">
+<p class="text-slate-400 text-sm">
+                    Already have an account? 
+                    <button class="text-primary font-bold hover:underline ml-1">Sign In</button>
+</p>
+<!-- Indicator for Apple/Modern iOS UI -->
+<div class="mt-4 w-32 h-1 bg-white/20 rounded-full"></div>
+</div>
+</div>
+<!-- Floating Decorative Element (Top Right) -->
+<div class="absolute top-20 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-[60px] pointer-events-none"></div>
+<!-- Floating Decorative Element (Bottom Left) -->
+<div class="absolute bottom-40 -left-10 w-48 h-48 bg-primary/5 rounded-full blur-[80px] pointer-events-none"></div>
+</div>
+</body></html>

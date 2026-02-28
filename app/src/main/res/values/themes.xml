@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.HereWithYou" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="RoundedImageView" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="Widget.CalendarView.Custom" parent="android:Widget.CalendarView">
+        <item name="android:focusedMonthDateColor">#221018</item>
+        <item name="android:weekNumberColor">#999999</item>
+        <item name="android:weekDayTextAppearance">@style/TextAppearance.CalendarWidget.WeekDay</item>
+        <item name="android:dateTextAppearance">@style/TextAppearance.CalendarWidget.Date</item>
+    </style>
+
+    <style name="TextAppearance.CalendarWidget.WeekDay" parent="android:TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">#7A4F5C</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.CalendarWidget.Date" parent="android:TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">#221018</item>
+    </style>
+</resources>

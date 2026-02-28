@@ -1,0 +1,15 @@
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#B3FFFFFF"> <!-- 클릭 시 피드백 -->
+    <item>
+        <shape android:shape="rectangle">
+            <!-- 시인성 극대화를 위해 불투명도를 높인 딥 브라운 (고급스러운 가죽 느낌) -->
+            <solid android:color="#E63E2A24" /> 
+            <!-- 선명한 크림색 테두리 -->
+            <stroke
+                android:width="2dp"
+                android:color="#CCF5F5F5" />
+            <!-- 세련된 라운딩 -->
+            <corners android:radius="38dp" />
+        </shape>
+    </item>
+</ripple>

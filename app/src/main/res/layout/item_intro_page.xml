@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:paddingVertical="16dp"
+    android:paddingHorizontal="24dp">
+
+        <!-- 💖 Icon/Illustration Area -->
+        <FrameLayout
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="24dp">
+            
+            <!-- Ambient blur/glow behind icon -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_romantic_gradient"
+                android:alpha="0.3"
+                android:layout_margin="10dp" />
+
+            <!-- Inner Glass Circle -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_gravity="center"
+                app:cardBackgroundColor="#1AFFFFFF"
+                app:cardCornerRadius="45dp"
+                app:cardElevation="10dp">
+                
+                <ImageView
+                    android:id="@+id/iv_icon"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:src="@drawable/ic_gold_heart"
+                    android:layout_gravity="center" />
+
+            </androidx.cardview.widget.CardView>
+        </FrameLayout>
+
+        <View
+            android:layout_width="48dp"
+            android:layout_height="1dp"
+            android:layout_marginVertical="20dp"
+            android:background="#D4AF37"
+            android:alpha="0.6"/>
+
+        <!-- 🌿 Tagline -->
+        <TextView
+            android:id="@+id/tv_tagline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="모든 기억이 자리를 찾는 곳"
+            android:textColor="#E0E0E0"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.05"
+            android:gravity="center"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tv_sub_tagline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Where every memory finds its place"
+            android:textColor="#A0A0A0"
+            android:textSize="14sp"
+            android:letterSpacing="0.05"
+            android:gravity="center"
+            android:lineSpacingExtra="6dp"/>
+    </LinearLayout>

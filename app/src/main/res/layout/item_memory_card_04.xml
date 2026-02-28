@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="0dp"
+    app:cardCornerRadius="0dp"
+    app:cardElevation="24dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardUseCompatPadding="false">
+
+    <!-- Wrapper FrameLayout to allow stickers anywhere on the card -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- ⭐ NEW: High-End Custom Background Image Layer -->
+        <ImageView
+            android:id="@+id/card_premium_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:src="@android:color/transparent" />
+
+        <LinearLayout
+            android:id="@+id/card_content_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:background="#FFFFFF">
+
+            <!-- 📸 Image Area: Modern Polaroid Look -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/card_image"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:scaleType="centerCrop"
+                        app:layout_constraintDimensionRatio="H,4:5"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 📝 Premium Typography Area -->
+            <LinearLayout
+                android:id="@+id/card_text_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="32dp"
+                android:paddingBottom="8dp"
+                android:gravity="center"
+                android:background="@android:color/transparent">
+
+                <!-- 💬 Romantic Message (Serif style for premium look) -->
+                <TextView
+                    android:id="@+id/card_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="언젠가 너와 다시 오고 싶은 장소"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/kyobo_hand_family"
+                    android:textColor="#221018"
+                    android:gravity="center"
+                    android:letterSpacing="0.01" />
+
+                <!-- 📍 Location Label with elegant design -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_gold_pill_button"
+                    android:backgroundTint="#1A221018"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp">
+                    
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_white_location"
+                        app:tint="#8C8C8C"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:id="@+id/card_address"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="경기도 광명시 소하로 10"
+                        android:fontFamily="@font/kyobo_hand_family"
+                        android:textSize="14sp"
+                        android:textColor="#666666" />
+                </LinearLayout>
+
+                <!-- 📅 Date and Branding (Minimal Footer) -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dp">
+
+                    <TextView
+                        android:id="@+id/card_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:text="2026.02.25"
+                        android:textSize="13sp"
+                        android:textColor="#999999"
+                        android:fontFamily="@font/kyobo_hand_family"
+                        android:letterSpacing="0.1" />
+
+                    <TextView
+                        android:id="@+id/card_watermark"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:text="HereWithYou"
+                        android:textStyle="italic|bold"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/kyobo_hand_family"
+                        android:textColor="#D4AF37"
+                        android:alpha="0.8"
+                        android:letterSpacing="0.05" />
+                </RelativeLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ⭐ NEW: High-End Gold Border Overlay (Stretches with content) -->
+        <View
+            android:id="@+id/card_premium_border"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:visibility="gone" />
+
+        <!-- 🎀 Dedicated Sticker Container (Overlay on entire card) -->
+        <!-- Placed after LinearLayout so it draws on top of everything -->
+        <FrameLayout
+            android:id="@+id/sticker_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+            
+    </FrameLayout>
+</androidx.cardview.widget.CardView>

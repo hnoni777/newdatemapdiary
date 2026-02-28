@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="?attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/tv_day"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:fontFamily="serif"
+        android:textColor="#221018"
+        android:textStyle="bold" />
+
+    <View
+        android:id="@+id/view_indicator"
+        android:layout_width="16dp"
+        android:layout_height="3dp"
+        android:layout_marginTop="2dp"
+        android:background="#D4AF37"
+        android:visibility="invisible" />
+</LinearLayout>

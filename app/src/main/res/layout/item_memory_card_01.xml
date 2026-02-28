@@ -1,0 +1,71 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="24dp">
+
+    <!-- 카드 배경 -->
+    <ImageView
+        android:id="@+id/card_bg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/card_bg_instant" />
+
+    <!-- 사진 (즉석사진 영역) -->
+    <ImageView
+        android:id="@+id/card_image"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="36dp"
+        android:scaleType="centerCrop" />
+
+    <!-- 문구 -->
+    <TextView
+        android:id="@+id/card_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginTop="270dp"
+        android:text="언젠가 너와 다시 오고 싶은 장소"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="#333333" />
+
+    <!-- 주소 -->
+    <TextView
+        android:id="@+id/card_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="302dp"
+        android:text="경기도 광명시 소하로 10"
+        android:textSize="13sp"
+        android:textColor="#666666" />
+
+    <!-- 날짜 -->
+    <TextView
+        android:id="@+id/card_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="326dp"
+        android:text="2026.01.24"
+        android:textSize="12sp"
+        android:textColor="#999999" />
+
+    <!-- 워터마크 -->
+    <TextView
+        android:id="@+id/card_watermark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="24dp"
+        android:text="Here With You"
+        android:textSize="12sp"
+        android:textColor="#AAAAAA" />
+
+</FrameLayout>

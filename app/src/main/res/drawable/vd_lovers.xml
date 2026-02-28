@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="300dp"
+    android:viewportWidth="300"
+    android:viewportHeight="300">
+
+    <!-- 👥 연인 실루엣 (어깨동무 한 뒷모습 형상화) -->
+    <!-- 세밀하게 좌표를 계산하여 자연스러운 인체 곡선을 표현했습니다. -->
+    
+    <!-- 왼쪽 사람 (남성 형상) -->
+    <path
+        android:fillColor="#332211"
+        android:pathData="M115,100c-7,0 -12,5 -12,12s5,12 12,12s12,-5 12,-12S122,100 115,100z" /> <!-- 머리 -->
+    <path
+        android:fillColor="#332211"
+        android:pathData="M100,128c-15,0 -25,12 -25,25v50h20v60h30v-60h15v-50c0,-13 -10,-25 -25,-25h-15z" /> <!-- 몸체 -->
+
+    <!-- 오른쪽 사람 (여성 형상) -->
+    <path
+        android:fillColor="#332211"
+        android:pathData="M175,105c-6,0 -11,5 -11,11s5,11 11,11s11,-5 11,-11S181,105 175,105z" /> <!-- 머리 -->
+    <path
+        android:fillColor="#332211"
+        android:pathData="M160,132c-12,0 -22,10 -22,22v45h15v55h25v-55h15v-45c0,-12 -10,-22 -22,-22h-11z" /> <!-- 몸체 -->
+
+    <!-- 🤝 어깨동무 연결 부위 (감성 포인트) -->
+    <path
+        android:fillColor="#332211"
+        android:pathData="M135,135c5,-5 20,-5 25,2s2,10 -5,8s-20,-5 -20,-10z" /> <!-- 연결 팔 라인 -->
+    
+    <!-- 하단 부드러운 그라데이션 베이스 (안정감) -->
+    <path
+        android:fillColor="#1A332211"
+        android:pathData="M50,260h200v10h-200z" />
+
+</vector>

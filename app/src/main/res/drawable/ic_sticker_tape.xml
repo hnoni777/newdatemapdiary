@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp" android:height="40dp"
+    android:viewportWidth="120" android:viewportHeight="40">
+    <!-- Semi-transparent beige masking tape with torn edges -->
+    <path
+        android:fillColor="#99F5E6D3"
+        android:pathData="M4,4 L116,2 L118,12 L115,22 L119,30 L115,38 L5,36 L2,28 L6,18 L1,10 Z" />
+    <path
+        android:fillColor="#33000000"
+        android:pathData="M4,4 L116,2 L118,5 L5,5 Z" />
+</vector>

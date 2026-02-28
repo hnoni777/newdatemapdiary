@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HereWithYou</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Playfair+Display:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec136d",
+                        "background-light": "#f8f6f7",
+                        "background-dark": "#221018",
+                        "gold-start": "#d4af37",
+                        "gold-end": "#f2d06b",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"],
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Custom Gold Gradient Button */
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37 0%, #f2d06b 50%, #d4af37 100%);
+            background-size: 200% auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+        .btn-gold:hover {
+            background-position: right center;
+        }
+
+        /* Ambient Glow */
+        .ambient-glow {
+            background: radial-gradient(circle at 50% 50%, rgba(236, 19, 109, 0.15), transparent 70%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display antialiased selection:bg-primary selection:text-white overflow-hidden relative">
+<!-- Ambient Background Elements -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden">
+<div class="absolute top-[-10%] left-[-20%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] opacity-40"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-gold-start/10 rounded-full blur-[80px] opacity-30"></div>
+</div>
+<main class="relative z-10 flex flex-col items-center justify-center flex-grow p-6 w-full max-w-md mx-auto h-full min-h-screen">
+<!-- Glassmorphic Card Container -->
+<div class="glass-card w-full rounded-2xl p-8 flex flex-col items-center justify-center gap-8 animate-fade-in-up">
+<!-- Icon/Illustration Area -->
+<div class="relative w-32 h-32 flex items-center justify-center mb-2">
+<div class="absolute inset-0 bg-gradient-to-tr from-gold-start/20 to-primary/20 rounded-full blur-xl"></div>
+<div class="relative z-10 p-4 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm shadow-xl">
+<span class="material-symbols-outlined text-[64px] text-transparent bg-clip-text bg-gradient-to-br from-gold-end to-gold-start drop-shadow-sm" style="font-variation-settings: 'FILL' 1, 'wght' 200, 'GRAD' 0, 'opsz' 48;">
+                        favorite
+                    </span>
+<span class="material-symbols-outlined absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[32px] text-white/90 drop-shadow-md" style="font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;">
+                        location_on
+                    </span>
+</div>
+</div>
+<!-- Text Content -->
+<div class="text-center space-y-3">
+<h1 class="text-4xl md:text-5xl font-serif font-medium text-slate-900 dark:text-white tracking-tight">
+                    HereWithYou
+                </h1>
+<div class="h-px w-12 bg-gradient-to-r from-transparent via-gold-start to-transparent mx-auto opacity-50 my-4"></div>
+<p class="text-sm md:text-base font-light text-slate-600 dark:text-slate-300 leading-relaxed tracking-wide px-4">
+                    모든 기억이 자리를 찾는 곳<br/>
+<span class="text-xs opacity-60 mt-1 block">Where every memory finds its place</span>
+</p>
+</div>
+<!-- Spacer -->
+<div class="h-4"></div>
+<!-- CTA Button -->
+<button class="w-full group relative flex items-center justify-center btn-gold text-slate-900 font-bold py-4 px-8 rounded-full shadow-lg transition-transform active:scale-95">
+<span class="mr-2 tracking-wide">첫 번째 추억 남기기</span>
+<span class="material-symbols-outlined text-xl transition-transform group-hover:translate-x-1">
+                    arrow_forward
+                </span>
+</button>
+</div>
+<!-- Footer / Simple Nav dots indicator -->
+<div class="mt-8 flex gap-2">
+<div class="w-2 h-2 rounded-full bg-gold-end"></div>
+<div class="w-2 h-2 rounded-full bg-white/20"></div>
+<div class="w-2 h-2 rounded-full bg-white/20"></div>
+</div>
+<!-- Bottom Image Grid Suggestion (Subtle background element) -->
+<div class="absolute bottom-0 left-0 w-full h-32 opacity-10 pointer-events-none mask-image-gradient-to-t">
+<div class="grid grid-cols-4 gap-2 px-4">
+<div class="aspect-[3/4] rounded-lg bg-cover bg-center" data-alt="Couple holding hands at sunset silhouette" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAUR2kEWvmx9Mft0WfTa_F4_Gy42_6Hh_WbV5NA2O6D7lGFX_SRDKt4UjAHKBL9pIGjWLVZPgnXeaH9ogAd1J5O6QlafsKlBLqYewulL3wLBTJkXS_Uq8UNbn_jS3g5M-XSDm_zhJKS7tcqS8S0tRueGL3wsHJd8HR_mCX-jQWFahUkymFozhUwZ34Aou1O2fyzehYykcbWYWMO5mVfA3o8ieXNow9qZM7ov6rfXlT4wqifQjxG1UOECWje7aA6FFlnVy99hUBqyZA");'></div>
+<div class="aspect-[3/4] rounded-lg bg-cover bg-center translate-y-4" data-alt="Map and compass on wooden table travel concept" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDEnzUdiwT0ey_rNMZFyOBWbZOhDz6lQpn2JbbR5iDWzUNc7_Yam8O84tbCahkEC6IyxZo_fraXVl4z3Dr7yTKgkpFWitL1vB6OY1KVV2SyF1nLj-v3OLOQNBuMBbrhvsToIkyBeYU3S1fUwZ8dxhxjroou3jeXnw4n8u198QjjKIIU2QtIpxKilsm37_DOQipkNk3t-ZKCs53ogPdRqJKf_ZoXot-MkWqHFPPpiP51oV7jUGZ7XKhzQLyZmtng499Jaxq67v6GKLc");'></div>
+<div class="aspect-[3/4] rounded-lg bg-cover bg-center" data-alt="Two gold wedding rings on white surface" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC0vJd9NcuxF0CsjnajxRMR9JDMZcLvgC86ISthz_lwQMoBxy1PlgvKVJeXMM0Cg-HqHxIyrJNttC_K1YSNpOqKSCWPcRYeebsWerYttX60S1IlW29tTO8Gj9R8JP90P-9l5a1wuUZs424N2yfNm6Zm2EB8aF_533dMONGVBERuKRBitmjCK1XVmhOj4zbNBUh2bY2YTopSOfn1QZ5vQq6nC8vyW3Bdlze--NWfJ47ptBhZR2spiiyRlbgXXF66wKTtxLmIkjl2y1M");'></div>
+<div class="aspect-[3/4] rounded-lg bg-cover bg-center translate-y-6" data-alt="Polaroid photos hanging on a string with lights" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDtoOeIJE4_2u72L-9eKDdLUgtb6ntR9q-ErSMqnaI0aNf6z_F8pomddViTnBVmHU7lE9rJTbf5nRDIt2f6mjeXRe1WgRiwp4Ywf4Vfwncm2pPZZcfRBhrTWgP7Q6qVahzPOGDvng7nIdhbX0eiQngp0FV3u5EfMtPXTHbYnaCCc7pxWEN7nOz8gskDtkVTUdbhj3rc4_27jK4H-mXaRORhrbTxo1D1KMdrvsovf9vCB6gpPtZa7WK2RcnrKR26RwHmnCJB-fTs2H4");'></div>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark to-transparent"></div>
+</div>
+</main>
+</body></html>
