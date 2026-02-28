@@ -340,17 +340,20 @@ class MainActivity : AppCompatActivity() {
         cardView.findViewById<TextView>(R.id.card_address).text = deepLinkAddress
         cardView.findViewById<TextView>(R.id.card_date).text = ""
 
-        // 🚀 Overlay text onto the image
+        // 🚀 Overlay text onto the image (Chalk style on Polaroid)
         val imageContainer = cardView.findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.card_image_container)
         val overlayText = TextView(this).apply {
-            text = "추억의 장소를\n앱에서 확인하기 🗺️"
+            text = "추억의 장소를\n맵에서 확인하세요 ✍️"
             setTextColor(Color.WHITE)
-            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 18f)
-            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16f)
+            // Use the handwriting font for a chalk/pencil feel
+            try {
+                typeface = androidx.core.content.res.ResourcesCompat.getFont(this@MainActivity, R.font.kyobo_hand_family)
+            } catch (e: Exception) {
+                setTypeface(null, android.graphics.Typeface.ITALIC)
+            }
             gravity = android.view.Gravity.CENTER
-            setPadding(32, 16, 32, 16)
-            setBackgroundResource(R.drawable.bg_gold_pill_button)
-            backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#CC221018"))
+            rotation = -6f // 📐 Tilt to match the Polaroid in the casual image
             
             layoutParams = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams(
                 androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT,
@@ -359,7 +362,7 @@ class MainActivity : AppCompatActivity() {
                 bottomToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
                 startToStart = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
                 endToEnd = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-                bottomMargin = 64
+                bottomMargin = 100 // Adjusted for best fit on the polaroid area
             }
         }
         imageContainer.addView(overlayText)
