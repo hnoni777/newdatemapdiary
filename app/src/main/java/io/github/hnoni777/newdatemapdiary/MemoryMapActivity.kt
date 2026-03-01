@@ -55,9 +55,9 @@ class MemoryMapActivity : AppCompatActivity() {
                     val memoryId = label.tag as? Long
                     val clickedMemory = memories.find { it.id == memoryId }
                     if (clickedMemory != null) {
-                        val key = "${String.format(Locale.US, "%.4f", clickedMemory.lat)}_${String.format(Locale.US, "%.4f", clickedMemory.lng)}"
+                        val key = clickedMemory.address
                         val group = memories.filter { 
-                            "${String.format(Locale.US, "%.4f", it.lat)}_${String.format(Locale.US, "%.4f", it.lng)}" == key 
+                            it.address == key 
                         }
                         showMemoryCardDialog(group)
                     }
@@ -89,7 +89,7 @@ class MemoryMapActivity : AppCompatActivity() {
 
         val boundsBuilder = com.kakao.vectormap.LatLngBounds.Builder()
 
-        val groups = memories.groupBy { "${String.format(Locale.US, "%.4f", it.lat)}_${String.format(Locale.US, "%.4f", it.lng)}" }
+        val groups = memories.groupBy { it.address }
 
         groups.values.forEach { group ->
             val rep = group.first()
