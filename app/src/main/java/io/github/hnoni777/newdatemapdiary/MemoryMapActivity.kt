@@ -55,7 +55,11 @@ class MemoryMapActivity : AppCompatActivity() {
                     val memoryId = label.tag as? Long
                     val clickedMemory = memories.find { it.id == memoryId }
                     if (clickedMemory != null) {
-                        showMemoryCardDialog(clickedMemory)
+                        val key = "${String.format(Locale.US, "%.4f", clickedMemory.lat)}_${String.format(Locale.US, "%.4f", clickedMemory.lng)}"
+                        val group = memories.filter { 
+                            "${String.format(Locale.US, "%.4f", it.lat)}_${String.format(Locale.US, "%.4f", it.lng)}" == key 
+                        }
+                        showMemoryCardDialog(group)
                     }
                     true
                 }
@@ -85,14 +89,17 @@ class MemoryMapActivity : AppCompatActivity() {
 
         val boundsBuilder = com.kakao.vectormap.LatLngBounds.Builder()
 
-        memories.forEach { memory ->
-            val pos = LatLng.from(memory.lat, memory.lng)
+        val groups = memories.groupBy { "${String.format(Locale.US, "%.4f", it.lat)}_${String.format(Locale.US, "%.4f", it.lng)}" }
+
+        groups.values.forEach { group ->
+            val rep = group.first()
+            val pos = LatLng.from(rep.lat, rep.lng)
             boundsBuilder.include(pos)
             
             layer?.addLabel(
                 LabelOptions.from(pos)
                     .setStyles(styles)
-                    .setTag(memory.id)
+                    .setTag(rep.id)
             )
         }
 
@@ -101,38 +108,31 @@ class MemoryMapActivity : AppCompatActivity() {
         }
     }
 
-    private fun showMemoryCardDialog(memory: Memory) {
+    private fun showMemoryCardDialog(groupItems: List<Memory>) {
         val dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.dialog_memory_card, null)
-        val container = view.findViewById<FrameLayout>(R.id.dialog_card_container)
+        val pager = view.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.dialog_card_pager)
+        val indicator = view.findViewById<TextView>(R.id.text_page_indicator)
         
-        val cardView = layoutInflater.inflate(R.layout.item_memory_card_04, container, false)
+        pager.adapter = MemoryPagerAdapter(groupItems)
         
-        val imgView = cardView.findViewById<ImageView>(R.id.card_image)
-        try {
-            imgView.setImageURI(Uri.parse(memory.photoUri))
-        } catch (e: Exception) {
-            imgView.setImageResource(R.drawable.bg_invitation)
+        if (groupItems.size > 1) {
+            indicator.visibility = View.VISIBLE
+            indicator.text = "1 / ${groupItems.size} 장의 추억"
+            
+            pager.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    indicator.text = "${position + 1} / ${groupItems.size} 장의 추억"
+                }
+            })
+        } else {
+            indicator.visibility = View.GONE
         }
         
-        imgView.scaleType = ImageView.ScaleType.FIT_CENTER
-        imgView.adjustViewBounds = true
-        val lp = imgView.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
-        lp.width = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_PARENT
-        lp.height = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT
-        lp.dimensionRatio = null
-        imgView.layoutParams = lp
-
-        cardView.findViewById<TextView>(R.id.card_message).text = "우리의 소중한 추억 💌"
-        cardView.findViewById<TextView>(R.id.card_address).text = memory.address
-        cardView.findViewById<TextView>(R.id.card_date).text = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(Date(memory.date))
-        
-        container.addView(cardView)
         dialog.setContentView(view)
         
         (view.parent as? View)?.setBackgroundColor(Color.TRANSPARENT)
         
-        // Force the bottom sheet to expand fully so tall cards aren't cut off
         val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
         if (bottomSheet != null) {
             val behavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet)
@@ -143,6 +143,99 @@ class MemoryMapActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    inner class MemoryPagerAdapter(private val items: List<Memory>) : androidx.recyclerview.widget.RecyclerView.Adapter<MemoryPagerAdapter.MemoryViewHolder>() {
+        inner class MemoryViewHolder(view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
+            val imgView: ImageView = view.findViewById(R.id.card_image)
+            val qrView: ImageView = view.findViewById(R.id.card_qr_code)
+            val msgText: TextView = view.findViewById(R.id.card_message)
+            val addrText: TextView = view.findViewById(R.id.card_address)
+            val dateText: TextView = view.findViewById(R.id.card_date)
+            
+            fun bind(memory: Memory) {
+                try {
+                    imgView.setImageURI(Uri.parse(memory.photoUri))
+                } catch (e: Exception) {
+                    imgView.setImageResource(R.drawable.bg_invitation)
+                }
+                
+                imgView.scaleType = ImageView.ScaleType.FIT_CENTER
+                imgView.adjustViewBounds = true
+                val lp = imgView.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+                lp.width = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_PARENT
+                lp.height = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT
+                lp.dimensionRatio = null
+                imgView.layoutParams = lp
+
+                msgText.text = "우리의 소중한 추억 💌"
+                addrText.text = memory.address
+                dateText.text = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(Date(memory.date))
+                
+                // Add QR Code dynamically
+                try {
+                    val shortLat = String.format(Locale.US, "%.6f", memory.lat)
+                    val shortLng = String.format(Locale.US, "%.6f", memory.lng)
+                    val shortAddr = if (memory.address.length > 20) memory.address.substring(0, 20) else memory.address
+                    val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
+                    val link = "https://hnoni777.github.io/newdatemapdiary/share?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
+                    val qrBitmap = generateQRCodeLocally(link)
+                    if (qrBitmap != null) {
+                        qrView.setImageBitmap(qrBitmap)
+                        qrView.visibility = View.VISIBLE
+                    } else {
+                        qrView.visibility = View.GONE
+                    }
+                } catch (e: Exception) {
+                    qrView.visibility = View.GONE
+                }
+            }
+        }
+
+        override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): MemoryViewHolder {
+            val view = layoutInflater.inflate(R.layout.item_memory_card_04, parent, false)
+            val scrollView = androidx.core.widget.NestedScrollView(this@MemoryMapActivity).apply {
+                layoutParams = android.view.ViewGroup.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                addView(view)
+            }
+            return MemoryViewHolder(scrollView)
+        }
+
+        override fun onBindViewHolder(holder: MemoryViewHolder, position: Int) {
+            holder.bind(items[position])
+        }
+
+        override fun getItemCount() = items.size
+    }
+
+    private fun generateQRCodeLocally(url: String): Bitmap? {
+        return try {
+            val writer = com.google.zxing.qrcode.QRCodeWriter()
+            val hints = mapOf(
+                com.google.zxing.EncodeHintType.MARGIN to 1,
+                com.google.zxing.EncodeHintType.CHARACTER_SET to "UTF-8"
+            ) 
+            val bitMatrix = writer.encode(
+                url,
+                com.google.zxing.BarcodeFormat.QR_CODE,
+                256,
+                256,
+                hints
+            )
+            val width = bitMatrix.width
+            val height = bitMatrix.height
+            val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    bmp.setPixel(x, y, if (bitMatrix.get(x, y)) Color.BLACK else Color.TRANSPARENT)
+                }
+            }
+            bmp
+        } catch (e: Exception) {
+            null
+        }
+    }
     private fun vectorToBitmap(resId: Int): Bitmap {
         val drawable = ContextCompat.getDrawable(this, resId) ?: return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
         val bitmap = Bitmap.createBitmap(

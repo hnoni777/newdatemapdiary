@@ -16,15 +16,24 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="24dp" />
 
-    <androidx.core.widget.NestedScrollView
+    <TextView
+        android:id="@+id/text_page_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/bg_gold_pill_button"
+        android:backgroundTint="#99221018"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="4dp"
+        android:fontFamily="@font/kyobo_hand_family"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/dialog_card_pager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        
-        <FrameLayout
-            android:id="@+id/dialog_card_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-            
-    </androidx.core.widget.NestedScrollView>
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
