@@ -325,6 +325,7 @@ class MainActivity : AppCompatActivity() {
         if(photoUri != null) {
             imgView.setImageURI(photoUri)
             imgView.scaleType = ImageView.ScaleType.CENTER_CROP
+            (imgView.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams).dimensionRatio = "H,4:5"
             cardView.findViewById<TextView>(R.id.card_message).text = "오늘의 로맨틱한 순간"
             cardView.findViewById<TextView>(R.id.card_address).text = addressText.text
             cardView.findViewById<TextView>(R.id.card_date).text =
@@ -332,7 +333,8 @@ class MainActivity : AppCompatActivity() {
         } else {
             // 빈 사진일 경우 다꾸 초대장 이미지를 플레이스홀더로 사용
             imgView.setImageResource(R.drawable.bg_invitation)
-            imgView.scaleType = ImageView.ScaleType.CENTER_CROP
+            imgView.scaleType = ImageView.ScaleType.FIT_CENTER
+            (imgView.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams).dimensionRatio = "H,1:1"
             cardView.findViewById<TextView>(R.id.card_message).text = ""
             cardView.findViewById<TextView>(R.id.card_address).text = addressText.text
             cardView.findViewById<TextView>(R.id.card_date).text = ""
@@ -353,7 +355,8 @@ class MainActivity : AppCompatActivity() {
 
         val imgView = cardView.findViewById<ImageView>(R.id.card_image)
         imgView.setImageResource(R.drawable.bg_invitation)
-        imgView.setScaleType(ImageView.ScaleType.CENTER_CROP)
+        imgView.scaleType = ImageView.ScaleType.FIT_CENTER
+        (imgView.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams).dimensionRatio = "H,1:1"
 
         cardView.findViewById<TextView>(R.id.card_message).text = ""
         cardView.findViewById<TextView>(R.id.card_address).text = deepLinkAddress
