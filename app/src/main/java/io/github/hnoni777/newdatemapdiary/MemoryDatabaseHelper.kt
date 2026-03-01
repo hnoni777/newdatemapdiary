@@ -85,4 +85,9 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
         val db = this.writableDatabase
         return db.delete(TABLE_MEMORIES, "$COLUMN_ID = ?", arrayOf(id.toString())) > 0
     }
+
+    fun deleteMemoryByUri(uriStr: String): Boolean {
+        val db = this.writableDatabase
+        return db.delete(TABLE_MEMORIES, "$COLUMN_PHOTO_URI = ?", arrayOf(uriStr)) > 0
+    }
 }

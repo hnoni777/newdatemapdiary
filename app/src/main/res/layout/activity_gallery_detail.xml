@@ -23,6 +23,17 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/white" />
 
+    <ImageButton
+        android:id="@+id/btn_delete_gallery"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_delete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#FF4D4D" />
+
     <!-- 🖼️ Scrollable Content (To prevent overlap) -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

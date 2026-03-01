@@ -34,6 +34,34 @@ class GalleryDetailActivity : AppCompatActivity() {
             binding.btnShareImage.setOnClickListener {
                 shareImage(uri)
             }
+
+            val dbHelper = MemoryDatabaseHelper(this)
+            findViewById<android.widget.ImageButton>(R.id.btn_delete_gallery).setOnClickListener {
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("추억 삭제")
+                    .setMessage("이 추억 카드(사진과 지도 핀)를 정말 지우시겠습니까?\n한 번 삭제하면 되돌릴 수 없습니다.")
+                    .setPositiveButton("삭제") { _, _ ->
+                        try {
+                            // 1. Delete from MediaStore (Gallery)
+                            val deletedRows = contentResolver.delete(uri, null, null)
+                            
+                            // 2. Delete from MemoryMap Database
+                            dbHelper.deleteMemoryByUri(imageUriString)
+                            
+                            if (deletedRows > 0) {
+                                android.widget.Toast.makeText(this, "추억이 삭제되었습니다.", android.widget.Toast.LENGTH_SHORT).show()
+                                finish()
+                            } else {
+                                android.widget.Toast.makeText(this, "사진 삭제에 실패했습니다.", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            android.util.Log.e("GalleryDetail", "Failed to delete image: ${e.message}")
+                            android.widget.Toast.makeText(this, "사진 삭제 권한이 없거나 오류가 발생했습니다.", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    .setNegativeButton("취소", null)
+                    .show()
+            }
         }
 
         binding.btnBack.setOnClickListener {

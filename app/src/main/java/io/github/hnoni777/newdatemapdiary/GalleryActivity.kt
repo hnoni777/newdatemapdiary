@@ -24,11 +24,16 @@ class GalleryActivity : AppCompatActivity() {
 
         setupGallery()
         setupCalendar()
-        loadSavedImages()
 
         binding.btnBack.setOnClickListener {
             onBackPressed()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh the gallery list when returning (e.g., after deleting an image)
+        loadSavedImages()
     }
 
     private fun setupGallery() {
