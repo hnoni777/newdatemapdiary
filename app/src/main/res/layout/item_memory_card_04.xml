@@ -110,36 +110,57 @@
                         android:textColor="#666666" />
                 </LinearLayout>
 
-                <!-- 📅 Date and Branding (Minimal Footer) -->
-                <RelativeLayout
+                <!-- 📅 Date, Branding, and QR Code Footer -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp">
+                    android:layout_marginTop="32dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:baselineAligned="false">
 
-                    <TextView
-                        android:id="@+id/card_date"
-                        android:layout_width="wrap_content"
+                    <!-- Left: Date and Watermark -->
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:text="2026.02.25"
-                        android:textSize="13sp"
-                        android:textColor="#999999"
-                        android:fontFamily="@font/kyobo_hand_family"
-                        android:letterSpacing="0.1" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/card_watermark"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:text="HereWithYou"
-                        android:textStyle="italic|bold"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/kyobo_hand_family"
-                        android:textColor="#D4AF37"
-                        android:alpha="0.8"
-                        android:letterSpacing="0.05" />
-                </RelativeLayout>
+                        <TextView
+                            android:id="@+id/card_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2026.02.25"
+                            android:textSize="13sp"
+                            android:textColor="#999999"
+                            android:fontFamily="@font/kyobo_hand_family"
+                            android:letterSpacing="0.1" />
+
+                        <TextView
+                            android:id="@+id/card_watermark"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="HereWithYou"
+                            android:textStyle="italic|bold"
+                            android:textSize="14sp"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/kyobo_hand_family"
+                            android:textColor="#D4AF37"
+                            android:alpha="0.8"
+                            android:letterSpacing="0.05" />
+                    </LinearLayout>
+
+                    <!-- Right: QR Code -->
+                    <ImageView
+                        android:id="@+id/card_qr_code"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:layout_marginStart="16dp"
+                        android:background="@android:color/white"
+                        android:padding="2dp"
+                        android:visibility="gone"
+                        android:scaleType="fitCenter" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 

@@ -411,32 +411,14 @@ class CardEditorActivity : AppCompatActivity() {
             
             val link = "https://hnoni777.github.io/newdatemapdiary/share?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
             val qrBitmap = generateQRCode(link)
-            if (qrBitmap != null) {
-                val stickerLayer = cardView.findViewById<FrameLayout>(R.id.sticker_container) ?: return
-                
-                val qrView = ImageView(this).apply {
-                    id = View.generateViewId()
-                    setImageBitmap(qrBitmap)
-                    // High contrast white backing
-                    setBackgroundColor(Color.WHITE)
-                    setPadding(
-                        (4 * resources.displayMetrics.density).toInt(),
-                        (4 * resources.displayMetrics.density).toInt(),
-                        (4 * resources.displayMetrics.density).toInt(),
-                        (4 * resources.displayMetrics.density).toInt()
-                    )
-                    // 📏 Increased size for better focus
-                    val size = (64 * resources.displayMetrics.density).toInt()
-                    val params = FrameLayout.LayoutParams(size, size).apply {
-                        gravity = android.view.Gravity.TOP or android.view.Gravity.END
-                        rightMargin = (16 * resources.displayMetrics.density).toInt()
-                        topMargin = (16 * resources.displayMetrics.density).toInt()
-                    }
-                    layoutParams = params
-                    tag = "QR_STAMP"
-                }
-                stickerLayer.addView(qrView)
-                Log.d("QR_CODE", "Optimized QR Added: $link")
+            
+            val qrView = cardView.findViewById<ImageView>(R.id.card_qr_code)
+            if (qrBitmap != null && qrView != null) {
+                qrView.setImageBitmap(qrBitmap)
+                qrView.visibility = View.VISIBLE
+                Log.d("QR_CODE", "Optimized QR Added to layout: $link")
+            } else if (qrView != null) {
+                qrView.visibility = View.INVISIBLE
             }
         } catch (e: Exception) {
             Log.e("QR_CODE", "Failed to add QR", e)
