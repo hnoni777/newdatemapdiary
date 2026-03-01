@@ -132,6 +132,14 @@ class MemoryMapActivity : AppCompatActivity() {
         
         (view.parent as? View)?.setBackgroundColor(Color.TRANSPARENT)
         
+        // Force the bottom sheet to expand fully so tall cards aren't cut off
+        val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+        if (bottomSheet != null) {
+            val behavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet)
+            behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+            behavior.skipCollapsed = true
+        }
+        
         dialog.show()
     }
 

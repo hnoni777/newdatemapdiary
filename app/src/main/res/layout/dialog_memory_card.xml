@@ -16,9 +16,15 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="24dp" />
 
-    <FrameLayout
-        android:id="@+id/dialog_card_container"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
+        
+        <FrameLayout
+            android:id="@+id/dialog_card_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+            
+    </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>
