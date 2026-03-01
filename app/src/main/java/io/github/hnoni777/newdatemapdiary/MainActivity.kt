@@ -38,7 +38,20 @@ class MainActivity : AppCompatActivity() {
     private var photoUri: Uri? = null
 
     private val REQ_LOCATION = 100
+    private val REQ_CAMERA = 200
     private val KAKAO_REST_KEY = "83aa83329de094b2cf52a2e8a34206fa"
+
+    private lateinit var cameraUri: Uri
+    private val cameraLauncher =
+        registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                photoUri = cameraUri
+                showCardPreview()
+                Toast.makeText(this, "사진 촬영 완료!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "사진 촬영 취소", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     private var currentLat: Double = 0.0
     private var currentLng: Double = 0.0
@@ -109,9 +122,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupButtons() {
-        findViewById<View>(R.id.btn_retry).setOnClickListener {
-            startActivity(Intent(this, IntroActivity::class.java))
-            finish()
+        findViewById<View>(R.id.btn_camera).setOnClickListener {
+            checkCameraPermissionAndOpen()
         }
 
         findViewById<View>(R.id.btn_save_photo).setOnClickListener {
@@ -134,7 +146,7 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.btn_create_card).setOnClickListener {
             if (photoUri == null) {
-                Toast.makeText(this, "사진을 먼저 촬영해주세요", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "위의 📸 카메라 버튼을 눌러 사진을 먼저 촬영해주세요!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             val intent = Intent(this, CardEditorActivity::class.java).apply {
@@ -312,12 +324,19 @@ class MainActivity : AppCompatActivity() {
         val imgView = cardView.findViewById<ImageView>(R.id.card_image)
         if(photoUri != null) {
             imgView.setImageURI(photoUri)
+            imgView.scaleType = ImageView.ScaleType.CENTER_CROP
+            cardView.findViewById<TextView>(R.id.card_message).text = "오늘의 로맨틱한 순간"
+            cardView.findViewById<TextView>(R.id.card_address).text = addressText.text
+            cardView.findViewById<TextView>(R.id.card_date).text =
+                SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(Date())
+        } else {
+            // 빈 사진일 경우 다꾸 초대장 이미지를 플레이스홀더로 사용
+            imgView.setImageResource(R.drawable.bg_invitation)
+            imgView.scaleType = ImageView.ScaleType.CENTER_CROP
+            cardView.findViewById<TextView>(R.id.card_message).text = ""
+            cardView.findViewById<TextView>(R.id.card_address).text = addressText.text
+            cardView.findViewById<TextView>(R.id.card_date).text = ""
         }
-
-        cardView.findViewById<TextView>(R.id.card_message).text = "오늘의 로맨틱한 순간"
-        cardView.findViewById<TextView>(R.id.card_address).text = addressText.text
-        cardView.findViewById<TextView>(R.id.card_date).text =
-            SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(Date())
 
         container.addView(cardView)
     }
@@ -369,12 +388,32 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (requestCode == REQ_LOCATION &&
-            grantResults.isNotEmpty() &&
-            grantResults[0] == PackageManager.PERMISSION_GRANTED
-        ) {
-            startMap()
+        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            when (requestCode) {
+                REQ_LOCATION -> startMap()
+                REQ_CAMERA -> openCamera()
+            }
+        } else {
+            if (requestCode == REQ_CAMERA) {
+                Toast.makeText(this, "카메라 권한이 필요합니다", Toast.LENGTH_SHORT).show()
+            }
         }
+    }
+
+    // 🔐 카메라 권한 체크
+    private fun checkCameraPermissionAndOpen() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            openCamera()
+        } else {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), REQ_CAMERA)
+        }
+    }
+
+    // 📸 카메라 실행
+    private fun openCamera() {
+        val photoFile = java.io.File.createTempFile("photo_", ".jpg", cacheDir)
+        cameraUri = androidx.core.content.FileProvider.getUriForFile(this, "${packageName}.fileprovider", photoFile)
+        cameraLauncher.launch(cameraUri)
     }
 
     private fun startMap() {
