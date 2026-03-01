@@ -169,62 +169,52 @@ class MemoryMapActivity : AppCompatActivity() {
     }
 
     inner class MemoryPagerAdapter(private val items: List<Memory>) : androidx.recyclerview.widget.RecyclerView.Adapter<MemoryPagerAdapter.MemoryViewHolder>() {
-        inner class MemoryViewHolder(view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
-            val imgView: ImageView = view.findViewById(R.id.card_image)
-            val qrView: ImageView = view.findViewById(R.id.card_qr_code)
-            val msgText: TextView = view.findViewById(R.id.card_message)
-            val addrText: TextView = view.findViewById(R.id.card_address)
-            val dateText: TextView = view.findViewById(R.id.card_date)
-            
+        
+        inner class MemoryViewHolder(view: View, val imgView: ImageView) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
             fun bind(memory: Memory) {
                 try {
+                    // Use Glide for safe mapping image loading if possible, or setImageURI
                     imgView.setImageURI(Uri.parse(memory.photoUri))
                 } catch (e: Exception) {
                     imgView.setImageResource(R.drawable.bg_invitation)
-                }
-                
-                imgView.scaleType = ImageView.ScaleType.FIT_CENTER
-                imgView.adjustViewBounds = true
-                val lp = imgView.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
-                lp.width = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_PARENT
-                lp.height = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT
-                lp.dimensionRatio = null
-                imgView.layoutParams = lp
-
-                msgText.text = "우리의 소중한 추억 💌"
-                addrText.text = memory.address
-                dateText.text = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(Date(memory.date))
-                
-                // Add QR Code dynamically
-                try {
-                    val shortLat = String.format(Locale.US, "%.6f", memory.lat)
-                    val shortLng = String.format(Locale.US, "%.6f", memory.lng)
-                    val shortAddr = if (memory.address.length > 20) memory.address.substring(0, 20) else memory.address
-                    val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
-                    val link = "https://hnoni777.github.io/newdatemapdiary/share?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
-                    val qrBitmap = generateQRCodeLocally(link)
-                    if (qrBitmap != null) {
-                        qrView.setImageBitmap(qrBitmap)
-                        qrView.visibility = View.VISIBLE
-                    } else {
-                        qrView.visibility = View.GONE
-                    }
-                } catch (e: Exception) {
-                    qrView.visibility = View.GONE
                 }
             }
         }
 
         override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): MemoryViewHolder {
-            val view = layoutInflater.inflate(R.layout.item_memory_card_04, parent, false)
-            val scrollView = androidx.core.widget.NestedScrollView(this@MemoryMapActivity).apply {
+            val context = parent.context
+            
+            val cardView = androidx.cardview.widget.CardView(context).apply {
+                layoutParams = android.view.ViewGroup.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                radius = 16f * resources.displayMetrics.density
+                cardElevation = 8f * resources.displayMetrics.density
+                setCardBackgroundColor(Color.WHITE)
+                useCompatPadding = true
+            }
+            
+            val imageView = ImageView(context).apply {
+                layoutParams = android.view.ViewGroup.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                adjustViewBounds = true
+                scaleType = ImageView.ScaleType.FIT_CENTER
+            }
+            
+            cardView.addView(imageView)
+            
+            val scrollView = androidx.core.widget.NestedScrollView(context).apply {
                 layoutParams = android.view.ViewGroup.LayoutParams(
                     android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                     android.view.ViewGroup.LayoutParams.MATCH_PARENT
                 )
-                addView(view)
+                addView(cardView)
             }
-            return MemoryViewHolder(scrollView)
+            
+            return MemoryViewHolder(scrollView, imageView)
         }
 
         override fun onBindViewHolder(holder: MemoryViewHolder, position: Int) {
@@ -232,34 +222,6 @@ class MemoryMapActivity : AppCompatActivity() {
         }
 
         override fun getItemCount() = items.size
-    }
-
-    private fun generateQRCodeLocally(url: String): Bitmap? {
-        return try {
-            val writer = com.google.zxing.qrcode.QRCodeWriter()
-            val hints = mapOf(
-                com.google.zxing.EncodeHintType.MARGIN to 1,
-                com.google.zxing.EncodeHintType.CHARACTER_SET to "UTF-8"
-            ) 
-            val bitMatrix = writer.encode(
-                url,
-                com.google.zxing.BarcodeFormat.QR_CODE,
-                256,
-                256,
-                hints
-            )
-            val width = bitMatrix.width
-            val height = bitMatrix.height
-            val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            for (x in 0 until width) {
-                for (y in 0 until height) {
-                    bmp.setPixel(x, y, if (bitMatrix.get(x, y)) Color.BLACK else Color.TRANSPARENT)
-                }
-            }
-            bmp
-        } catch (e: Exception) {
-            null
-        }
     }
     private fun vectorToBitmap(resId: Int): Bitmap {
         val drawable = ContextCompat.getDrawable(this, resId) ?: return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
