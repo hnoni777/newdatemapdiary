@@ -145,8 +145,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.btn_memory_map).setOnClickListener {
-            // TODO: Navigate to MemoryMapActivity
-            Toast.makeText(this, "🗺️ 코부장이 추억 지도를 열심히 개간 중입니다! 조금만 기다려주세요!", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, MemoryMapActivity::class.java))
         }
 
         findViewById<View>(R.id.btn_create_card).setOnClickListener {
