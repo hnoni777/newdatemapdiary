@@ -113,20 +113,45 @@ class MemoryMapActivity : AppCompatActivity() {
         val view = layoutInflater.inflate(R.layout.dialog_memory_card, null)
         val pager = view.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.dialog_card_pager)
         val indicator = view.findViewById<TextView>(R.id.text_page_indicator)
+        val btnDelete = view.findViewById<TextView>(R.id.btn_delete_memory)
+        var currentPosition = 0
         
         pager.adapter = MemoryPagerAdapter(groupItems)
         
         if (groupItems.size > 1) {
             indicator.visibility = View.VISIBLE
             indicator.text = "1 / ${groupItems.size} 장의 추억"
-            
-            pager.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    indicator.text = "${position + 1} / ${groupItems.size} 장의 추억"
-                }
-            })
         } else {
             indicator.visibility = View.GONE
+        }
+        
+        pager.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                currentPosition = position
+                if (groupItems.size > 1) {
+                    indicator.text = "${position + 1} / ${groupItems.size} 장의 추억"
+                }
+            }
+        })
+        
+        btnDelete.setOnClickListener {
+            val memoryToDelete = groupItems[currentPosition]
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("추억 삭제")
+                .setMessage("이 추억을 정말 지우시겠습니까?\n한 번 삭제하면 되돌릴 수 없습니다.")
+                .setPositiveButton("삭제") { _, _ ->
+                    val success = dbHelper.deleteMemory(memoryToDelete.id)
+                    if (success) {
+                        Toast.makeText(this, "추억이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                        
+                        // Refresh map
+                        memories = dbHelper.getAllMemories()
+                        showMemoriesOnMap()
+                    }
+                }
+                .setNegativeButton("취소", null)
+                .show()
         }
         
         dialog.setContentView(view)

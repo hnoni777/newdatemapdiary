@@ -80,4 +80,9 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
         cursor.close()
         return memories
     }
+
+    fun deleteMemory(id: Long): Boolean {
+        val db = this.writableDatabase
+        return db.delete(TABLE_MEMORIES, "$COLUMN_ID = ?", arrayOf(id.toString())) > 0
+    }
 }

@@ -16,20 +16,39 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="24dp" />
 
-    <TextView
-        android:id="@+id/text_page_indicator"
-        android:layout_width="wrap_content"
+    <FrameLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp"
-        android:textColor="#FFFFFF"
-        android:background="@drawable/bg_gold_pill_button"
-        android:backgroundTint="#99221018"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="4dp"
-        android:fontFamily="@font/kyobo_hand_family"
-        android:textSize="14sp"
-        android:visibility="gone" />
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/text_page_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/bg_gold_pill_button"
+            android:backgroundTint="#99221018"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="4dp"
+            android:fontFamily="@font/kyobo_hand_family"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/btn_delete_memory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:text="🗑️ 삭제"
+            android:textColor="#FF4D4D"
+            android:background="@drawable/bg_gold_pill_button"
+            android:backgroundTint="#99221018"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:fontFamily="@font/kyobo_hand_family"
+            android:textSize="14sp" />
+    </FrameLayout>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/dialog_card_pager"
