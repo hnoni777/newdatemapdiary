@@ -144,6 +144,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, GalleryActivity::class.java))
         }
 
+        findViewById<View>(R.id.btn_memory_map).setOnClickListener {
+            // TODO: Navigate to MemoryMapActivity
+            Toast.makeText(this, "🗺️ 코부장이 추억 지도를 열심히 개간 중입니다! 조금만 기다려주세요!", Toast.LENGTH_SHORT).show()
+        }
+
         findViewById<View>(R.id.btn_create_card).setOnClickListener {
             if (photoUri == null) {
                 Toast.makeText(this, "위의 📸 카메라 버튼을 눌러 사진을 먼저 촬영해주세요!", Toast.LENGTH_SHORT).show()

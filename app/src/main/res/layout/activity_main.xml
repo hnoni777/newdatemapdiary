@@ -29,6 +29,24 @@
             android:focusable="false" />
     </androidx.cardview.widget.CardView>
 
+    <!-- 🗺️ My Memory Map Button -->
+    <Button
+        android:id="@+id/btn_memory_map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🗺️ 내 추억지도"
+        android:backgroundTint="#99330000"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:fontFamily="@font/kyobo_hand_family"
+        android:textStyle="bold"
+        app:cornerRadius="24dp"
+        app:layout_constraintTop_toTopOf="@id/map_card"
+        app:layout_constraintStart_toStartOf="@id/map_card"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:elevation="20dp"/>
+
     <!-- 📜 Main Content Area -->
     <ScrollView
         android:layout_width="match_parent"

@@ -1481,12 +1481,28 @@ class CardEditorActivity : AppCompatActivity() {
             photoCardView?.visibility = android.view.View.VISIBLE
             Log.e("SCREENSHOT_ROUNDING", "Precision drawing failed", e)
         }
-        
         val savedUri = saveBitmapToGallery(bitmap)
+        if (savedUri != null) {
+            try {
+                // DB에 추억 저장 (내 추억지도용)
+                val dbHelper = MemoryDatabaseHelper(this)
+                val memory = Memory(
+                    photoUri = savedUri.toString(),
+                    address = address,
+                    lat = lat,
+                    lng = lng,
+                    date = System.currentTimeMillis()
+                )
+                dbHelper.insertMemory(memory)
+            } catch (e: Exception) {
+                Log.e("DB_INSERT", "내 추억지도 저장 실패", e)
+            }
+        }
+
         if (shareAfter && savedUri != null) {
             shareImage(savedUri)
         } else if(savedUri != null) {
-            Toast.makeText(this, "갤러리에 저장되었습니다", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "갤러리 및 추억지도에 저장되었습니다", Toast.LENGTH_SHORT).show()
         }
     }
 
