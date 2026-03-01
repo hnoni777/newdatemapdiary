@@ -17,6 +17,7 @@
             android:value="6cc7070982d3684fcac142f3f8f4a691" />
 
         <activity android:name=".IntroActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"
             android:exported="true">
 
             <intent-filter>
@@ -26,6 +27,7 @@
         </activity>
 
         <activity android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"
             android:exported="true">
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
@@ -41,9 +43,9 @@
                 <data android:scheme="newdatemapdiary" android:host="share" />
             </intent-filter>
         </activity>
-        <activity android:name=".GalleryActivity"/>
-        <activity android:name=".GalleryDetailActivity"/>
-        <activity android:name=".CardEditorActivity"/>
+        <activity android:name=".GalleryActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"/>
+        <activity android:name=".GalleryDetailActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"/>
+        <activity android:name=".CardEditorActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"
