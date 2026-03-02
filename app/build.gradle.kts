@@ -58,4 +58,7 @@ dependencies {
 
     // 🔗 QR Code Generation (ZXing)
     implementation("com.google.zxing:core:3.5.3")
+
+    // 🕵️ EXIF Metadata for Backup & Restore
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
 }

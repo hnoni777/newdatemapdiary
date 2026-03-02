@@ -29,6 +29,24 @@
         android:layout_marginTop="24dp"
         android:elevation="8dp"/>
 
+    <!-- 🔄 추억 동기화 (복원) 버튼 -->
+    <Button
+        android:id="@+id/btn_sync"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🔄 추억 복원"
+        android:backgroundTint="#99330000"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:fontFamily="@font/kyobo_hand_family"
+        android:textStyle="bold"
+        app:cornerRadius="24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="24dp"
+        android:elevation="8dp"/>
+
     <!-- 추억 타이틀 -->
     <TextView
         android:layout_width="wrap_content"

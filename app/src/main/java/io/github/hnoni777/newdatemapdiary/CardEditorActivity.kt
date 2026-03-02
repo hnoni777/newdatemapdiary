@@ -1463,7 +1463,7 @@ class CardEditorActivity : AppCompatActivity() {
             photoCardView?.visibility = android.view.View.VISIBLE
             Log.e("SCREENSHOT_ROUNDING", "Precision drawing failed", e)
         }
-        val savedUri = saveBitmapToGallery(bitmap)
+        val savedUri = saveBitmapToGallery(bitmap, lat, lng, address)
         if (savedUri != null) {
             try {
                 // DB에 추억 저장 (내 추억지도용)
@@ -1488,7 +1488,7 @@ class CardEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveBitmapToGallery(bitmap: Bitmap): Uri? {
+    private fun saveBitmapToGallery(bitmap: Bitmap, lat: Double, lng: Double, address: String): Uri? {
         try {
             val filename = "DateMapDiary_Card_${System.currentTimeMillis()}.png"
             val values = ContentValues().apply {
@@ -1501,6 +1501,19 @@ class CardEditorActivity : AppCompatActivity() {
             contentResolver.openOutputStream(uri)?.use { out ->
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
             }
+
+            // Exif Metadata Injector 🕵️‍♂️ (Saves local DB data into the image itself as a backup)
+            try {
+                contentResolver.openFileDescriptor(uri, "rw")?.use { pfd ->
+                    val exif = androidx.exifinterface.media.ExifInterface(pfd.fileDescriptor)
+                    val jsonMeta = "{\"lat\":$lat, \"lng\":$lng, \"addr\":\"$address\"}"
+                    exif.setAttribute(androidx.exifinterface.media.ExifInterface.TAG_USER_COMMENT, jsonMeta)
+                    exif.saveAttributes()
+                }
+            } catch (e: Exception) {
+                Log.e("EXIF", "Metadata injection failed", e)
+            }
+
             return uri
         } catch (e: Exception) {
             Log.e("SCREENSHOT", e.toString())

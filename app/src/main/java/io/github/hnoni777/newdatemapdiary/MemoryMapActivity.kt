@@ -19,6 +19,9 @@ import com.kakao.vectormap.camera.CameraUpdateFactory
 import com.kakao.vectormap.label.*
 import java.text.SimpleDateFormat
 import java.util.*
+import android.provider.MediaStore
+import android.content.ContentUris
+import org.json.JSONObject
 
 class MemoryMapActivity : AppCompatActivity() {
 
@@ -39,6 +42,10 @@ class MemoryMapActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.btn_back).setOnClickListener {
             finish()
+        }
+
+        findViewById<View>(R.id.btn_sync).setOnClickListener {
+            syncMemoriesFromGallery()
         }
 
         mapView.start(object : MapLifeCycleCallback() {
@@ -234,6 +241,79 @@ class MemoryMapActivity : AppCompatActivity() {
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)
         return bitmap
+    }
+
+    private fun syncMemoriesFromGallery() {
+        var restoredCount = 0
+        val existingUris = memories.map { it.photoUri }.toSet()
+
+        val projection = arrayOf(
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.DATE_ADDED
+        )
+        val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?"
+        val selectionArgs = arrayOf("%NewDateMapDiary%")
+
+        try {
+            contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                null
+            )?.use { cursor ->
+                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                val dateColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
+
+                while (cursor.moveToNext()) {
+                    val id = cursor.getLong(idColumn)
+                    val dateAddedSecs = cursor.getLong(dateColumn)
+                    val contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                    val uriString = contentUri.toString()
+
+                    if (!existingUris.contains(uriString)) {
+                        // DB에 없는 갤러리 이미지 발견! EXIF 정보 스캔 시도
+                        try {
+                            contentResolver.openFileDescriptor(contentUri, "r")?.use { pfd ->
+                                val exif = androidx.exifinterface.media.ExifInterface(pfd.fileDescriptor)
+                                val jsonMeta = exif.getAttribute(androidx.exifinterface.media.ExifInterface.TAG_USER_COMMENT)
+                                
+                                if (!jsonMeta.isNullOrEmpty()) {
+                                    val jsonObj = JSONObject(jsonMeta)
+                                    val lat = jsonObj.optDouble("lat", 0.0)
+                                    val lng = jsonObj.optDouble("lng", 0.0)
+                                    val addr = jsonObj.optString("addr", "알 수 없는 장소")
+
+                                    if (lat != 0.0 && lng != 0.0) {
+                                        val newMemory = Memory(
+                                            photoUri = uriString,
+                                            address = addr,
+                                            lat = lat,
+                                            lng = lng,
+                                            date = dateAddedSecs * 1000L
+                                        )
+                                        dbHelper.insertMemory(newMemory)
+                                        restoredCount++
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            Log.e("SYNC", "EXIF read error for $uriString", e)
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("SYNC", "MediaStore query error", e)
+        }
+
+        if (restoredCount > 0) {
+            Toast.makeText(this, "${restoredCount}개의 추억을 갤러리에서 복원했습니다! 🔄", Toast.LENGTH_LONG).show()
+            memories = dbHelper.getAllMemories()
+            showMemoriesOnMap()
+        } else {
+            Toast.makeText(this, "동기화 완료: 모든 추억이 이미 최신 상태입니다.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onResume() {
