@@ -377,6 +377,8 @@ class MainActivity : AppCompatActivity() {
             cardView.findViewById<TextView>(R.id.card_address).text = addressText.text
             cardView.findViewById<TextView>(R.id.card_date).text =
                 SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(Date())
+
+            updateCardQRCode(cardView, currentLat, currentLng, addressText.text.toString())
         } else {
             // 빈 사진일 경우 다꾸 초대장 이미지를 플레이스홀더로 사용
             imgView.setImageResource(R.drawable.bg_invitation)
@@ -419,6 +421,8 @@ class MainActivity : AppCompatActivity() {
         cardView.findViewById<TextView>(R.id.card_message).text = ""
         cardView.findViewById<TextView>(R.id.card_address).text = deepLinkAddress
         cardView.findViewById<TextView>(R.id.card_date).text = ""
+
+        updateCardQRCode(cardView, currentLat, currentLng, deepLinkAddress)
 
         findViewById<View>(R.id.btn_create_card).visibility = View.GONE
         container.addView(cardView)
@@ -591,5 +595,59 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mapView.finish()
+    }
+
+    // ===============================
+    // 🔍 QR Code Generation
+    // ===============================
+    private fun updateCardQRCode(cardView: View, lat: Double, lng: Double, addr: String) {
+        try {
+            val shortLat = String.format("%.6f", lat)
+            val shortLng = String.format("%.6f", lng)
+            val shortAddr = if (addr.length > 20) addr.substring(0, 20) else addr
+            val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
+            
+            val link = "https://hnoni777.github.io/newdatemapdiary/share?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
+            val qrBitmap = generateQRCode(link)
+            
+            val qrView = cardView.findViewById<ImageView>(R.id.card_qr_code)
+            if (qrBitmap != null && qrView != null) {
+                qrView.setImageBitmap(qrBitmap)
+                qrView.visibility = View.VISIBLE
+            } else if (qrView != null) {
+                qrView.visibility = View.INVISIBLE
+            }
+        } catch (e: Exception) {
+            Log.e("QR_CODE", "Failed to add QR", e)
+        }
+    }
+
+    private fun generateQRCode(url: String): Bitmap? {
+        return try {
+            val writer = com.google.zxing.qrcode.QRCodeWriter()
+            val hints = mapOf(
+                com.google.zxing.EncodeHintType.MARGIN to 1,
+                com.google.zxing.EncodeHintType.CHARACTER_SET to "UTF-8"
+            ) 
+            val bitMatrix = writer.encode(
+                url,
+                com.google.zxing.BarcodeFormat.QR_CODE,
+                512,
+                512,
+                hints
+            )
+            val width = bitMatrix.width
+            val height = bitMatrix.height
+            val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    bmp.setPixel(x, y, if (bitMatrix.get(x, y)) Color.BLACK else Color.TRANSPARENT)
+                }
+            }
+            bmp
+        } catch (e: Exception) {
+            Log.e("QR_GEN", "Error", e)
+            null
+        }
     }
 }
