@@ -4,102 +4,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HereWithYou - 특별한 추억 배달 서비스</title>
+    <title>HereWithYou - 사랑을 지도로 기록하다</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap"
+        rel="stylesheet">
     <style>
-        body {
+        :root {
+            --primary: #ec135b;
+            --bg-dark: #221018;
+            --gold: #D4AF37;
+            --text-light: #f8f6f6;
+            --soft-pink: #FFD9EC;
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #FFD9EC 0%, #FFFFFF 100%);
-            color: #221018;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            color: #333;
+            overflow: hidden;
+            background: radial-gradient(circle at center, rgba(236, 19, 91, 0.15) 0%, transparent 70%);
         }
 
-        .hero {
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(34, 16, 24, 0.4) 0%, var(--bg-dark) 100%);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
             text-align: center;
-            padding: 2rem;
-            max-width: 600px;
-        }
-
-        .logo {
-            font-size: 100px;
-            margin-bottom: 2rem;
+            max-width: 900px;
+            padding: 0 20px;
         }
 
         h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            color: #6C3082;
-            letter-spacing: -2px;
-            font-weight: 800;
+            font-family: 'Playfair Display', serif;
+            font-size: 5rem;
+            font-style: italic;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        p {
-            font-size: 1.25rem;
-            line-height: 1.6;
-            margin-bottom: 2.5rem;
-            color: #666;
+        h1 span {
+            font-style: normal;
+            font-weight: 700;
         }
 
-        .btn-group {
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--soft-pink);
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .cta-group {
             display: flex;
-            gap: 1rem;
+            gap: 20px;
             justify-content: center;
         }
 
         .btn {
-            display: inline-block;
-            background: #221018;
-            color: #fff;
-            text-decoration: none;
-            padding: 1.25rem 3rem;
+            padding: 18px 45px;
             border-radius: 50px;
-            font-weight: bold;
-            font-size: 1.2rem;
-            transition: transform 0.2s, background 0.2s;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.1rem;
+            cursor: pointer;
         }
 
-        .btn:hover {
-            background: #ec135b;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 10px 30px rgba(236, 19, 91, 0.4);
         }
 
-        .btn:active {
-            transform: scale(0.98);
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            background-color: #ff2b70;
+            box-shadow: 0 15px 40px rgba(236, 19, 91, 0.6);
         }
 
-        .footer {
-            margin-top: 5rem;
-            font-size: 0.9rem;
+        .btn-outline {
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 20px;
+            background-color: #1a0c12;
+            text-align: center;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 60px;
+            color: var(--gold);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 50px 30px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s;
+        }
+
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--primary);
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 4rem;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        .feature-item h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .feature-item p {
             color: #aaa;
+            font-size: 1rem;
+        }
+
+        /* Phone Mockup Placeholder */
+        .mockup-container {
+            margin-top: 80px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .mockup-img {
+            max-width: 450px;
+            width: 90%;
+            border-radius: 40px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+            border: 8px solid #2a2a2a;
+        }
+
+        /* Footer */
+        footer {
+            padding: 50px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3.5rem;
+            }
+
+            .cta-group {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="hero">
-        <div class="logo">💍</div>
-        <h1>HereWithYou</h1>
-        <p>세상에 단 하나뿐인 추억을 특별하게 저장하고 <br> 연인에게 선물하는 가장 낭만적인 방법</p>
 
-        <div class="btn-group">
-            <a href="https://github.com/hnoni777/newdatemapdiary" class="btn">지금 시작하기 (GITHUB)</a>
+    <section class="hero">
+        <div class="hero-content">
+            <div style="font-size: 1.2rem; margin-bottom: 15px; letter-spacing: 5px; color: var(--gold);">HERE WITH YOU
+            </div>
+            <h1>Every Date, <br> <span>a Story.</span></h1>
+            <p class="subtitle">우리가 함께한 모든 장소, 그날의 분위기까지 <br> 완벽하게 기록하고 공유하는 가장 낭만적인 방법</p>
+
+            <div class="cta-group">
+                <a href="download/HereWithU.apk" class="btn btn-primary">Download for Android (APK)</a>
+                <a href="#features" class="btn btn-outline">Explore Features</a>
+            </div>
+
+            <div class="mockup-container">
+                <div
+                    style="font-size: 150px; opacity: 0.2; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: -1;">
+                    📱</div>
+                <img src="https://raw.githubusercontent.com/wonseokjung/solopreneur-ai-agents/main/agents/youngja/assets/mockup_preview_placeholder.png"
+                    alt="App Mockup" class="mockup-img">
+            </div>
         </div>
+    </section>
 
-        <p style="margin-top: 3rem; font-size: 0.9rem; font-style: italic;">
-            "당신의 소중한 순간은 어디인가요?"
-        </p>
-    </div>
+    <section id="features" class="features">
+        <h2 class="section-title">Why HereWithYou?</h2>
+        <div class="feature-grid">
+            <div class="feature-item">
+                <span class="feature-icon">📍</span>
+                <h3>Map Your Love</h3>
+                <p>우리가 다녀간 소중한 데이트 코스를 지도 위에 하트 핀으로 남겨보세요. 한눈에 펼쳐지는 우리만의 추억 지도.</p>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">📸</span>
+                <h3>Design Your Memory</h3>
+                <p>로맨틱한 테마와 귀여운 스스티커로 폴라로이드 카드를 꾸며보세요. 그날의 일기까지 완벽하게 저장됩니다.</p>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">💌</span>
+                <h3>Share the Magic</h3>
+                <p>QR 코드 하나로 친구나 연인에게 장소를 공유하세요. 앱이 없어도 웹에서 먼저 감동을 전달할 수 있습니다.</p>
+            </div>
+        </div>
+    </section>
 
-    <div class="footer">
-        &copy; 2026 HereWithYou Project. Build with ❤️ for Lovers.
-    </div>
+    <footer>
+        <p>&copy; 2026 HereWithYou Project. Build with ❤️ for Lovers.</p>
+        <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.5;">본 서비스는 개인의 소중한 기록을 위해 제작되었습니다.</p>
+    </footer>
+
 </body>
 
 </html>

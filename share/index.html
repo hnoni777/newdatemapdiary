@@ -4,108 +4,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HereWithYou - 특별한 추억 배달 서비스</title>
+    <title>HereWithYou - 특별한 추억이 도착했습니다</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap"
+        rel="stylesheet">
     <style>
-        body {
+        :root {
+            --bg-deep: #221018;
+            --accent: #D4AF37;
+            --primary: #ec135b;
+            --text-off: rgba(255, 255, 255, 0.7);
+        }
+
+        body,
+        html {
+            height: 100%;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #1A221018 0%, #221018 100%);
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-deep);
             color: #fff;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            overflow: hidden;
+            background-image: radial-gradient(circle at top right, rgba(236, 19, 91, 0.1), transparent 50%),
+                radial-gradient(circle at bottom left, rgba(212, 175, 55, 0.05), transparent 50%);
         }
 
         .container {
+            width: 90%;
+            max-width: 420px;
             text-align: center;
-            padding: 2rem;
-            max-width: 400px;
+            padding-bottom: 2rem;
+            z-index: 10;
         }
 
-        .icon {
-            font-size: 70px;
-            margin-bottom: 1rem;
-        }
-
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 0.5rem;
-            color: #FFD9EC;
-        }
-
-        p {
-            font-size: 1rem;
-            color: #ccc;
+        header {
             margin-bottom: 2rem;
+            animation: fadeInDown 0.8s ease-out;
         }
 
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Glass Memory Card */
         .card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 1.5rem;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 30px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
             margin-bottom: 2rem;
+            animation: cardScale 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        .photo-placeholder {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #2a2a2a;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .photo-placeholder::after {
+            content: '📸';
+            font-size: 3rem;
+            opacity: 0.2;
+        }
+
+        .message-area {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+
+        .romantic-msg {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-style: italic;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .location-info {
+            font-size: 0.9rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .date-info {
+            font-size: 0.8rem;
+            color: var(--text-off);
+            margin-top: 5px;
+        }
+
+        /* Action Buttons */
         .btn {
             display: block;
             width: 100%;
             padding: 1.2rem;
             border-radius: 50px;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 1.1rem;
             text-decoration: none;
-            margin-bottom: 1rem;
-            transition: transform 0.2s;
+            transition: all 0.3s;
             border: none;
             cursor: pointer;
+            text-align: center;
+            margin-bottom: 1rem;
         }
 
         .btn-main {
-            background: #ec135b;
-            color: white;
-            box-shadow: 0 4px 15px rgba(236, 19, 91, 0.4);
+            background: linear-gradient(135deg, var(--accent), #B8860B);
+            color: #221018;
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+            animation: pulse 2s infinite;
         }
 
         .btn-sub {
-            background: white;
-            color: #221018;
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .footer {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: 2rem;
+        .btn:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+
+        /* Floating decoration */
+        .floating-heart {
+            position: absolute;
+            font-size: 20px;
+            opacity: 0.1;
+            animation: float 10s infinite linear;
+            z-index: 1;
+        }
+
+        @keyframes cardScale {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            0% {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(212, 175, 55, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.2;
+            }
+
+            90% {
+                opacity: 0.2;
+            }
+
+            100% {
+                transform: translateY(-20vh) rotate(360deg);
+                opacity: 0;
+            }
         }
     </style>
 </head>
 
 <body>
+
+    <!-- Decorations -->
+    <div class="floating-heart" style="left: 10%; animation-delay: 0s;">💖</div>
+    <div class="floating-heart" style="left: 40%; animation-delay: 5s;">✨</div>
+    <div class="floating-heart" style="left: 70%; animation-delay: 2s;">💕</div>
+    <div class="floating-heart" style="left: 90%; animation-delay: 7s;">🫧</div>
+
     <div class="container">
-        <div class="icon">🎁</div>
-        <h1>추억이 도착했습니다!</h1>
-        <p>당신만을 위한 특별한 장소를 확인해보세요.</p>
+        <header>
+            <div class="logo">HERE WITH YOU</div>
+        </header>
 
         <div class="card">
-            <div id="address" style="font-size: 1.1rem; color: #FFB3D9; margin-bottom: 1.5rem;">📍 장소 확인 중...</div>
-
-            <!-- 🚀 1. Try to open already installed app -->
-            <button onclick="openApp()" class="btn btn-main">앱으로 장소 보기</button>
-
-            <div style="margin: 1.5rem 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
-                <div style="font-size: 0.9rem; color: #aaa; margin-bottom: 1rem;">아직 앱이 없으신가요?</div>
-                <!-- 📦 2. Direct Download Link -->
-                <a href="https://hnoni777.github.io/newdatemapdiary/download/HereWithYou.apk" class="btn btn-sub">
-                    앱 설치하기 (APK 받기)
-                </a>
+            <div class="photo-placeholder">
+                <img id="shared-img" style="width: 100%; height: 100%; object-fit: cover; display: none;" src="">
             </div>
+
+            <div class="message-area">
+                <div class="romantic-msg">오늘의 로맨틱한 순간</div>
+                <div class="location-info">📍 <span id="address">장소 확인 중...</span></div>
+                <div class="date-info" id="date-display">2026.03.02</div>
+            </div>
+
+            <button onclick="openApp()" class="btn btn-main">우리의 지도로 이동하기</button>
+            <a href="https://hnoni777.github.io/newdatemapdiary/download/HereWithU.apk" class="btn btn-sub">앱 설치하고 추억
+                남기기</a>
         </div>
 
-        <div class="footer">&copy; 2026 HereWithYou Project.</div>
+        <div style="font-size: 0.8rem; color: var(--text-off); text-align: center;">
+            &copy; 2026 HereWithYou. Every place tells a story.
+        </div>
     </div>
 
     <script>
@@ -115,20 +257,18 @@
         const addr = params.get('addr') || '';
 
         if (addr) {
-            document.getElementById('address').innerText = "📍 " + decodeURIComponent(addr);
+            document.getElementById('address').innerText = decodeURIComponent(addr);
         }
+
+        const now = new Date();
+        document.getElementById('date-display').innerText = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
 
         function openApp() {
             const query = `?lat=${lat}&lng=${lng}&addr=${encodeURIComponent(addr)}`;
-            // 💡 Try Scheme first (more reliable for some)
             const schemeUrl = `newdatemapdiary://share${query}`;
-            // 💡 Try Intent next
             const intentUrl = `intent://share${query}#Intent;scheme=newdatemapdiary;package=io.github.hnoni777.newdatemapdiary;S.browser_fallback_url=https://github.com/hnoni777/newdatemapdiary;end`;
 
-            // Try to open via scheme
             window.location.href = schemeUrl;
-
-            // If it doesn't work after 500ms, try Intent
             setTimeout(() => {
                 window.location.href = intentUrl;
             }, 500);
