@@ -70,7 +70,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="메인 화면에서 장소를 검색하고 사진을 선택하세요. 스티커와 텍스트로 폴라로이드 감성의 카드를 예쁘게 꾸밀 수 있습니다. '내 폰에 소장하기'를 누르면 갤러리에도 저장돼요!"
+                        android:text="메인 화면에서 사진을 예쁘게 촬영하고, 생성된 카드를 편집해보세요. 스티커와 텍스트로 폴라로이드 감성의 카드를 아기자기하게 꾸밀 수 있습니다. '내 폰에 소장하기'를 누르면 갤러리에 자동으로 저장돼요!"
                         android:textSize="15sp"
                         android:lineSpacingExtra="4dp"
                         android:textColor="#666666" />
