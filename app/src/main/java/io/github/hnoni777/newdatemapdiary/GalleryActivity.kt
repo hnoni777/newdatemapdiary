@@ -6,7 +6,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import io.github.hnoni777.newdatemapdiary.databinding.ActivityGalleryBinding
 
@@ -32,8 +34,34 @@ class GalleryActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Refresh the gallery list when returning (e.g., after deleting an image)
-        loadSavedImages()
+        // Refresh the gallery list when returning
+        checkPermissionAndLoadImages()
+    }
+
+    private fun checkPermissionAndLoadImages() {
+        val permission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            android.Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            android.Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
+        if (ContextCompat.checkSelfPermission(this, permission) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            loadSavedImages()
+        } else {
+            androidx.core.app.ActivityCompat.requestPermissions(this, arrayOf(permission), 3001)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 3001) {
+            if (grantResults.isNotEmpty() && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                loadSavedImages()
+            } else {
+                Toast.makeText(this, "갤러리를 불러오려면 저장소 권한이 필요합니다.", Toast.LENGTH_LONG).show()
+                binding.emptyState.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun setupGallery() {

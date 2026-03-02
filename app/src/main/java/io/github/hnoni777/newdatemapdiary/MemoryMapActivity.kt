@@ -45,7 +45,7 @@ class MemoryMapActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.btn_sync).setOnClickListener {
-            syncMemoriesFromGallery()
+            checkPermissionAndSyncMemories()
         }
 
         mapView.start(object : MapLifeCycleCallback() {
@@ -241,6 +241,31 @@ class MemoryMapActivity : AppCompatActivity() {
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)
         return bitmap
+    }
+
+    private fun checkPermissionAndSyncMemories() {
+        val permission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            android.Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            android.Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
+        if (ContextCompat.checkSelfPermission(this, permission) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            syncMemoriesFromGallery()
+        } else {
+            androidx.core.app.ActivityCompat.requestPermissions(this, arrayOf(permission), 2001)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 2001) {
+            if (grantResults.isNotEmpty() && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                syncMemoriesFromGallery()
+            } else {
+                Toast.makeText(this, "추억을 복원하려면 로컬 저장소 접근 권한이 필요합니다.", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun syncMemoriesFromGallery() {
