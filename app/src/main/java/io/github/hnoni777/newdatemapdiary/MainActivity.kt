@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
 import androidx.cardview.widget.CardView
+import androidx.exifinterface.media.ExifInterface
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mapView: MapView
@@ -251,26 +252,62 @@ class MainActivity : AppCompatActivity() {
         createCardBtn.visibility = View.VISIBLE
         addressTextBtn.visibility = View.VISIBLE
 
-        val savedUri = saveBitmapToGallery(bitmap)
+        val savedUri = saveBitmapToGallery(bitmap, currentLat, currentLng, addressText.text.toString())
+        if (savedUri != null) {
+            try {
+                // 💾 DB에 추억 저장 (내 추억지도용)
+                val dbHelper = MemoryDatabaseHelper(this)
+                val memory = Memory(
+                    photoUri = savedUri.toString(),
+                    address = addressText.text.toString(),
+                    lat = currentLat,
+                    lng = currentLng,
+                    date = System.currentTimeMillis()
+                )
+                dbHelper.insertMemory(memory)
+            } catch (e: Exception) {
+                Log.e("DB_INSERT", "내 추억지도 자동 저장 실패", e)
+            }
+        }
+
         if (shareAfter && savedUri != null) {
             shareImage(savedUri)
         } else if (savedUri != null) {
-            Toast.makeText(this, "스샷 저장 완료", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "스샷 저장 및 추억지도에 등록 완료", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun saveBitmapToGallery(bitmap: Bitmap): Uri? {
+    private fun saveBitmapToGallery(bitmap: Bitmap, lat: Double, lng: Double, address: String): Uri? {
         try {
-            val filename = "DateMapDiary_Screenshot_${System.currentTimeMillis()}.png"
+            val filename = "DateMapDiary_Screenshot_${System.currentTimeMillis()}.jpg"
             val values = ContentValues().apply {
                 put(MediaStore.Images.Media.DISPLAY_NAME, filename)
-                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+                put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
                 put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/NewDateMapDiary")
             }
+
+            // Exif Metadata Injector용 임시 파일 🕵️‍♂️
+            val tempFile = java.io.File(cacheDir, "temp_screenshot_exif.jpg")
+            java.io.FileOutputStream(tempFile).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+            }
+
+            try {
+                val exif = ExifInterface(tempFile.absolutePath)
+                val jsonMeta = "{\"lat\":$lat, \"lng\":$lng, \"addr\":\"$address\"}"
+                exif.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, jsonMeta)
+                exif.saveAttributes()
+            } catch (e: Exception) {
+                Log.e("EXIF", "Metadata injection failed", e)
+            }
+
             val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values) ?: throw Exception("MediaStore insert failed")
             contentResolver.openOutputStream(uri)?.use { out ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                java.io.FileInputStream(tempFile).use { input ->
+                    input.copyTo(out)
+                }
             }
+            tempFile.delete()
             return uri
         } catch (e: Exception) {
             Log.e("SCREENSHOT", e.toString())
