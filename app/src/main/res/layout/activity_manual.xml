@@ -70,7 +70,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="메인 화면에서 사진을 예쁘게 촬영하고, 생성된 카드를 편집해보세요. 스티커와 텍스트로 폴라로이드 감성의 카드를 아기자기하게 꾸밀 수 있습니다. '내 폰에 소장하기'를 누르면 갤러리에 자동으로 저장돼요!"
+                        android:text="메인 화면에서 사진을 찰칵! 촬영하고, 생성된 카드를 내 맘대로 편집해보세요.\n\n✨ [카드 꾸미기 꿀팁]\n• 예쁜 '배경 테마'를 고르고, 나만의 '문구'를 작성할 수 있어요.\n• '스티커'를 꺼내서 자유롭게 꾸며보세요!\n   - 이동: 스티커를 누른 채로 드래그\n   - 크기 조절: 두 손가락을 벌리면 확대, 오므리면 축소\n   - 회전: 두 손가락을 댄 상태로 빙글 돌리기\n\n다 꾸몄다면 '내 폰에 소장하기'를 눌러 갤러리에 안전하게 보관해요!"
                         android:textSize="15sp"
                         android:lineSpacingExtra="4dp"
                         android:textColor="#666666" />
