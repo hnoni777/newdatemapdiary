@@ -14,7 +14,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_app_launcher_v7"
         android:roundIcon="@drawable/ic_app_launcher_v7"
-        android:label="hereWithU"
+        android:label="HereWithU"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
         <meta-data
