@@ -36,6 +36,9 @@ class CardEditorActivity : AppCompatActivity() {
     // Save the original beautiful handwriting font instantiated from XML
     private var calligraphyFont: android.graphics.Typeface? = null
 
+    // 이미지 공유 후 onResume에서 자동으로 링크 공유
+    private var pendingShareLink: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_card_editor)
@@ -1566,16 +1569,35 @@ class CardEditorActivity : AppCompatActivity() {
             val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
             val link = "https://hnoni777.github.io/newdatemapdiary/share/map.html?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
 
+            // onResume에서 자동 전송할 링크 저장
+            pendingShareLink = link
+
+            // 1단계: 카드 이미지 공유
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "image/jpeg"
                 putExtra(Intent.EXTRA_STREAM, uri)
-                putExtra(Intent.EXTRA_TEXT, "📍 우리가 함께한 장소 확인하기:\n$link")
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            startActivity(Intent.createChooser(shareIntent, "HereWithYou 추억 공유하기"))
+            startActivity(Intent.createChooser(shareIntent, "추억 카드 공유하기"))
         } catch (e: Exception) {
             Log.e("ShareError", "공유 중 에러 발생: ${e.message}")
             Toast.makeText(this, "공유를 실패했습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sakuraRunnable?.let { sakuraHandler.post(it) }
+        // 카드 이미지 공유 후 돌아오면 자동으로 링크 공유
+        pendingShareLink?.let { link ->
+            pendingShareLink = null
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                val linkIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, "📍 우리가 함께한 장소 확인하기:\n$link")
+                }
+                startActivity(Intent.createChooser(linkIntent, "장소 링크 공유하기 📍"))
+            }, 400)
         }
     }
 }
