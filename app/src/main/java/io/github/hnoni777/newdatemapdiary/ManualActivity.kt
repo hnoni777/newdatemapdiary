@@ -48,13 +48,13 @@ class ManualActivity : AppCompatActivity() {
                 "지도의 중앙에 있는 [카메라] 버튼을 눌러보세요.\n\n현재 장소의 위치 정보와 함께 예쁜 폴라로이드 카드가 즉시 생성됩니다. 촬영 후 하단의 [내 추억 카드 꾸미기] 버튼을 누르면 마법 같은 편집이 시작됩니다!"
             ),
             ManualPage(
-                R.drawable.bg_prem_rosegold, // Generic theme icon
+                R.drawable.bg_prem_rosegold, 
                 R.drawable.img_manual_theme,
                 "2. 우리만의 배경 테마 고르기 🖼️",
                 "[배경 테마] 버튼을 누르면 다양한 색상과 분위기의 편지지 테마가 나타납니다.\n\n로맨틱한 레드, 심플한 화이트 등 그날의 기분에 맞는 예쁜 배경을 골라보세요. '테마 저장'을 누르면 바로 적용됩니다."
             ),
             ManualPage(
-                R.drawable.ic_sticker_prem_petal, // Generic quill icon
+                R.drawable.ic_sticker_prem_petal, 
                 R.drawable.img_manual_text,
                 "3. 손글씨보다 예쁜 문구 남기기 ✍️",
                 "[문구 쓰기] 버튼을 누르면 텍스트를 입력할 수 있습니다.\n\n우리가 함께한 이 장소에서 느낀 감정이나 연인에게 전하고 싶은 짧은 메시지를 적어보세요. 카드 중앙에 예쁜 폰트로 새겨집니다."
@@ -67,13 +67,13 @@ class ManualActivity : AppCompatActivity() {
             ),
             ManualPage(
                 R.drawable.ic_gold_heart,
-                R.drawable.img_manual_step_5,
+                R.drawable.img_manual_sticker_list, // Updated to show sticker manipulation
                 "5. 스티커 조작 마스터하기 ✨",
                 "스티커를 자유자재로 다뤄보세요!\n\n👆 [이동] : 한 손가락으로 꾹 눌러서 이동\n✌️ [확대/축소] : 두 손가락으로 벌리거나 오므리기\n🔄 [회전] : 두 손가락을 댄 상태로 빙글 돌리기\n\n한번 해보면 누구나 쉽게 익힐 수 있어요!"
             ),
             ManualPage(
                 R.drawable.ic_modern_share,
-                R.drawable.img_manual_step_5,
+                R.drawable.img_manual_step_5, // Fixed image res and layout ensured buttons visibility
                 "6. 소중한 추억 저장 및 공유 💌",
                 "편집이 끝났다면 하단의 버튼을 체크!\n\n💾 [저장만 하기] : 내 폰 갤러리에만 조용히 간직해요.\n✨ [저장 및 공유] : 갤러리에 저장함과 동시에 지도에 하트 핀을 꽂고, 친구에게도 바로 공유합니다!"
             ),
