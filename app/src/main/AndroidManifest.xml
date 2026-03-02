@@ -52,6 +52,7 @@
         <activity android:name=".GalleryDetailActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"/>
         <activity android:name=".CardEditorActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"/>
         <activity android:name=".MemoryMapActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"/>
+        <activity android:name=".ManualActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"

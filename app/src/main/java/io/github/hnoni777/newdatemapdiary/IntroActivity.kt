@@ -3,6 +3,7 @@ package io.github.hnoni777.newdatemapdiary
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import android.view.View
@@ -55,6 +56,10 @@ class IntroActivity : AppCompatActivity() {
         btnAction.setOnClickListener {
             startActivity(Intent(this@IntroActivity, MainActivity::class.java))
             finish()
+        }
+
+        findViewById<TextView>(R.id.btn_how_to_use).setOnClickListener {
+            startActivity(Intent(this@IntroActivity, ManualActivity::class.java))
         }
     }
 
