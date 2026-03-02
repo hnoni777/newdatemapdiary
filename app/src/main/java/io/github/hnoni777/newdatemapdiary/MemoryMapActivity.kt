@@ -59,13 +59,13 @@ class MemoryMapActivity : AppCompatActivity() {
                 showMemoriesOnMap()
 
                 map.setOnLabelClickListener { _, _, label ->
-                    val memoryId = label.tag as? Long
-                    val clickedMemory = memories.find { it.id == memoryId }
-                    if (clickedMemory != null) {
-                        val key = clickedMemory.address
-                        val group = memories.filter { 
-                            it.address == key 
-                        }
+                    val tagStr = label.tag as? String ?: ""
+                    val group = memories.filter { 
+                        val latStr = String.format("%.4f", it.lat)
+                        val lngStr = String.format("%.4f", it.lng)
+                        "$latStr,$lngStr" == tagStr
+                    }
+                    if (group.isNotEmpty()) {
                         showMemoryCardDialog(group)
                     }
                     true
@@ -96,9 +96,14 @@ class MemoryMapActivity : AppCompatActivity() {
 
         val boundsBuilder = com.kakao.vectormap.LatLngBounds.Builder()
 
-        val groups = memories.groupBy { it.address }
+        // 🎯 Group by rounded coordinates (4 decimal places = approx 11m) to merge jittery markers
+        val groups = memories.groupBy { 
+            val latStr = String.format("%.4f", it.lat)
+            val lngStr = String.format("%.4f", it.lng)
+            "$latStr,$lngStr"
+        }
 
-        groups.values.forEach { group ->
+        groups.forEach { (coordKey, group) ->
             val rep = group.first()
             val pos = LatLng.from(rep.lat, rep.lng)
             boundsBuilder.include(pos)
@@ -106,7 +111,7 @@ class MemoryMapActivity : AppCompatActivity() {
             layer?.addLabel(
                 LabelOptions.from(pos)
                     .setStyles(styles)
-                    .setTag(rep.id)
+                    .setTag(coordKey) // Use the coordinate key as the tag
             )
         }
 
