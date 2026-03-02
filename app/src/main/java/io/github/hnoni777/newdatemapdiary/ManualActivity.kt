@@ -82,7 +82,7 @@ class ManualActivity : AppCompatActivity() {
                 R.drawable.ic_gold_heart,
                 R.drawable.img_manual_sticker_list,
                 "6. 스티커 조작 마스터하기 ✨",
-                "스티커를 자유자재로 다뤄보세요!\n\n👆 [이동] : 한 손가락으로 꾹 눌러서 이동\n✌️ [확대/축소] : 두 손가락으로 벌리거나 오므리기\n🔄 [회전] : 두 손가락을 댄 상태로 빙글 돌리기"
+                "스티커를 자유자재로 다뤄보세요!\n\n👆 [이동] : 한 손가닥으로 꾹 눌러서 이동\n✌️ [확대/축소] : 두 손가락으로 벌리거나 오므리기\n🔄 [회전] : 두 손가락을 댄 상태로 빙글 돌리기"
             ),
             ManualPage(
                 R.drawable.btn_manual_share,
@@ -145,9 +145,7 @@ class ManualActivity : AppCompatActivity() {
             val page = pages[position]
             try {
                 holder.icon.setImageResource(page.iconRes)
-                // Use actual size for the button icon screenshots
-                holder.icon.layoutParams.width = if (page.iconRes.toString().contains("btn_manual")) 
-                    ViewGroup.LayoutParams.WRAP_CONTENT else holder.icon.layoutParams.width
+                holder.icon.visibility = View.VISIBLE
             } catch (e: Exception) {
                 holder.icon.visibility = View.GONE
             }
