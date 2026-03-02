@@ -321,18 +321,37 @@ class MainActivity : AppCompatActivity() {
             val shortLng = String.format("%.6f", lng)
             val shortAddr = if (address.length > 20) address.substring(0, 20) else address
             val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
-            
+
             val link = "https://hnoni777.github.io/newdatemapdiary/share/map.html?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
-            
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "image/jpeg"
-                putExtra(Intent.EXTRA_STREAM, uri)
-                putExtra(Intent.EXTRA_TEXT, "우리의 소중한 추억 카드가 도착했습니다! ✨📸\n\n📍 우리가 함께한 장소 확인하기:\n$link\n\n카드 속 QR코드로도 확인할 수 있어요! 💍")
+            val shareText = "우리의 소중한 추억 카드가 도착했습니다! ✨📸\n\n📍 우리가 함께한 장소 확인하기:\n$link"
+
+            // ACTION_SEND_MULTIPLE: 이미지 + 텍스트 링크 동시 전달 (카카오톡 등 지원)
+            val shareIntent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                type = "*/*"
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, arrayListOf(uri))
+                putExtra(Intent.EXTRA_TEXT, shareText)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                clipData = android.content.ClipData.newRawUri("", uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             startActivity(Intent.createChooser(shareIntent, "HereWithYou 추억 공유하기"))
         } catch (e: Exception) {
             Log.e("ShareError", "공유 중 에러 발생: ${e.message}")
+            // Fallback: 텍스트 링크만 공유
+            try {
+                val shortLat = String.format("%.6f", lat)
+                val shortLng = String.format("%.6f", lng)
+                val shortAddr = if (address.length > 20) address.substring(0, 20) else address
+                val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
+                val link = "https://hnoni777.github.io/newdatemapdiary/share/map.html?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
+                val fallback = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, "우리의 소중한 추억 카드가 도착했습니다! ✨📸\n\n📍 장소 확인하기:\n$link")
+                }
+                startActivity(Intent.createChooser(fallback, "HereWithYou 추억 공유하기"))
+            } catch (e2: Exception) {
+                Log.e("ShareError", "Fallback 공유 실패: ${e2.message}")
+            }
         }
     }
 
