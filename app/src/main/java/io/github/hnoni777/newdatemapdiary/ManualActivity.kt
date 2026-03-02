@@ -20,7 +20,7 @@ data class ManualPage(
 
 class ManualActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
-    private lateinit var dots: List<View>
+    private lateinit var dots: MutableList<View>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,44 +31,69 @@ class ManualActivity : AppCompatActivity() {
         }
 
         viewPager = findViewById(R.id.manual_view_pager)
-        dots = listOf(
-            findViewById(R.id.m_dot1),
-            findViewById(R.id.m_dot2),
-            findViewById(R.id.m_dot3),
-            findViewById(R.id.m_dot4),
-            findViewById(R.id.m_dot5)
+        
+        // Setup Dots
+        dots = mutableListOf()
+        val dotIds = listOf(
+            R.id.m_dot1, R.id.m_dot2, R.id.m_dot3, R.id.m_dot4, R.id.m_dot5,
+            R.id.m_dot6, R.id.m_dot7, R.id.m_dot8, R.id.m_dot9
         )
+        dotIds.forEach { id -> dots.add(findViewById(id)) }
 
         val pages = listOf(
             ManualPage(
                 R.drawable.ic_modern_camera,
                 R.drawable.img_manual_step_1,
-                "1. 지금 이 순간, 사진 찍기 📷",
-                "메인 화면 중앙의 [카메라 아이콘]을 눌러보세요!\n\n현재 장소의 위치 정보와 함께 예쁜 폴라로이드 카드가 즉시 생성됩니다. 촬영 후 '내 추억 카드 꾸미기' 버튼을 눌러 다음 단계로 GO!"
+                "1. 추억 카드 만들기 📸",
+                "지도 중앙의 [카메라] 버튼을 누르면 지금 장소의 위치를 꽉 담은 폴라로이드 카드가 만들어집니다.\n\n사진을 찍은 후 [내 추억 카드 꾸미기] 버튼을 눌러 예쁘게 편집을 시작해보세요!"
+            ),
+            ManualPage(
+                R.drawable.bg_prem_rosegold, // Temporary for theme
+                R.drawable.img_manual_step_5,
+                "2. 배경 테마 고르기 🖼️",
+                "하단의 [배경 테마] 버튼을 누르면 다양한 편지지 테마가 나타납니다.\n\n옆으로 넘겨보며 곰돌이, 토끼, 로즈골드 등 우리 분위기에 딱 맞는 배경을 골라보세요."
+            ),
+            ManualPage(
+                R.drawable.ic_sticker_prem_petal, // Temporary for text
+                R.drawable.img_manual_step_5,
+                "3. 마음을 담은 문구 쓰기 ✍️",
+                "[문구 쓰기] 버튼을 누르면 메시지를 입력할 수 있습니다.\n\n그날의 기분이나 연인에게 하고 싶은 말을 적어보세요. 폰트에 맞춰 카드 중앙에 예쁘게 배치됩니다."
             ),
             ManualPage(
                 R.drawable.ic_sticker_prem_love,
                 R.drawable.img_manual_step_5,
-                "2. 아기자기하게 꾸미기 🎨",
-                "생성된 카드를 우리 스타일로 변신시켜요.\n\n✨ [문구 쓰기] : 그날의 감정을 텍스트로 남겨보세요.\n✨ [배경 테마] : 곰돌이, 토끼 등 귀여운 프레임 변경!\n✨ [스티커] : 원하는 위치에 슥슥! (확대/축소/회전 가능)"
+                "4. 스티커로 꾸미기 🧸",
+                "[스티커] 버튼을 눌러 아기자기한 아이템들을 추가해보세요.\n\n원하는 스티커를 선택하면 카드 위에 나타납니다. 이제 손가락으로 마법을 부릴 차례예요!"
             ),
             ManualPage(
-                R.drawable.ic_modern_download,
+                R.drawable.ic_gold_heart,
                 R.drawable.img_manual_step_5,
-                "3. 소중하게 저장하기 💾",
-                "편집이 끝났다면 하단의 버튼을 체크!\n\n📍 [저장만 하기] : 내 폰 갤러리에만 조용히 간직해요.\n✨ [저장 및 공유] : 갤러리 저장과 동시에 추억 지도에 하트 핀을 꽂고, 친구에게도 바로 보냅니다."
+                "5. 스티커 조작법 (필독!) ✨",
+                "스티커를 자유자재로 다뤄보세요!\n\n👆 [이동] : 스티커를 한 손가락으로 꾹 눌러 이동\n✌️ [확대/축소] : 두 손가락으로 벌리거나 오므리기\n🔄 [회전] : 두 손가락을 댄 상태로 빙글 돌리기"
+            ),
+            ManualPage(
+                R.drawable.ic_modern_share,
+                R.drawable.img_manual_step_5,
+                "6. 저장하고 추억 공유하기 💌",
+                "하단에는 두 종류의 저장 버튼이 있습니다.\n\n💾 [저장만 하기] : 내 폰 갤러리에만 쏙!\n🚀 [저장 및 공유] : 갤러리 저장 + 지도에 하트 핀 꽂기 + 연인에게 공유까지 한 번에!"
             ),
             ManualPage(
                 R.drawable.ic_red_heart_marker,
                 R.drawable.img_manual_step_3,
-                "4. 지도 위의 핑크빛 하트 📍",
-                "우리가 다녀간 장소에 [하트 핀]이 생겼어요!\n\n핀을 터치하면 그날 만들었던 카드들이 말풍선처럼 짜잔! 나타납니다. 지도를 돌아다니며 우리만의 데이트 지도를 완성해가는 재미를 느껴보세요."
+                "7. 내 추억 지도 감상 🗺️",
+                "지도에 우리가 다녀간 발자국인 [하트 핀]이 꽂혔습니다!\n\n핀을 누르면 그날의 카드들이 말풍선으로 나타납니다. 여러 장일 경우 옆으로 밀어서(Swipe) 볼 수 있어요."
+            ),
+            ManualPage(
+                R.id.manual_view_pager, // Placeholder for Archive
+                R.drawable.img_manual_step_4,
+                "8. 지난 추억 보관함 🗓️",
+                "좌측 하단의 앨범 버튼을 누르면 [보관함]으로 이동합니다.\n\n상단 캘린더에서 점이 찍힌 날짜를 눌러보세요. 그날 우리가 만들었던 소중한 기록들을 모아볼 수 있습니다."
             ),
             ManualPage(
                 R.drawable.ic_modern_retry,
                 R.drawable.img_manual_step_2,
-                "5. 마법 같은 추억 복원 🔄",
-                "폰을 바꿔도 걱정 마세요!\n\n지도 화면 우측 상단의 [새로고침 아이콘]을 누르면, 갤러리에 저장된 사진들의 위치 정보를 읽어와 지도의 핀들을 옛날 모습 그대로 마법처럼 되살려줍니다."
+                "9. 잃어버린 추억 복원 🔄",
+                "폰을 초기화했거나 기기를 변경하셨나요?\n\n지도 상단의 [복원] 버튼을 누르면 갤러리 속 우리 사진들을 찾아 지도의 핀들을 옛날 모습 그대로 다시 살려드립니다!"
             )
         )
 
@@ -105,7 +130,12 @@ class ManualActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val page = pages[position]
-            holder.icon.setImageResource(page.iconRes)
+            // Safe handling if a layout ID or temporary resource is passed
+            try {
+                holder.icon.setImageResource(page.iconRes)
+            } catch (e: Exception) {
+                holder.icon.visibility = View.GONE
+            }
             holder.image.setImageResource(page.imageRes)
             holder.title.text = page.title
             holder.description.text = page.description

@@ -48,12 +48,15 @@
         android:layout_marginBottom="32dp"
         android:layout_marginTop="16dp">
 
-        <!-- Indicators will be added programmatically if needed, or simple dots -->
         <View android:id="@+id/m_dot1" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="@drawable/bg_gold_pill_button" />
         <View android:id="@+id/m_dot2" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
         <View android:id="@+id/m_dot3" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
         <View android:id="@+id/m_dot4" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
         <View android:id="@+id/m_dot5" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
+        <View android:id="@+id/m_dot6" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
+        <View android:id="@+id/m_dot7" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
+        <View android:id="@+id/m_dot8" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
+        <View android:id="@+id/m_dot9" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
     </LinearLayout>
 
 </LinearLayout>
