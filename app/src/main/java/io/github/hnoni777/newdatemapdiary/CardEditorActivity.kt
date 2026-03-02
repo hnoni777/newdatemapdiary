@@ -36,6 +36,20 @@ class CardEditorActivity : AppCompatActivity() {
     // Save the original beautiful handwriting font instantiated from XML
     private var calligraphyFont: android.graphics.Typeface? = null
 
+    // 2단계 공유: 이미지 공유 후 자동으로 링크 공유
+    private var pendingShareText: String? = null
+    private val linkShareLauncher =
+        registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) {
+            pendingShareText?.let { text ->
+                pendingShareText = null
+                val linkIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, text)
+                }
+                startActivity(Intent.createChooser(linkIntent, "장소 링크도 공유하기 📍"))
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_card_editor)
@@ -1564,36 +1578,22 @@ class CardEditorActivity : AppCompatActivity() {
             val shortLng = String.format("%.6f", lng)
             val shortAddr = if (address.length > 20) address.substring(0, 20) else address
             val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
-
             val link = "https://hnoni777.github.io/newdatemapdiary/share/map.html?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
-            val shareText = "당신을 위해 정성껏 꾸민 추억 카드가 도착했습니다! ✨💖\n\n📍 우리가 함께한 장소 확인하기:\n$link"
 
-            // ACTION_SEND_MULTIPLE: 이미지 + 텍스트 링크 동시 전달
-            val shareIntent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
-                type = "*/*"
-                putParcelableArrayListExtra(Intent.EXTRA_STREAM, arrayListOf(uri))
-                putExtra(Intent.EXTRA_TEXT, shareText)
-                clipData = android.content.ClipData.newRawUri("", uri)
+            // 2단계에서 보낼 링크 텍스트 미리 저장
+            pendingShareText = "정성껏 꾸민 추억 카드를 확인해주세요! ✨💖\n📍 장소 바로가기: $link"
+
+            // 1단계: 카드 이미지 공유
+            val imageIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "image/jpeg"
+                putExtra(Intent.EXTRA_STREAM, uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            startActivity(Intent.createChooser(shareIntent, "HereWithYou 추억 공유하기"))
+            // 이미지 공유 후 앱으로 돌아오면 자동으로 링크 공유 실행
+            linkShareLauncher.launch(Intent.createChooser(imageIntent, "추억 카드 공유하기"))
         } catch (e: Exception) {
             Log.e("ShareError", "공유 중 에러 발생: ${e.message}")
-            // Fallback: 텍스트 링크만 공유
-            try {
-                val shortLat2 = String.format("%.6f", lat)
-                val shortLng2 = String.format("%.6f", lng)
-                val shortAddr2 = if (address.length > 20) address.substring(0, 20) else address
-                val addrEncoded2 = java.net.URLEncoder.encode(shortAddr2, "UTF-8")
-                val link2 = "https://hnoni777.github.io/newdatemapdiary/share/map.html?lat=$shortLat2&lng=$shortLng2&addr=$addrEncoded2"
-                val fallback = Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, "당신을 위해 꾸민 추억 카드가 도착했습니다! ✨💖\n\n📍 장소 확인하기:\n$link2")
-                }
-                startActivity(Intent.createChooser(fallback, "HereWithYou 추억 공유하기"))
-            } catch (e2: Exception) {
-                Toast.makeText(this, "공유를 실패했습니다.", Toast.LENGTH_SHORT).show()
-            }
+            Toast.makeText(this, "공유를 실패했습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 }
