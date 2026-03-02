@@ -4,16 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HereWithYou - 특별한 추억이 도착했습니다</title>
+    <title>HereWithYou - 소중한 장소가 도착했습니다</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --bg-deep: #221018;
-            --accent: #D4AF37;
-            --primary: #ec135b;
-            --text-off: rgba(255, 255, 255, 0.7);
+            --bg-bright: #FFF5F8;
+            --accent-gold: #D4AF37;
+            --primary-pink: #FF4D8D;
+            --text-main: #4A3036;
+            --soft-white: rgba(255, 255, 255, 0.9);
         }
 
         body,
@@ -22,155 +23,159 @@
             margin: 0;
             padding: 0;
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: var(--bg-deep);
-            color: #fff;
+            background-color: var(--bg-bright);
+            color: var(--text-main);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            background-image: radial-gradient(circle at top right, rgba(236, 19, 91, 0.1), transparent 50%),
-                radial-gradient(circle at bottom left, rgba(212, 175, 55, 0.05), transparent 50%);
+            background-image: radial-gradient(circle at top right, #FFD9EC, transparent 60%),
+                radial-gradient(circle at bottom left, #FFF9E6, transparent 60%);
         }
 
         .container {
             width: 90%;
-            max-width: 420px;
+            max-width: 400px;
             text-align: center;
-            padding-bottom: 2rem;
+            padding: 2.5rem 1.5rem;
             z-index: 10;
         }
 
         header {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             animation: fadeInDown 0.8s ease-out;
         }
 
         .logo {
             font-family: 'Playfair Display', serif;
-            font-size: 1.2rem;
-            letter-spacing: 4px;
-            color: var(--accent);
+            font-size: 1rem;
+            letter-spacing: 5px;
+            color: var(--primary-pink);
             font-weight: 700;
+            opacity: 0.8;
         }
 
-        /* Glass Memory Card */
+        /* Vibrant Invite Card */
         .card {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 30px;
-            padding: 2rem;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
-            margin-bottom: 2rem;
-            animation: cardScale 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--soft-white);
+            border-radius: 40px;
+            padding: 3rem 2rem;
+            box-shadow: 0 30px 60px rgba(255, 77, 141, 0.1),
+                inset 0 0 20px rgba(255, 255, 255, 1);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            margin-bottom: 2.5rem;
+            animation: cardPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
         }
 
-        .photo-placeholder {
-            width: 100%;
-            aspect-ratio: 1/1;
-            background: #2a2a2a;
-            border-radius: 15px;
-            margin-bottom: 1.5rem;
+        .pin-container {
+            width: 100px;
+            height: 100px;
+            background: #FFE4EE;
+            border-radius: 50%;
+            margin: 0 auto 2rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
-            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+            font-size: 45px;
+            box-shadow: 0 15px 30px rgba(255, 77, 141, 0.2);
+            animation: bounce 2s infinite;
         }
 
-        .photo-placeholder::after {
-            content: '📸';
-            font-size: 3rem;
-            opacity: 0.2;
-        }
-
-        .message-area {
-            text-align: left;
-            margin-bottom: 1.5rem;
-        }
-
-        .romantic-msg {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            font-style: italic;
-            color: #fff;
+        .invite-text {
+            font-size: 1.1rem;
+            color: var(--text-main);
             margin-bottom: 0.5rem;
-            line-height: 1.3;
+            font-weight: 400;
         }
 
-        .location-info {
-            font-size: 0.9rem;
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        .location-box {
+            background: #FDF1F5;
+            padding: 1.2rem;
+            border-radius: 20px;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--primary-pink);
         }
 
-        .date-info {
-            font-size: 0.8rem;
-            color: var(--text-off);
-            margin-top: 5px;
+        .location-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-pink);
+            word-break: keep-all;
         }
 
         /* Action Buttons */
         .btn {
             display: block;
             width: 100%;
-            padding: 1.2rem;
+            padding: 1.3rem;
             border-radius: 50px;
             font-weight: 700;
             font-size: 1.1rem;
             text-decoration: none;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: none;
             cursor: pointer;
             text-align: center;
-            margin-bottom: 1rem;
+            margin-top: 1rem;
         }
 
         .btn-main {
-            background: linear-gradient(135deg, var(--accent), #B8860B);
-            color: #221018;
-            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
-            animation: pulse 2s infinite;
-        }
-
-        .btn-sub {
-            background: transparent;
+            background: var(--primary-pink);
             color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 12px 25px rgba(255, 77, 141, 0.3);
         }
 
-        .btn:hover {
-            transform: scale(1.02);
-            filter: brightness(1.1);
+        .btn-main:hover {
+            transform: translateY(-3px);
+            background: #ff2b70;
+            box-shadow: 0 15px 35px rgba(255, 77, 141, 0.5);
+        }
+
+        .btn-app {
+            background: #fff;
+            color: var(--primary-pink);
+            border: 2px solid #FFE4EE;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            padding: 1rem;
         }
 
         /* Floating decoration */
-        .floating-heart {
+        .heart-bubble {
             position: absolute;
-            font-size: 20px;
-            opacity: 0.1;
-            animation: float 10s infinite linear;
+            opacity: 0.3;
+            animation: floatUpDown 6s infinite ease-in-out;
             z-index: 1;
         }
 
-        @keyframes cardScale {
+        @keyframes cardPop {
             0% {
-                transform: scale(0.8);
+                transform: scale(0.9) translateY(20px);
                 opacity: 0;
             }
 
             100% {
-                transform: scale(1);
+                transform: scale(1) translateY(0);
                 opacity: 1;
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
             }
         }
 
         @keyframes fadeInDown {
             0% {
-                transform: translateY(-30px);
+                transform: translateY(-20px);
                 opacity: 0;
             }
 
@@ -180,37 +185,15 @@
             }
         }
 
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5);
-            }
+        @keyframes floatUpDown {
 
-            70% {
-                box-shadow: 0 0 0 20px rgba(212, 175, 55, 0);
-            }
-
+            0%,
             100% {
-                box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
-            }
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) rotate(0deg);
-                opacity: 0;
+                transform: translateY(0);
             }
 
-            10% {
-                opacity: 0.2;
-            }
-
-            90% {
-                opacity: 0.2;
-            }
-
-            100% {
-                transform: translateY(-20vh) rotate(360deg);
-                opacity: 0;
+            50% {
+                transform: translateY(-20px);
             }
         }
     </style>
@@ -219,10 +202,9 @@
 <body>
 
     <!-- Decorations -->
-    <div class="floating-heart" style="left: 10%; animation-delay: 0s;">💖</div>
-    <div class="floating-heart" style="left: 40%; animation-delay: 5s;">✨</div>
-    <div class="floating-heart" style="left: 70%; animation-delay: 2s;">💕</div>
-    <div class="floating-heart" style="left: 90%; animation-delay: 7s;">🫧</div>
+    <div class="heart-bubble" style="left: 10%; top: 20%; font-size: 30px;">💖</div>
+    <div class="heart-bubble" style="right: 15%; top: 40%; font-size: 20px; animation-delay: 1s;">✨</div>
+    <div class="heart-bubble" style="left: 20%; bottom: 15%; font-size: 25px; animation-delay: 2s;">💕</div>
 
     <div class="container">
         <header>
@@ -230,23 +212,26 @@
         </header>
 
         <div class="card">
-            <div class="photo-placeholder">
-                <img id="shared-img" style="width: 100%; height: 100%; object-fit: cover; display: none;" src="">
+            <div class="pin-container">📍</div>
+            <div class="invite-text">당신을 위한 추억의 장소</div>
+
+            <div class="location-box">
+                <div class="location-name" id="address">장소 확인 중...</div>
             </div>
 
-            <div class="message-area">
-                <div class="romantic-msg">오늘의 로맨틱한 순간</div>
-                <div class="location-info">📍 <span id="address">장소 확인 중...</span></div>
-                <div class="date-info" id="date-display">2026.03.02</div>
-            </div>
+            <p style="font-size: 0.9rem; color: #888; margin-bottom: 2rem;">
+                우리만의 로맨틱한 지도를 통해<br>그날의 추약 명소를 확인해 보세요!
+            </p>
 
-            <button onclick="openApp()" class="btn btn-main">우리의 지도로 이동하기</button>
-            <a href="https://hnoni777.github.io/newdatemapdiary/download/HereWithU.apk" class="btn btn-sub">앱 설치하고 추억
-                남기기</a>
+            <button onclick="openApp()" class="btn btn-main">지도로 바로 가기</button>
         </div>
 
-        <div style="font-size: 0.8rem; color: var(--text-off); text-align: center;">
-            &copy; 2026 HereWithYou. Every place tells a story.
+        <a href="https://hnoni777.github.io/newdatemapdiary/download/HereWithU.apk" class="btn btn-app">
+            나도 추약 지도 만들기 (앱 다운로드)
+        </a>
+
+        <div style="font-size: 0.8rem; color: rgba(74, 48, 54, 0.4); text-align: center; margin-top: 3rem;">
+            &copy; 2026 HereWithYou. Build for Love.
         </div>
     </div>
 
@@ -259,9 +244,6 @@
         if (addr) {
             document.getElementById('address').innerText = decodeURIComponent(addr);
         }
-
-        const now = new Date();
-        document.getElementById('date-display').innerText = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
 
         function openApp() {
             const query = `?lat=${lat}&lng=${lng}&addr=${encodeURIComponent(addr)}`;
