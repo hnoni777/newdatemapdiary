@@ -16,14 +16,6 @@ class IntroActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        if (!prefs.getBoolean("isFirstRun", true)) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-            return
-        }
-
         setContentView(R.layout.activity_intro)
 
         viewPager = findViewById(R.id.viewPager)
@@ -52,26 +44,17 @@ class IntroActivity : AppCompatActivity() {
         viewPager.adapter = IntroPagerAdapter(pages)
 
         val btnAction = findViewById<Button>(R.id.btn_take_photo)
+        btnAction.text = "추억 남기기"
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 updateIndicator(position)
-                if (position == pages.size - 1) {
-                    btnAction.text = "시작하기"
-                } else {
-                    btnAction.text = "다음"
-                }
             }
         })
 
         btnAction.setOnClickListener {
-            if (viewPager.currentItem < pages.size - 1) {
-                viewPager.currentItem = viewPager.currentItem + 1
-            } else {
-                prefs.edit().putBoolean("isFirstRun", false).apply()
-                startActivity(Intent(this@IntroActivity, MainActivity::class.java))
-                finish()
-            }
+            startActivity(Intent(this@IntroActivity, MainActivity::class.java))
+            finish()
         }
     }
 
