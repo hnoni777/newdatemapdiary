@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Card 1: Create Memory -->
+            <!-- Card 1: Map Screen -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -57,27 +57,42 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="20dp">
+                    
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp"
+                        android:layout_marginBottom="16dp"
+                        android:src="@drawable/bg_manual_placeholder"
+                        android:scaleType="centerInside"
+                        android:background="#F0F0F0" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="1. 추억 카드 만들기 📸"
+                        android:text="1. 우리의 추억 지도 🗺️"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="#333333"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="12dp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="메인 화면에서 사진을 찰칵! 촬영하고, 생성된 카드를 내 맘대로 편집해보세요.\n\n✨ [카드 꾸미기 꿀팁]\n• 예쁜 '배경 테마'를 고르고, 나만의 '문구'를 작성할 수 있어요.\n• '스티커'를 꺼내서 자유롭게 꾸며보세요!\n   - 이동: 스티커를 누른 채로 드래그\n   - 크기 조절: 두 손가락을 벌리면 확대, 오므리면 축소\n   - 회전: 두 손가락을 댄 상태로 빙글 돌리기\n\n다 꾸몄다면 '내 폰에 소장하기'를 눌러 갤러리에 안전하게 보관해요!"
-                        android:textSize="15sp"
-                        android:lineSpacingExtra="4dp"
-                        android:textColor="#666666" />
+                        android:orientation="vertical"
+                        android:background="#F8F9FA"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="📍 [지도 위 하트 핀] : 눌러서 그날의 추억 카드를 열어봐요.\n\n📷 [하단 중앙 + 버튼] : 지금 있는 장소에서 새로운 사진을 찍거나 앨범을 열어 카드를 만듭니다.\n\n📚 [좌측 앨범 버튼] : 지금까지 만든 모든 추억 카드를 갤러리로 한눈에 봅니다.\n\n🔄 [우측 상단 복원 버튼] : 폰을 바꿨을 때 갤러리 사진에서 위치를 불러와 다시 지도의 핀들을 완벽 복원해줘요."
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="6dp"
+                            android:textColor="#555555" />
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Card 2: Map and Pins -->
+            <!-- Card 2: Card Editor Screen -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -91,26 +106,41 @@
                     android:orientation="vertical"
                     android:padding="20dp">
 
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp"
+                        android:layout_marginBottom="16dp"
+                        android:src="@drawable/bg_manual_placeholder"
+                        android:scaleType="centerInside"
+                        android:background="#F0F0F0" />
+                        
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="2. 우리만의 지도 다이어리 🗺️"
+                        android:text="2. 추억 엽서 꾸미기 🎨"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="#333333"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="12dp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="저장된 카드들은 '우리의 추억 지도' 메뉴에서 확인할 수 있어요. 지도를 돌아다니며 각 장소에 꽂힌 하트 핀을 눌러 그날의 추억을 다시 꺼내보세요!"
-                        android:textSize="15sp"
-                        android:lineSpacingExtra="4dp"
-                        android:textColor="#666666" />
+                        android:orientation="vertical"
+                        android:background="#F8F9FA"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="예쁜 배경지와 스티커로 폴라로이드 감성 폭발!\n\n🎨 [배경 테마] : 강아지, 하트 등 다양한 편지지 테마 변경\n📝 [문구 작성] : 나만의 짧은 메세지를 타이핑해요.\n💖 [스티커 조작팁] :\n - 이동: 스티커 누르고 슥슥 드래그\n - 크기조절: 두 손가락 꼬집기(축소/확대)\n - 회전: 두 손가락으로 빙빙 돌리기\n\n💾 [내 폰에 소장하기(완료)] : 완성된 이미지를 갤러리와 지도에 동시 저장합니다."
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="6dp"
+                            android:textColor="#555555" />
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Card 3: Magic Restore (EXIF) -->
+            <!-- Card 3: Memory Archive -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -123,23 +153,38 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="20dp">
+                    
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp"
+                        android:layout_marginBottom="16dp"
+                        android:src="@drawable/bg_manual_placeholder"
+                        android:scaleType="centerInside"
+                        android:background="#F0F0F0" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="3. 스마트한 데이터 복원 🔄"
+                        android:text="3. 보관함 &amp; 공유하기 💌"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="#333333"
                         android:layout_marginBottom="8dp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="서버 회원가입 없이도 안전합니다! 폰을 바꾸거나 앱을 다시 깔더라도, 갤러리에 남아있는 'NewDateMapDiary' 폴더의 사진만 있다면 복원 기능을 통해 지도의 핀들을 옛날 그대로 되살릴 수 있습니다."
-                        android:textSize="15sp"
-                        android:lineSpacingExtra="4dp"
-                        android:textColor="#666666" />
+                        android:orientation="vertical"
+                        android:background="#F8F9FA"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="갤러리에 예쁘게 쌓인 우리들의 추억들!\n\n📅 [날짜별 보기] : 달력에서 원하는 날짜를 누르면 그날 찍었던 카드를 볼 수 있습니다.\n\n🔗 [공유 버튼(우측 하단)] : 이 카드를 카카오톡이나 인스타 등으로 바로 보낼 수 있어요!"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="6dp"
+                            android:textColor="#555555" />
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
