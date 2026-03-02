@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Card 1: Map Screen -->
+            <!-- Card 1: Map Screen Detail -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -60,39 +60,40 @@
                     
                     <ImageView
                         android:layout_width="match_parent"
-                        android:layout_height="220dp"
+                        android:layout_height="180dp"
                         android:layout_marginBottom="16dp"
-                        android:src="@drawable/bg_manual_placeholder"
+                        android:src="@drawable/vd_manual_map"
                         android:scaleType="centerInside"
-                        android:background="#F0F0F0" />
+                        android:background="#F8F9FA" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="1. 우리의 추억 지도 🗺️"
-                        android:textSize="18sp"
+                        android:text="1. 우리의 추억 지도 사용법 🗺️"
+                        android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="#333333"
-                        android:layout_marginBottom="12dp" />
+                        android:textColor="#221018"
+                        android:layout_marginBottom="16dp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:background="#F8F9FA"
-                        android:padding="12dp">
+                        android:background="#F0F0F0"
+                        android:padding="16dp"
+                        android:layout_marginBottom="16dp">
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="📍 [지도 위 하트 핀] : 눌러서 그날의 추억 카드를 열어봐요.\n\n📷 [하단 중앙 + 버튼] : 지금 있는 장소에서 새로운 사진을 찍거나 앨범을 열어 카드를 만듭니다.\n\n📚 [좌측 앨범 버튼] : 지금까지 만든 모든 추억 카드를 갤러리로 한눈에 봅니다.\n\n🔄 [우측 상단 복원 버튼] : 폰을 바꿨을 때 갤러리 사진에서 위치를 불러와 다시 지도의 핀들을 완벽 복원해줘요."
+                            android:text="📍 [하트 핀 (Heart Pin)]\n지도 위에 꽂힌 분홍색 하트는 여러분의 추억입니다. 핀을 클릭하면 해당 장소에서 만들었던 예쁜 카드들이 하단에 슬라이드로 나타나요!\n\n🔄 [복원 버튼 (Sync)]\n우측 상단의 화살표 버튼은 '마법의 복구' 버튼입니다. 폰을 초기화했거나 새 폰을 샀을 때, 이전 갤러리 사진들만 있다면 이 버튼 하나로 지도의 모든 핀을 되살릴 수 있습니다.\n\n📷 [중앙 + 버튼]\n지금 이 장소에 발자국을 남기고 싶을 때 누르세요! 바로 카메라가 켜지거나 앨범에서 사진을 골라 카드를 만들 수 있습니다.\n\n📂 [보관함 버튼]\n좌측 하단의 앨범 아이콘을 누르면 지금까지의 모든 추억을 날짜별로 모아볼 수 있는 보관함(갤러리)으로 이동합니다."
                             android:textSize="14sp"
-                            android:lineSpacingExtra="6dp"
-                            android:textColor="#555555" />
+                            android:lineSpacingExtra="5dp"
+                            android:textColor="#444444" />
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Card 2: Card Editor Screen -->
+            <!-- Card 2: Editor Screen Detail -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -108,82 +109,82 @@
 
                     <ImageView
                         android:layout_width="match_parent"
-                        android:layout_height="220dp"
+                        android:layout_height="180dp"
                         android:layout_marginBottom="16dp"
-                        android:src="@drawable/bg_manual_placeholder"
+                        android:src="@drawable/vd_manual_editor"
                         android:scaleType="centerInside"
-                        android:background="#F0F0F0" />
-                        
+                        android:background="#FFF5F8" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="2. 추억 엽서 꾸미기 🎨"
-                        android:textSize="18sp"
+                        android:text="2. 추억 엽서 꾸미기 (상세) 🎨"
+                        android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="#333333"
-                        android:layout_marginBottom="12dp" />
+                        android:textColor="#221018"
+                        android:layout_marginBottom="16dp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:background="#F8F9FA"
-                        android:padding="12dp">
+                        android:background="#FFF5F8"
+                        android:padding="16dp">
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="예쁜 배경지와 스티커로 폴라로이드 감성 폭발!\n\n🎨 [배경 테마] : 강아지, 하트 등 다양한 편지지 테마 변경\n📝 [문구 작성] : 나만의 짧은 메세지를 타이핑해요.\n💖 [스티커 조작팁] :\n - 이동: 스티커 누르고 슥슥 드래그\n - 크기조절: 두 손가락 꼬집기(축소/확대)\n - 회전: 두 손가락으로 빙빙 돌리기\n\n💾 [내 폰에 소장하기(완료)] : 완성된 이미지를 갤러리와 지도에 동시 저장합니다."
+                            android:text="🖼️ [배경 테마 변경]\n하단의 테마 목록을 슥슥 밀어서 귀여운 곰돌이, 토끼, 하트 등 다양한 편지지 배경을 골라보세요!\n\n✍️ [나만의 문구 적기]\n화면 하단의 입력창에 우리만의 메세지를 적어보세요. 폰트에 맞춰 예쁘게 카드에 새겨집니다.\n\n🧸 [스티커 꾸미기 조작법]\n- 스티커 추가: 스티커 메뉴에서 마음에 드는 아이콘을 터치!\n- 이동: 스티커를 손가락으로 누른 채 원하는 위치로 드래그하세요.\n- 확대/축소: 스티커 위에 두 손가락을 대고 벌리면 커지고, 오므리면 작아집니다.\n- 회전: 두 손가락을 댄 상태로 나침반 돌리듯 빙글 돌리면 스티킹도 함께 회전합니다!\n\n💾 [저장하기]\n우측 상단의 '완료' 혹은 '소장하기' 버튼을 누르면 갤러리에 저장됨과 동시에 지도에 예쁜 핀이 생성됩니다."
                             android:textSize="14sp"
-                            android:lineSpacingExtra="6dp"
-                            android:textColor="#555555" />
+                            android:lineSpacingExtra="5dp"
+                            android:textColor="#444444" />
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Card 3: Memory Archive -->
+            <!-- Card 3: Gallery/Archive Screen Detail -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="24dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="20dp">
-                    
+
                     <ImageView
                         android:layout_width="match_parent"
-                        android:layout_height="220dp"
+                        android:layout_height="180dp"
                         android:layout_marginBottom="16dp"
-                        android:src="@drawable/bg_manual_placeholder"
+                        android:src="@drawable/vd_manual_archive"
                         android:scaleType="centerInside"
-                        android:background="#F0F0F0" />
+                        android:background="#E3F2FD" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="3. 보관함 &amp; 공유하기 💌"
-                        android:textSize="18sp"
+                        android:text="3. 추억 보관함 &amp; 공유 💌"
+                        android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="#333333"
-                        android:layout_marginBottom="8dp" />
+                        android:textColor="#221018"
+                        android:layout_marginBottom="16dp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:background="#F8F9FA"
-                        android:padding="12dp">
+                        android:background="#E3F2FD"
+                        android:padding="16dp">
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="갤러리에 예쁘게 쌓인 우리들의 추억들!\n\n📅 [날짜별 보기] : 달력에서 원하는 날짜를 누르면 그날 찍었던 카드를 볼 수 있습니다.\n\n🔗 [공유 버튼(우측 하단)] : 이 카드를 카카오톡이나 인스타 등으로 바로 보낼 수 있어요!"
+                            android:text="🗓️ [날짜별 찾기]\n상단 캘린더에서 점이 표시된 날짜는 우리가 추억을 남긴 날입니다. 날짜를 클릭해 그날의 소중한 기록들을 모아보세요.\n\n📤 [공유 &amp; 삭제]\n카드를 크게 보았을 때 우측 하단의 '공유' 아이콘으로 카카오톡이나 SNS에 자랑할 수 있습니다. 필요 없는 기록은 '삭제' 버튼으로 깔끔하게 정리하세요."
                             android:textSize="14sp"
-                            android:lineSpacingExtra="6dp"
-                            android:textColor="#555555" />
+                            android:lineSpacingExtra="5dp"
+                            android:textColor="#444444" />
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

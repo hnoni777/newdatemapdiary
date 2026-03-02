@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="150dp"
+    android:viewportWidth="200"
+    android:viewportHeight="150">
+    <path
+        android:fillColor="#F5F5F5"
+        android:pathData="M0,0h200v150h-200z" />
+    <!-- Calendar Grid Top -->
+    <path
+        android:fillColor="#BBDEFB"
+        android:pathData="M20,10h160v40h-160z" />
+    <!-- Mini Cards Grid -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M20,60h45v45h-45z M75,60h45v45h-45z M130,60h45v45h-45z" />
+    <path
+        android:fillColor="#DDDDDD"
+        android:pathData="M25,65h35v30h-35z M80,65h35v30h-35z M135,65h35v30h-35z" />
+    <!-- Share Icon representation -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M160,120c1.5,0,2.8-0.9,3.3-2.1l-6.8-4c-0.5,1.2-1.8,2.1-3.3,2.1c-1.9,0-3.5-1.6-3.5-3.5s1.6-3.5,3.5-3.5c1.5,0,2.8,0.9,3.3,2.1l6.8-4c-0.5-1.2-0.5-2.6,0-3.8l-6.8-4c-0.5,1.2-1.8,2.1-3.3,2.1c-1.9,0-3.5-1.6-3.5-3.5s1.6-3.5,3.5-3.5s3.5,1.6,3.5,3.5c0,0.4-0.1,0.8-0.2,1.1l6.8,4c0.5-1.2,1.8-2.1,3.3-2.1c1.9,0,3.5,1.6,3.5,3.5s-1.6,3.5-3.5,3.5" />
+</vector>

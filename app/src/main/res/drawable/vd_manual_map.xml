@@ -1,0 +1,25 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="150dp"
+    android:viewportWidth="200"
+    android:viewportHeight="150">
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M0,0h200v150h-200z" />
+    <!-- Simple Map Grids -->
+    <path
+        android:strokeColor="#CCCCCC"
+        android:strokeWidth="1"
+        android:pathData="M0,30h200M0,60h200M0,90h200M0,120h200M40,0v150M80,0v150M120,0v150M160,0v150" />
+    <!-- Heart Pins -->
+    <path
+        android:fillColor="#FF80AB"
+        android:pathData="M50,40c0-5 5-10 10-10s10,5 10,10c0,10-10,20-10,20s-10-10-10-20M130,80c0-5 5-10 10-10s10,5 10,10c0,10-10,20-10,20s-10-10-10-20" />
+    <!-- Bottom Preview Card -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40,110h120v30h-120z" />
+    <path
+        android:fillColor="#DDDDDD"
+        android:pathData="M50,115h20v20h-20z" />
+</vector>
