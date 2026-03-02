@@ -36,20 +36,6 @@ class CardEditorActivity : AppCompatActivity() {
     // Save the original beautiful handwriting font instantiated from XML
     private var calligraphyFont: android.graphics.Typeface? = null
 
-    // 2단계 공유: 이미지 공유 후 자동으로 링크 공유
-    private var pendingShareText: String? = null
-    private val linkShareLauncher =
-        registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) {
-            pendingShareText?.let { text ->
-                pendingShareText = null
-                val linkIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, text)
-                }
-                startActivity(Intent.createChooser(linkIntent, "장소 링크도 공유하기 📍"))
-            }
-        }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_card_editor)
@@ -1580,17 +1566,13 @@ class CardEditorActivity : AppCompatActivity() {
             val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
             val link = "https://hnoni777.github.io/newdatemapdiary/share/map.html?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
 
-            // 2단계에서 보낼 링크 텍스트 미리 저장
-            pendingShareText = "정성껏 꾸민 추억 카드를 확인해주세요! ✨💖\n📍 장소 바로가기: $link"
-
-            // 1단계: 카드 이미지 공유
-            val imageIntent = Intent(Intent.ACTION_SEND).apply {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "image/jpeg"
                 putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_TEXT, "📍 우리가 함께한 장소 확인하기:\n$link")
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            // 이미지 공유 후 앱으로 돌아오면 자동으로 링크 공유 실행
-            linkShareLauncher.launch(Intent.createChooser(imageIntent, "추억 카드 공유하기"))
+            startActivity(Intent.createChooser(shareIntent, "HereWithYou 추억 공유하기"))
         } catch (e: Exception) {
             Log.e("ShareError", "공유 중 에러 발생: ${e.message}")
             Toast.makeText(this, "공유를 실패했습니다.", Toast.LENGTH_SHORT).show()
