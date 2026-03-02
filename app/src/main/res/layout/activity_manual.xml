@@ -27,168 +27,33 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="앱 사용 설명서"
+            android:text="앱 사용 가이드"
             android:textColor="#221018"
             android:textSize="18sp"
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>
 
-    <ScrollView
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/manual_view_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        android:clipToPadding="false">
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+    <LinearLayout
+        android:id="@+id/manual_indicator_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:layout_marginBottom="32dp"
+        android:layout_marginTop="16dp">
 
-            <!-- Card 1: Map Screen Detail -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                android:layout_marginBottom="16dp">
+        <!-- Indicators will be added programmatically if needed, or simple dots -->
+        <View android:id="@+id/m_dot1" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="@drawable/bg_gold_pill_button" />
+        <View android:id="@+id/m_dot2" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
+        <View android:id="@+id/m_dot3" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
+        <View android:id="@+id/m_dot4" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
+        <View android:id="@+id/m_dot5" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
+    </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-                    
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="180dp"
-                        android:layout_marginBottom="16dp"
-                        android:src="@drawable/vd_manual_map"
-                        android:scaleType="centerInside"
-                        android:background="#F8F9FA" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="1. 우리의 추억 지도 사용법 🗺️"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="#221018"
-                        android:layout_marginBottom="16dp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:background="#F0F0F0"
-                        android:padding="16dp"
-                        android:layout_marginBottom="16dp">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="📍 [하트 핀 (Heart Pin)]\n지도 위에 꽂힌 분홍색 하트는 여러분의 추억입니다. 핀을 클릭하면 해당 장소에서 만들었던 예쁜 카드들이 하단에 슬라이드로 나타나요!\n\n🔄 [복원 버튼 (Sync)]\n우측 상단의 화살표 버튼은 '마법의 복구' 버튼입니다. 폰을 초기화했거나 새 폰을 샀을 때, 이전 갤러리 사진들만 있다면 이 버튼 하나로 지도의 모든 핀을 되살릴 수 있습니다.\n\n📷 [중앙 + 버튼]\n지금 이 장소에 발자국을 남기고 싶을 때 누르세요! 바로 카메라가 켜지거나 앨범에서 사진을 골라 카드를 만들 수 있습니다.\n\n📂 [보관함 버튼]\n좌측 하단의 앨범 아이콘을 누르면 지금까지의 모든 추억을 날짜별로 모아볼 수 있는 보관함(갤러리)으로 이동합니다."
-                            android:textSize="14sp"
-                            android:lineSpacingExtra="5dp"
-                            android:textColor="#444444" />
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Card 2: Editor Screen Detail -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="180dp"
-                        android:layout_marginBottom="16dp"
-                        android:src="@drawable/vd_manual_editor"
-                        android:scaleType="centerInside"
-                        android:background="#FFF5F8" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="2. 추억 엽서 꾸미기 (상세) 🎨"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="#221018"
-                        android:layout_marginBottom="16dp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:background="#FFF5F8"
-                        android:padding="16dp">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="🖼️ [배경 테마 변경]\n하단의 테마 목록을 슥슥 밀어서 귀여운 곰돌이, 토끼, 하트 등 다양한 편지지 배경을 골라보세요!\n\n✍️ [나만의 문구 적기]\n화면 하단의 입력창에 우리만의 메세지를 적어보세요. 폰트에 맞춰 예쁘게 카드에 새겨집니다.\n\n🧸 [스티커 꾸미기 조작법]\n- 스티커 추가: 스티커 메뉴에서 마음에 드는 아이콘을 터치!\n- 이동: 스티커를 손가락으로 누른 채 원하는 위치로 드래그하세요.\n- 확대/축소: 스티커 위에 두 손가락을 대고 벌리면 커지고, 오므리면 작아집니다.\n- 회전: 두 손가락을 댄 상태로 나침반 돌리듯 빙글 돌리면 스티킹도 함께 회전합니다!\n\n💾 [저장하기]\n우측 상단의 '완료' 혹은 '소장하기' 버튼을 누르면 갤러리에 저장됨과 동시에 지도에 예쁜 핀이 생성됩니다."
-                            android:textSize="14sp"
-                            android:lineSpacingExtra="5dp"
-                            android:textColor="#444444" />
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Card 3: Gallery/Archive Screen Detail -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                android:layout_marginBottom="24dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="180dp"
-                        android:layout_marginBottom="16dp"
-                        android:src="@drawable/vd_manual_archive"
-                        android:scaleType="centerInside"
-                        android:background="#E3F2FD" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="3. 추억 보관함 &amp; 공유 💌"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="#221018"
-                        android:layout_marginBottom="16dp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:background="#E3F2FD"
-                        android:padding="16dp">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="🗓️ [날짜별 찾기]\n상단 캘린더에서 점이 표시된 날짜는 우리가 추억을 남긴 날입니다. 날짜를 클릭해 그날의 소중한 기록들을 모아보세요.\n\n📤 [공유 &amp; 삭제]\n카드를 크게 보았을 때 우측 하단의 '공유' 아이콘으로 카카오톡이나 SNS에 자랑할 수 있습니다. 필요 없는 기록은 '삭제' 버튼으로 깔끔하게 정리하세요."
-                            android:textSize="14sp"
-                            android:lineSpacingExtra="5dp"
-                            android:textColor="#444444" />
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
-    </ScrollView>
 </LinearLayout>
