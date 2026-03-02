@@ -274,10 +274,10 @@ class MemoryMapActivity : AppCompatActivity() {
                     if (!existingUris.contains(uriString)) {
                         // DB에 없는 갤러리 이미지 발견! EXIF 정보 스캔 시도
                         try {
-                            contentResolver.openFileDescriptor(contentUri, "r")?.use { pfd ->
-                                val exif = androidx.exifinterface.media.ExifInterface(pfd.fileDescriptor)
-                                val jsonMeta = exif.getAttribute(androidx.exifinterface.media.ExifInterface.TAG_USER_COMMENT)
-                                
+                            contentResolver.openInputStream(contentUri)?.use { input ->
+                                val exif = androidx.exifinterface.media.ExifInterface(input)
+                                val jsonMeta = exif.getAttribute(androidx.exifinterface.media.ExifInterface.TAG_IMAGE_DESCRIPTION)
+
                                 if (!jsonMeta.isNullOrEmpty()) {
                                     val jsonObj = JSONObject(jsonMeta)
                                     val lat = jsonObj.optDouble("lat", 0.0)

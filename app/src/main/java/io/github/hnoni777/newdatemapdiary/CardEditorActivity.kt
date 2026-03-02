@@ -1497,22 +1497,28 @@ class CardEditorActivity : AppCompatActivity() {
                 put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/NewDateMapDiary")
             }
 
-            val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values) ?: throw Exception("MediaStore insert failed")
-            contentResolver.openOutputStream(uri)?.use { out ->
+            val tempFile = java.io.File(cacheDir, "temp_card_exif.jpg")
+            java.io.FileOutputStream(tempFile).use { out ->
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
             }
 
-            // Exif Metadata Injector 🕵️‍♂️ (Saves local DB data into the image itself as a backup)
+            // Exif Metadata Injector 🕵️‍♂️
             try {
-                contentResolver.openFileDescriptor(uri, "rw")?.use { pfd ->
-                    val exif = androidx.exifinterface.media.ExifInterface(pfd.fileDescriptor)
-                    val jsonMeta = "{\"lat\":$lat, \"lng\":$lng, \"addr\":\"$address\"}"
-                    exif.setAttribute(androidx.exifinterface.media.ExifInterface.TAG_USER_COMMENT, jsonMeta)
-                    exif.saveAttributes()
-                }
+                val exif = androidx.exifinterface.media.ExifInterface(tempFile.absolutePath)
+                val jsonMeta = "{\"lat\":$lat, \"lng\":$lng, \"addr\":\"$address\"}"
+                exif.setAttribute(androidx.exifinterface.media.ExifInterface.TAG_IMAGE_DESCRIPTION, jsonMeta)
+                exif.saveAttributes()
             } catch (e: Exception) {
                 Log.e("EXIF", "Metadata injection failed", e)
             }
+
+            val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values) ?: throw Exception("MediaStore insert failed")
+            contentResolver.openOutputStream(uri)?.use { out ->
+                java.io.FileInputStream(tempFile).use { input ->
+                    input.copyTo(out)
+                }
+            }
+            tempFile.delete()
 
             return uri
         } catch (e: Exception) {
