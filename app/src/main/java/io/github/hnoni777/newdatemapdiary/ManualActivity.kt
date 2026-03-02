@@ -32,68 +32,81 @@ class ManualActivity : AppCompatActivity() {
 
         viewPager = findViewById(R.id.manual_view_pager)
         
-        // Setup Dots
+        // Setup Dots (Supporting up to 10 chapters)
         dots = mutableListOf()
         val dotIds = listOf(
             R.id.m_dot1, R.id.m_dot2, R.id.m_dot3, R.id.m_dot4, R.id.m_dot5,
-            R.id.m_dot6, R.id.m_dot7, R.id.m_dot8, R.id.m_dot9
+            R.id.m_dot6, R.id.m_dot7, R.id.m_dot8, R.id.m_dot9, R.id.m_dot10
         )
         dotIds.forEach { id -> dots.add(findViewById(id)) }
 
         val pages = listOf(
             ManualPage(
+                R.drawable.ic_gold_heart,
+                R.drawable.img_manual_step_1,
+                "1. 한눈에 보는 메인 화면 📱",
+                "지도를 중심으로 우리만의 여행 기록을 시작해보세요!\n\n" +
+                "📍 [내 추억지도] : 방문했던 장소를 지도에서 확인해요.\n" +
+                "📸 [사진촬영] : 지금 이 순간을 폴라로이드로 기록합니다.\n" +
+                "💾 [사진저장] : 완성된 카드를 갤러리에 저장합니다.\n" +
+                "📷 [스샷] : 현재 화면 전체를 이미지로 간직하세요.\n" +
+                "🚀 [공유하기] : 연인에게 추억을 즉시 전송합니다.\n" +
+                "🖼️ [추억저장소] : 지금까지 만든 모든 추억들을 보러 가요.\n\n" +
+                "✨ [내 추억 카드 꾸미기] : 촬영 후 이 버튼을 눌러 다음 단계로!"
+            ),
+            ManualPage(
                 R.drawable.ic_modern_camera,
                 R.drawable.img_manual_step_1,
-                "1. 지금 이 순간, 촬영 시작! 📸",
-                "지도의 중앙에 있는 [카메라] 버튼을 눌러보세요.\n\n현재 장소의 위치 정보와 함께 예쁜 폴라로이드 카드가 즉시 생성됩니다. 촬영 후 하단의 [내 추억 카드 꾸미기] 버튼을 누르면 마법 같은 편집이 시작됩니다!"
+                "2. 지금 이 순간, 촬영 시작! 📸",
+                "지도의 중앙에 있는 [카메라] 버튼을 한 번 더 확인해보세요.\n\n현재 위치 정보가 자동으로 담긴 폴라로이드 카드가 즉시 생성됩니다. 촬영 직후 [내 추억 카드 꾸미기]를 누르는 것, 잊지 마세요!"
             ),
             ManualPage(
                 R.drawable.bg_prem_rosegold, 
                 R.drawable.img_manual_theme,
-                "2. 우리만의 배경 테마 고르기 🖼️",
-                "[배경 테마] 버튼을 누르면 다양한 색상과 분위기의 편지지 테마가 나타납니다.\n\n로맨틱한 레드, 심플한 화이트 등 그날의 기분에 맞는 예쁜 배경을 골라보세요. '테마 저장'을 누르면 바로 적용됩니다."
+                "3. 우리만의 배경 테마 고르기 🖼️",
+                "[배경 테마] 버튼을 누르면 다양한 색상과 분위기의 테마가 나타납니다.\n\n옆으로 넘겨보며 곰돌이, 토끼, 로즈골드 등 우리 분위기에 딱 맞는 배경을 골라보세요. '테마 저장'을 누르면 바로 적용됩니다."
             ),
             ManualPage(
                 R.drawable.ic_sticker_prem_petal, 
                 R.drawable.img_manual_text,
-                "3. 손글씨보다 예쁜 문구 남기기 ✍️",
-                "[문구 쓰기] 버튼을 누르면 텍스트를 입력할 수 있습니다.\n\n우리가 함께한 이 장소에서 느낀 감정이나 연인에게 전하고 싶은 짧은 메시지를 적어보세요. 카드 중앙에 예쁜 폰트로 새겨집니다."
+                "4. 소중한 문구 남기기 ✍️",
+                "[문구 쓰기] 버튼을 누르면 제목이나 짧은 메시지를 입력할 수 있습니다.\n\n그날 우리가 느꼈던 기분이나 서로에게 하고 싶은 말을 적어보세요. 카드 중앙에 예쁜 폰트로 새겨집니다."
             ),
             ManualPage(
                 R.drawable.ic_sticker_prem_love,
                 R.drawable.img_manual_sticker_list,
-                "4. 귀여운 스티커 고르기 🧸",
-                "[스티커] 버튼을 누르면 아기자기한 스티커 모음이 나타납니다.\n\n원하는 스티커를 골라 터치해보세요! 카드 위에 스티커가 나타나며, 이제 이 스티커를 자유롭게 배치할 차례입니다."
+                "5. 귀여운 스티커 고르기 🧸",
+                "[스티커] 버튼을 누르면 아기자기한 모음집이 나타납니다.\n\n원하는 스티커를 골라 터치하면 카드 위에 나타납니다. 카테고리를 넘겨가며 어울리는 아이템을 추가해보세요!"
             ),
             ManualPage(
                 R.drawable.ic_gold_heart,
-                R.drawable.img_manual_sticker_list, // Updated to show sticker manipulation
-                "5. 스티커 조작 마스터하기 ✨",
-                "스티커를 자유자재로 다뤄보세요!\n\n👆 [이동] : 한 손가락으로 꾹 눌러서 이동\n✌️ [확대/축소] : 두 손가락으로 벌리거나 오므리기\n🔄 [회전] : 두 손가락을 댄 상태로 빙글 돌리기\n\n한번 해보면 누구나 쉽게 익힐 수 있어요!"
+                R.drawable.img_manual_sticker_list,
+                "6. 스티커 조작 마스터하기 ✨",
+                "스티커를 자유자재로 다뤄보세요!\n\n👆 [이동] : 한 손가락으로 꾹 눌러서 이동\n✌️ [확대/축소] : 두 손가락으로 벌리거나 오므리기\n🔄 [회전] : 두 손가락을 댄 상태로 빙글 돌리기"
             ),
             ManualPage(
                 R.drawable.ic_modern_share,
-                R.drawable.img_manual_step_5, // Fixed image res and layout ensured buttons visibility
-                "6. 소중한 추억 저장 및 공유 💌",
-                "편집이 끝났다면 하단의 버튼을 체크!\n\n💾 [저장만 하기] : 내 폰 갤러리에만 조용히 간직해요.\n✨ [저장 및 공유] : 갤러리에 저장함과 동시에 지도에 하트 핀을 꽂고, 친구에게도 바로 공유합니다!"
+                R.drawable.img_manual_step_5,
+                "7. 저장하고 추억 공유하기 💌",
+                "편집이 끝났다면 하단의 버튼을 체크!\n\n💾 [저장만 하기] : 내 폰 갤러리에만 조용히 간직해요.\n✨ [저장 및 공유] : 갤러리 저장 + 지도에 하트 핀 꽂기 + 연인에게 공유까지 한 번에!"
             ),
             ManualPage(
                 R.drawable.ic_red_heart_marker,
                 R.drawable.img_manual_step_3,
-                "7. 지도 위에서 카드 다시보기 🗺️",
-                "우리가 다녀간 장소에 [하트 핀]이 생겼어요!\n\n핀을 터치하면 그날 만들었던 카드들이 말풍선처럼 짜잔! 나타납니다. 카드가 여러 장이라면 옆으로 밀어서(Swipe) 생생한 추억을 다시 감상하세요."
+                "8. 지도 위 핑크빛 하트 📍",
+                "우리가 다녀간 장소에 [하트 핀]이 꽂혔어요!\n\n핀을 터치하면 그날 만들었던 카드들이 말풍선처럼 짜잔! 나타납니다. 여러 장일 경우 옆으로 밀어서(Swipe) 소중한 기록을 다시 감상하세요."
             ),
             ManualPage(
                 R.drawable.ic_modern_gallery,
                 R.drawable.img_manual_step_4,
-                "8. 차곡차곡 쌓인 보관함 🗓️",
-                "좌측 하단의 앨범 버튼을 누르면 [보관함]으로 이동합니다.\n\n상측 캘린더에서 점이 찍힌 날짜를 눌러보세요. 그날 우리가 함께 만들었던 모든 추억들을 갤러리 형태로 모아볼 수 있습니다."
+                "9. 지난 추억 보관함 🗓️",
+                "좌측 하단의 앨범 버튼을 누르면 [보관함]으로 이동합니다.\n\n캘린더에서 점이 찍힌 날짜를 눌러보세요. 그날 우리가 함께 만들었던 모든 기록들을 한눈에 모아볼 수 있습니다."
             ),
             ManualPage(
                 R.drawable.ic_modern_retry,
                 R.drawable.img_manual_step_2,
-                "9. 마법 같은 추억 복원 기능 🔄",
-                "폰을 바꾸거나 앱을 다시 설치해도 걱정하지 마세요!\n\n지도 상단의 [복원] 버튼을 누르면, 갤러리에 저장된 우리 사진들의 위치를 분석해 지도의 핀들을 옛날 모습 그대로 마법처럼 되살려줍니다."
+                "10. 잃어버린 추억 복원 🔄",
+                "기기를 변경했거나 앱을 다시 깔아도 걱정 마세요!\n\n지도 상단의 [복원] 버튼을 누르면 갤러리 속 우리 사진들을 찾아 지도의 핀들을 옛날 모습 그대로 다시 살려드립니다!"
             )
         )
 

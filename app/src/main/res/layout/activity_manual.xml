@@ -57,6 +57,7 @@
         <View android:id="@+id/m_dot7" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
         <View android:id="@+id/m_dot8" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
         <View android:id="@+id/m_dot9" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
+        <View android:id="@+id/m_dot10" android:layout_width="8dp" android:layout_height="8dp" android:layout_margin="4dp" android:background="#CCCCCC" />
     </LinearLayout>
 
 </LinearLayout>
