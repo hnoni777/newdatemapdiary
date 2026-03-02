@@ -1482,7 +1482,7 @@ class CardEditorActivity : AppCompatActivity() {
         }
 
         if (shareAfter && savedUri != null) {
-            shareImage(savedUri)
+            shareImage(savedUri, lat, lng, address)
         } else if(savedUri != null) {
             Toast.makeText(this, "갤러리 및 추억지도에 저장되었습니다", Toast.LENGTH_SHORT).show()
         }
@@ -1558,11 +1558,19 @@ class CardEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun shareImage(uri: Uri) {
+    private fun shareImage(uri: Uri, lat: Double, lng: Double, address: String) {
         try {
+            val shortLat = String.format("%.6f", lat)
+            val shortLng = String.format("%.6f", lng)
+            val shortAddr = if (address.length > 20) address.substring(0, 20) else address
+            val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
+            
+            val link = "https://hnoni777.github.io/newdatemapdiary/share?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
+            
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "image/png"
+                type = "image/jpeg"
                 putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_TEXT, "당신을 위해 정성껏 꾸민 추억 카드가 도착했습니다! ✨💖\n\n📍 우리가 함께한 장소 확인하기:\n$link\n\n카드 속 QR코드로도 확인할 수 있어요! 💍")
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             startActivity(Intent.createChooser(shareIntent, "HereWithYou 추억 공유하기"))
