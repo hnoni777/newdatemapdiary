@@ -1490,16 +1490,16 @@ class CardEditorActivity : AppCompatActivity() {
 
     private fun saveBitmapToGallery(bitmap: Bitmap, lat: Double, lng: Double, address: String): Uri? {
         try {
-            val filename = "DateMapDiary_Card_${System.currentTimeMillis()}.png"
+            val filename = "DateMapDiary_Card_${System.currentTimeMillis()}.jpg"
             val values = ContentValues().apply {
                 put(MediaStore.Images.Media.DISPLAY_NAME, filename)
-                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+                put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
                 put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/NewDateMapDiary")
             }
 
             val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values) ?: throw Exception("MediaStore insert failed")
             contentResolver.openOutputStream(uri)?.use { out ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
             }
 
             // Exif Metadata Injector 🕵️‍♂️ (Saves local DB data into the image itself as a backup)
