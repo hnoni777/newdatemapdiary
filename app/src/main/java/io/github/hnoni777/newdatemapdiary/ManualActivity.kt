@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 
 data class ManualPage(
+    val iconRes: Int,
     val imageRes: Int,
     val title: String,
     val description: String
@@ -40,29 +41,34 @@ class ManualActivity : AppCompatActivity() {
 
         val pages = listOf(
             ManualPage(
-                R.drawable.img_manual_step_2,
-                "우리의 추억 지도 🗺️",
-                "지도를 돌아다니며 우리가 함께했던 소중한 장소들을 확인해보세요.\n\n📍 [하트 핀] : 핀을 클릭하면 그날의 추억 카드가 나타납니다.\n🔄 [추억 복원] : 갤러리 사진만 있다면 지도의 모든 핀을 언제든 되살릴 수 있어요!"
-            ),
-            ManualPage(
+                R.drawable.ic_modern_camera,
                 R.drawable.img_manual_step_1,
-                "추억 기록하기 📸",
-                "지금 이 순간을 영원히 기록하고 싶다면?\n\n📷 [중앙 버튼] : 사진을 바로 촬영하거나 앨범에서 선택하여 우리만의 추억 카드를 만들 수 있습니다.\n✨ 장착된 GPS를 통해 자동으로 위치가 기록되니 걱정 끝!"
+                "1. 지금 이 순간, 사진 찍기 📷",
+                "메인 화면 중앙의 [카메라 아이콘]을 눌러보세요!\n\n현재 장소의 위치 정보와 함께 예쁜 폴라로이드 카드가 즉시 생성됩니다. 촬영 후 '내 추억 카드 꾸미기' 버튼을 눌러 다음 단계로 GO!"
             ),
             ManualPage(
+                R.drawable.ic_sticker_prem_love,
                 R.drawable.img_manual_step_5,
-                "카드 예쁘게 꾸미기 🎨",
-                "편지지 테마와 스티커로 감성을 더해보세요.\n\n🧸 [스티커 조작 가이드]\n• 이동: 스티커를 누른 채 드래그\n• 크기 조절: 두 손가락으로 벌리거나 오므리기\n• 회전: 두 손가락으로 빙글빙글 돌리기\n\n나만의 멘트까지 적으면 세상에 하나뿐인 카드 완성!"
+                "2. 아기자기하게 꾸미기 🎨",
+                "생성된 카드를 우리 스타일로 변신시켜요.\n\n✨ [문구 쓰기] : 그날의 감정을 텍스트로 남겨보세요.\n✨ [배경 테마] : 곰돌이, 토끼 등 귀여운 프레임 변경!\n✨ [스티커] : 원하는 위치에 슥슥! (확대/축소/회전 가능)"
             ),
             ManualPage(
-                R.drawable.img_manual_step_4,
-                "추억 보관함 (아카이브) 💌",
-                "날짜별로 차곡차곡 쌓인 우리들의 이야기.\n\n📅 [달력 보기] : 날짜를 선택해 그날의 기록을 한눈에 보세요.\n🔗 [공유] : 완성된 카드를 연인에게 보내거나 SNS에 자랑할 수 있습니다."
+                R.drawable.ic_modern_download,
+                R.drawable.img_manual_step_5,
+                "3. 소중하게 저장하기 💾",
+                "편집이 끝났다면 하단의 버튼을 체크!\n\n📍 [저장만 하기] : 내 폰 갤러리에만 조용히 간직해요.\n✨ [저장 및 공유] : 갤러리 저장과 동시에 추억 지도에 하트 핀을 꽂고, 친구에게도 바로 보냅니다."
             ),
             ManualPage(
+                R.drawable.ic_red_heart_marker,
                 R.drawable.img_manual_step_3,
-                "생생하게 다시보기 ✨",
-                "지도의 핀을 누르면 나타나는 카드 미리보기!\n\n여러 장의 카드가 있다면 스와이프하여 골라볼 수 있습니다. '삭제' 버튼으로 소중하지 않은(?) 기록은 정리도 가능해요."
+                "4. 지도 위의 핑크빛 하트 📍",
+                "우리가 다녀간 장소에 [하트 핀]이 생겼어요!\n\n핀을 터치하면 그날 만들었던 카드들이 말풍선처럼 짜잔! 나타납니다. 지도를 돌아다니며 우리만의 데이트 지도를 완성해가는 재미를 느껴보세요."
+            ),
+            ManualPage(
+                R.drawable.ic_modern_retry,
+                R.drawable.img_manual_step_2,
+                "5. 마법 같은 추억 복원 🔄",
+                "폰을 바꿔도 걱정 마세요!\n\n지도 화면 우측 상단의 [새로고침 아이콘]을 누르면, 갤러리에 저장된 사진들의 위치 정보를 읽어와 지도의 핀들을 옛날 모습 그대로 마법처럼 되살려줍니다."
             )
         )
 
@@ -86,6 +92,7 @@ class ManualActivity : AppCompatActivity() {
 
     class ManualAdapter(private val pages: List<ManualPage>) : RecyclerView.Adapter<ManualAdapter.ViewHolder>() {
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val icon: ImageView = view.findViewById(R.id.iv_feature_icon)
             val image: ImageView = view.findViewById(R.id.iv_manual_screenshot)
             val title: TextView = view.findViewById(R.id.tv_manual_title)
             val description: TextView = view.findViewById(R.id.tv_manual_description)
@@ -98,6 +105,7 @@ class ManualActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val page = pages[position]
+            holder.icon.setImageResource(page.iconRes)
             holder.image.setImageResource(page.imageRes)
             holder.title.text = page.title
             holder.description.text = page.description
