@@ -409,7 +409,7 @@ class CardEditorActivity : AppCompatActivity() {
             val shortAddr = if (address.length > 20) address.substring(0, 20) else address
             val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
             
-            val link = "https://hnoni777.github.io/newdatemapdiary/share?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
+            val link = "https://hnoni777.github.io/newdatemapdiary/share/map.html?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
             val qrBitmap = generateQRCode(link)
             
             val qrView = cardView.findViewById<ImageView>(R.id.card_qr_code)

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>HereWithYou - 소중한 장소가 도착했습니다</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-bright: #FFF5F8;
+            --primary-pink: #FF4D8D;
+            --text-main: #4A3036;
+            --soft-white: rgba(255, 255, 255, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            min-height: 100%;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-bright);
+            background-image: radial-gradient(circle at top right, #FFD9EC, transparent 60%),
+                radial-gradient(circle at bottom left, #FFF9E6, transparent 60%);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            padding: 3rem 1.5rem;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            letter-spacing: 5px;
+            color: var(--primary-pink);
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+        }
+
+        .card {
+            background: var(--soft-white);
+            border-radius: 40px;
+            padding: 3rem 2rem;
+            box-shadow: 0 30px 60px rgba(255, 77, 141, 0.1);
+            border: 1px solid #FFE4EE;
+            margin-bottom: 1.5rem;
+        }
+
+        .pin-container {
+            width: 100px;
+            height: 100px;
+            background: #FFE4EE;
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+            box-shadow: 0 15px 30px rgba(255, 77, 141, 0.2);
+            animation: bounce 2s infinite;
+        }
+
+        .invite-text {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+
+        .location-box {
+            background: #FDF1F5;
+            padding: 1.2rem;
+            border-radius: 20px;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--primary-pink);
+        }
+
+        .location-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-pink);
+            word-break: keep-all;
+        }
+
+        .sub-text {
+            font-size: 0.9rem;
+            color: #886A71;
+            margin-bottom: 2rem;
+        }
+
+        .btn-main {
+            display: block;
+            width: 100%;
+            padding: 1.3rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            background: var(--primary-pink);
+            color: #fff;
+            box-shadow: 0 12px 25px rgba(255, 77, 141, 0.3);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn-app {
+            display: block;
+            margin-top: 1.2rem;
+            padding: 1rem;
+            border-radius: 50px;
+            text-decoration: none;
+            background: #fff;
+            color: var(--primary-pink);
+            border: 2px solid #FFE4EE;
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .footer {
+            font-size: 0.75rem;
+            color: rgba(74, 48, 54, 0.3);
+            margin-top: 2rem;
+        }
+
+        .heart {
+            position: fixed;
+            opacity: 0.15;
+            animation: floatUp 8s infinite linear;
+            font-size: 24px;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(105vh);
+            }
+
+            100% {
+                transform: translateY(-10vh);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="heart" style="left:8%;animation-delay:0s;">💖</div>
+    <div class="heart" style="left:30%;animation-delay:3s;">✨</div>
+    <div class="heart" style="left:60%;animation-delay:1s;">💕</div>
+    <div class="heart" style="left:85%;animation-delay:5s;">🌸</div>
+
+    <div class="container">
+        <div class="logo">HERE WITH YOU</div>
+
+        <div class="card">
+            <div class="pin-container">📍</div>
+            <div class="invite-text">당신을 위한 추억의 장소</div>
+
+            <div class="location-box">
+                <div class="location-name" id="address">장소 확인 중...</div>
+            </div>
+
+            <p class="sub-text">우리만의 로맨틱한 지도를 통해<br>그날의 추억 명소를 확인해 보세요!</p>
+
+            <button onclick="openApp()" class="btn-main">지도로 바로 가기 📍</button>
+        </div>
+
+        <a href="https://hnoni777.github.io/newdatemapdiary/download/HereWithU.apk" class="btn-app">
+            나도 추억 지도 만들기 (앱 다운로드)
+        </a>
+
+        <div class="footer">&copy; 2026 HereWithYou. Build for Love 💖</div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const lat = params.get('lat') || '';
+        const lng = params.get('lng') || '';
+        const addr = params.get('addr') || '';
+
+        if (addr) {
+            document.getElementById('address').innerText = decodeURIComponent(addr);
+        }
+
+        function openApp() {
+            const q = `?lat=${lat}&lng=${lng}&addr=${encodeURIComponent(addr)}`;
+            window.location.href = `newdatemapdiary://share${q}`;
+            setTimeout(() => {
+                window.location.href = `intent://share${q}#Intent;scheme=newdatemapdiary;package=io.github.hnoni777.newdatemapdiary;S.browser_fallback_url=https://hnoni777.github.io/newdatemapdiary;end`;
+            }, 600);
+        }
+    </script>
+</body>
+
+</html>
