@@ -10,11 +10,10 @@
         rel="stylesheet">
     <style>
         :root {
-            --primary: #ec135b;
-            --bg-dark: #221018;
-            --gold: #D4AF37;
-            --text-light: #f8f6f6;
-            --soft-pink: #FFD9EC;
+            --bg-bright: #FFF5F8;
+            --accent-gold: #D4AF37;
+            --primary-pink: #FF4D8D;
+            --text-main: #4A3036;
         }
 
         * {
@@ -25,10 +24,12 @@
 
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-light);
+            background-color: var(--bg-bright);
+            color: var(--text-main);
             overflow-x: hidden;
             line-height: 1.6;
+            background-image: radial-gradient(circle at top right, #FFD9EC, transparent 50%),
+                radial-gradient(circle at bottom left, #FFF9E6, transparent 50%);
         }
 
         /* Hero Section */
@@ -38,27 +39,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            background: radial-gradient(circle at center, rgba(236, 19, 91, 0.15) 0%, transparent 70%);
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, rgba(34, 16, 24, 0.4) 0%, var(--bg-dark) 100%);
-            z-index: 1;
+            text-align: center;
+            padding: 0 20px;
         }
 
         .hero-content {
-            position: relative;
             z-index: 10;
-            text-align: center;
             max-width: 900px;
-            padding: 0 20px;
+            animation: fadeIn 1.2s ease-out;
         }
 
         h1 {
@@ -66,21 +54,20 @@
             font-size: 5rem;
             font-style: italic;
             margin-bottom: 20px;
+            color: var(--primary-pink);
             letter-spacing: -1px;
-            background: linear-gradient(to right, #fff, var(--gold));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
         h1 span {
             font-style: normal;
             font-weight: 700;
+            color: var(--text-main);
         }
 
         .subtitle {
-            font-size: 1.5rem;
-            color: var(--soft-pink);
-            margin-bottom: 40px;
+            font-size: 1.4rem;
+            color: #886A71;
+            margin-bottom: 45px;
             font-weight: 300;
         }
 
@@ -91,7 +78,7 @@
         }
 
         .btn {
-            padding: 18px 45px;
+            padding: 20px 45px;
             border-radius: 50px;
             font-weight: 700;
             text-decoration: none;
@@ -101,104 +88,99 @@
         }
 
         .btn-primary {
-            background-color: var(--primary);
+            background-color: var(--primary-pink);
             color: white;
-            box-shadow: 0 10px 30px rgba(236, 19, 91, 0.4);
+            box-shadow: 0 10px 30px rgba(255, 77, 141, 0.3);
         }
 
         .btn-primary:hover {
             transform: translateY(-5px);
             background-color: #ff2b70;
-            box-shadow: 0 15px 40px rgba(236, 19, 91, 0.6);
+            box-shadow: 0 15px 40px rgba(255, 77, 141, 0.5);
         }
 
         .btn-outline {
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            backdrop-filter: blur(10px);
+            border: 2px solid #FFE4EE;
+            background: white;
+            color: var(--primary-pink);
         }
 
         .btn-outline:hover {
-            border-color: var(--gold);
-            color: var(--gold);
-            background: rgba(212, 175, 55, 0.05);
+            border-color: var(--primary-pink);
         }
 
         /* Features Section */
         .features {
-            padding: 100px 20px;
-            background-color: #1a0c12;
+            padding: 120px 20px;
             text-align: center;
+            background: rgba(255, 255, 255, 0.5);
         }
 
         .section-title {
             font-family: 'Playfair Display', serif;
             font-size: 3rem;
-            margin-bottom: 60px;
-            color: var(--gold);
+            margin-bottom: 70px;
+            color: var(--text-main);
         }
 
         .feature-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 40px;
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
         }
 
         .feature-item {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 50px 30px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: white;
+            padding: 60px 40px;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(255, 77, 141, 0.05);
             transition: all 0.4s;
+            border: 1px solid #FFF1F5;
         }
 
         .feature-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--primary);
             transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(255, 77, 141, 0.15);
         }
 
         .feature-icon {
-            font-size: 4rem;
-            margin-bottom: 25px;
+            font-size: 3.5rem;
+            margin-bottom: 30px;
             display: block;
         }
 
         .feature-item h3 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             margin-bottom: 15px;
-            color: #fff;
+            color: var(--primary-pink);
         }
 
         .feature-item p {
-            color: #aaa;
+            color: #886A71;
             font-size: 1rem;
-        }
-
-        /* Phone Mockup Placeholder */
-        .mockup-container {
-            margin-top: 80px;
-            position: relative;
-            z-index: 5;
-        }
-
-        .mockup-img {
-            max-width: 450px;
-            width: 90%;
-            border-radius: 40px;
-            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
-            border: 8px solid #2a2a2a;
         }
 
         /* Footer */
         footer {
-            padding: 50px 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 60px 20px;
             text-align: center;
-            color: #666;
+            color: #886A71;
             font-size: 0.9rem;
+            border-top: 1px solid #FFE4EE;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @media (max-width: 768px) {
@@ -217,50 +199,42 @@
 
     <section class="hero">
         <div class="hero-content">
-            <div style="font-size: 1.2rem; margin-bottom: 15px; letter-spacing: 5px; color: var(--gold);">HERE WITH YOU
-            </div>
+            <div
+                style="font-size: 1.1rem; margin-bottom: 20px; letter-spacing: 6px; color: var(--primary-pink); font-weight: 700;">
+                HERE WITH YOU</div>
             <h1>Every Date, <br> <span>a Story.</span></h1>
-            <p class="subtitle">우리가 함께한 모든 장소, 그날의 분위기까지 <br> 완벽하게 기록하고 공유하는 가장 낭만적인 방법</p>
+            <p class="subtitle">우리가 함께한 모든 장소, <br> 가장 화사하고 낭만적으로 기록하세요.</p>
 
             <div class="cta-group">
-                <a href="download/HereWithU.apk" class="btn btn-primary">Download for Android (APK)</a>
-                <a href="#features" class="btn btn-outline">Explore Features</a>
-            </div>
-
-            <div class="mockup-container">
-                <div
-                    style="font-size: 150px; opacity: 0.2; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: -1;">
-                    📱</div>
-                <img src="https://raw.githubusercontent.com/wonseokjung/solopreneur-ai-agents/main/agents/youngja/assets/mockup_preview_placeholder.png"
-                    alt="App Mockup" class="mockup-img">
+                <a href="download/HereWithU.apk?v=2" class="btn btn-primary">지금 시작하기 (Android APK)</a>
+                <a href="#features" class="btn btn-outline">기능 살펴보기</a>
             </div>
         </div>
     </section>
 
     <section id="features" class="features">
-        <h2 class="section-title">Why HereWithYou?</h2>
+        <h3 class="section-title">Romantic Memories</h3>
         <div class="feature-grid">
             <div class="feature-item">
                 <span class="feature-icon">📍</span>
                 <h3>Map Your Love</h3>
-                <p>우리가 다녀간 소중한 데이트 코스를 지도 위에 하트 핀으로 남겨보세요. 한눈에 펼쳐지는 우리만의 추억 지도.</p>
+                <p>우리가 다녀간 로맨틱한 장소들을 지도 위에 하트 핀으로 남겨보세요. 하나씩 채워지는 우리만의 지도.</p>
             </div>
             <div class="feature-item">
                 <span class="feature-icon">📸</span>
-                <h3>Design Your Memory</h3>
-                <p>로맨틱한 테마와 귀여운 스스티커로 폴라로이드 카드를 꾸며보세요. 그날의 일기까지 완벽하게 저장됩니다.</p>
+                <h3>Design Your Card</h3>
+                <p>로맨틱한 테마와 귀여운 스티커로 그날의 분위기를 담은 폴라로이드 카드를 완성하세요.</p>
             </div>
             <div class="feature-item">
                 <span class="feature-icon">💌</span>
-                <h3>Share the Magic</h3>
-                <p>QR 코드 하나로 친구나 연인에게 장소를 공유하세요. 앱이 없어도 웹에서 먼저 감동을 전달할 수 있습니다.</p>
+                <h3>Instant Share</h3>
+                <p>복잡한 공유는 그만! 클릭 한 번으로 연인에게 우리가 함께할 장소를 링크로 전달하세요.</p>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>&copy; 2026 HereWithYou Project. Build with ❤️ for Lovers.</p>
-        <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.5;">본 서비스는 개인의 소중한 기록을 위해 제작되었습니다.</p>
+        <p>&copy; 2026 HereWithYou. Build with 💖 for Lovers.</p>
     </footer>
 
 </body>
