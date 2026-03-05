@@ -46,7 +46,8 @@ class ManualActivity : AppCompatActivity() {
                 0, 
                 R.drawable.img_manual_step_1,
                 "1. 한눈에 보는 메인 화면 📱",
-                "지도를 중심으로 우리만의 여행 기록을 한눈에 살펴보세요!<br/><br/>" +
+                "메인화면 버튼 설명<br/><br/>" +
+                "화면을 쓸어올려 아래 내용을 확인하세요 👆<br/><br/>" +
                 "<img src='btn_manual_memory_map'/> [내 추억지도] : 방문 장소를 지도에서 확인합니다.<br/><br/>" +
                 "<img src='btn_manual_camera'/> [사진촬영] : 지금 이 순간을 카메라로 담습니다.<br/><br/>" +
                 "<img src='btn_manual_save_photo'/> [사진저장] : '원본 사진'만 깔끔하게 보관합니다.<br/><br/>" +

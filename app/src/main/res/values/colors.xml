@@ -9,7 +9,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <!-- Romantic Theme Colors -->
-    <color name="primary_pink">#ec135b</color>
+    <color name="primary_pink">#FF1493</color>
     <color name="bg_dark_maroon">#221016</color>
     <color name="bg_soft_white">#f8f6f6</color>
     <color name="text_slate_gray">#94a3b8</color>

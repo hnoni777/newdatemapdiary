@@ -59,12 +59,9 @@ class MemoryMapActivity : AppCompatActivity() {
                 showMemoriesOnMap()
 
                 map.setOnLabelClickListener { _, _, label ->
-                    val tagStr = label.tag as? String ?: ""
-                    val group = memories.filter { 
-                        val latStr = String.format("%.4f", it.lat)
-                        val lngStr = String.format("%.4f", it.lng)
-                        "$latStr,$lngStr" == tagStr
-                    }
+                    // 🏷️ 태그 = address 문자열로 그룹 찾기
+                    val tagAddr = label.tag as? String ?: ""
+                    val group = memories.filter { it.address.trim() == tagAddr.trim() }
                     if (group.isNotEmpty()) {
                         showMemoryCardDialog(group)
                     }
@@ -94,24 +91,17 @@ class MemoryMapActivity : AppCompatActivity() {
             LabelStyle.from(markerBitmap).setAnchorPoint(0.5f, 1.0f)
         )
 
-        val boundsBuilder = com.kakao.vectormap.LatLngBounds.Builder()
+        // 🏠 주소 문자열 자체로 그룹화 → 완전히 같은 주소는 핀 1개만 생성
+        val groups = memories.groupBy { it.address.trim() }
 
-        // 🎯 Group by rounded coordinates (4 decimal places = approx 11m) to merge jittery markers
-        val groups = memories.groupBy { 
-            val latStr = String.format("%.4f", it.lat)
-            val lngStr = String.format("%.4f", it.lng)
-            "$latStr,$lngStr"
-        }
-
-        groups.forEach { (coordKey, group) ->
+        groups.forEach { (address, group) ->
             val rep = group.first()
             val pos = LatLng.from(rep.lat, rep.lng)
-            boundsBuilder.include(pos)
-            
+
             layer?.addLabel(
                 LabelOptions.from(pos)
                     .setStyles(styles)
-                    .setTag(coordKey) // Use the coordinate key as the tag
+                    .setTag(address) // 태그 = 주소 문자열
             )
         }
 
@@ -152,12 +142,23 @@ class MemoryMapActivity : AppCompatActivity() {
                 .setTitle("추억 삭제")
                 .setMessage("이 추억을 정말 지우시겠습니까?\n한 번 삭제하면 되돌릴 수 없습니다.")
                 .setPositiveButton("삭제") { _, _ ->
+                    // 1️⃣ DB에서 삭제
                     val success = dbHelper.deleteMemory(memoryToDelete.id)
                     if (success) {
+                        // 2️⃣ MediaStore에서도 삭제 시도 (앱 재설치 후 불러온 카드도 정상 삭제)
+                        try {
+                            val uri = android.net.Uri.parse(memoryToDelete.photoUri)
+                            if (uri.scheme == "content") {
+                                contentResolver.delete(uri, null, null)
+                            }
+                        } catch (e: Exception) {
+                            android.util.Log.w("DELETE", "MediaStore 삭제 실패(무시): ${e.message}")
+                        }
+
                         Toast.makeText(this, "추억이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                         dialog.dismiss()
-                        
-                        // Refresh map
+
+                        // 3️⃣ 지도 갱신 - 핀 포함 카드 전부 삭제 시 핀도 즉시 제거
                         memories = dbHelper.getAllMemories()
                         showMemoriesOnMap()
                     }
@@ -349,6 +350,9 @@ class MemoryMapActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         mapView.resume()
+        // 화면 복귀 시 memories 갱신 → 다른 화면에서 카드 삭제/추가 후 핀이 최신 상태 반영
+        memories = dbHelper.getAllMemories()
+        if (kakaoMap != null) showMemoriesOnMap()
     }
 
     override fun onPause() {

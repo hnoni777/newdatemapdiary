@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 15(API 35) Edge-to-Edge 강제 비활성화 -->
+    <style name="Theme.HereWithYou" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+</resources>

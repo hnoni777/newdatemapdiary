@@ -59,9 +59,6 @@ class MainActivity : AppCompatActivity() {
     private var isFromDeepLink: Boolean = false
     private var deepLinkAddress: String = ""
 
-    // 이미지 공유 후 자동으로 링크를 보낼 플래급
-    private var pendingShareLink: String? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -137,10 +134,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.btn_screenshot).setOnClickListener {
+            if (photoUri == null) {
+                Toast.makeText(this, "먼저 사진을 촬영해주세요!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             takeScreenshot(false)
         }
 
         findViewById<View>(R.id.btn_share_photo).setOnClickListener {
+            if (photoUri == null) {
+                Toast.makeText(this, "먼저 사진을 촬영해주세요!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             takeScreenshot(true)
         }
 
@@ -320,20 +325,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun shareImage(uri: Uri, lat: Double, lng: Double, address: String) {
         try {
-            val shortLat = String.format("%.6f", lat)
-            val shortLng = String.format("%.6f", lng)
-            val shortAddr = if (address.length > 20) address.substring(0, 20) else address
-            val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
-            val link = "https://hnoni777.github.io/newdatemapdiary/share/map.html?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
-
-            // 2단계: 이미지 공유 끝나고 onResume에서 링크 자동 발송
-            pendingShareLink = link
-
-            // 1단계: 카드 이미지 공유
+            // 💡 깔끔하게 카드 이미지만 공유
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "image/jpeg"
                 putExtra(Intent.EXTRA_STREAM, uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                clipData = android.content.ClipData.newRawUri(null, uri)
             }
             startActivity(Intent.createChooser(shareIntent, "추억 카드 공유하기"))
         } catch (e: Exception) {
@@ -598,17 +595,6 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         mapView.resume()
-        // 이미지 공유 후 돌아오면 자동으로 링크 공유
-        pendingShareLink?.let { link ->
-            pendingShareLink = null
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                val linkIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, "📍 우리가 함께한 장소 확인하기:\n$link")
-                }
-                startActivity(Intent.createChooser(linkIntent, "장소 링크 공유하기 📍"))
-            }, 400)
-        }
     }
 
     override fun onPause() {

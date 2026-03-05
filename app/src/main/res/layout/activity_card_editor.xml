@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:background="@drawable/bg_intro_dark_glow">
 
     <!-- 🏷️ Header -->
@@ -44,6 +45,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/editor_header"
         app:layout_constraintBottom_toTopOf="@id/editor_actions">
 
@@ -52,7 +55,9 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="24dp"
-            android:paddingBottom="40dp">
+            android:paddingBottom="80dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
             <!-- 💌 Big Card Preview Workspace -->
             <!-- The scale attributes make it appear smaller on screen while preserving its huge internal metrics for high-res save -->
@@ -73,7 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="-58dp"
+                android:layout_marginTop="-75dp"
                 android:baselineAligned="false">
 
                 <LinearLayout
@@ -84,7 +89,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:background="@drawable/bg_romantic_button"
-                    android:backgroundTint="#33FFFFFF"
+                    android:backgroundTint="#FF1493"
                     android:paddingVertical="12dp"
                     android:layout_marginEnd="8dp">
                     
@@ -100,7 +105,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:background="@drawable/bg_romantic_button"
-                    android:backgroundTint="#33FFFFFF"
+                    android:backgroundTint="#FF1493"
                     android:paddingVertical="12dp"
                     android:layout_marginHorizontal="4dp">
                     
@@ -116,7 +121,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:background="@drawable/bg_romantic_button"
-                    android:backgroundTint="#33FFFFFF"
+                    android:backgroundTint="#FF1493"
                     android:paddingVertical="12dp"
                     android:layout_marginStart="8dp">
                     
@@ -130,7 +135,7 @@
                 android:id="@+id/detail_panel_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-58dp"
+                android:layout_marginTop="-75dp"
                 android:visibility="gone">
 
                 <!-- [Text Input Panel] -->
@@ -159,7 +164,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:text="작성 완료"
-                        android:textColor="#ec135b"
+                        android:textColor="#FF1493"
                         android:backgroundTint="#1AFFFFFF"
                         android:layout_marginTop="8dp"/>
                 </LinearLayout>
@@ -237,7 +242,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:text="테마 저장"
-                        android:textColor="#ec135b"
+                        android:textColor="#FF1493"
                         android:backgroundTint="#1AFFFFFF"
                         android:layout_marginTop="8dp"/>
                 </LinearLayout>
@@ -272,7 +277,7 @@
                             android:paddingHorizontal="16dp"
                             android:paddingVertical="8dp"
                             android:background="@drawable/bg_romantic_button"
-                            android:backgroundTint="#ec135b"/>
+                            android:backgroundTint="#FF1493"/>
 
                         <TextView
                             android:id="@+id/tab_sticker_premium"
@@ -324,7 +329,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:text="스티커 닫기"
-                        android:textColor="#ec135b"
+                        android:textColor="#FF1493"
                         android:backgroundTint="#1AFFFFFF"
                         android:layout_marginTop="8dp"/>
                 </LinearLayout>
@@ -349,7 +354,7 @@
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
             android:background="@drawable/bg_romantic_button"
-            android:backgroundTint="#33FFFFFF"
+            android:backgroundTint="#FF1493"
             android:text="저장만 하기"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
