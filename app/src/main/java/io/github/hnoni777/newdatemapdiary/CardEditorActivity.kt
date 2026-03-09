@@ -406,6 +406,27 @@ class CardEditorActivity : AppCompatActivity() {
             gestureDetector.onTouchEvent(event)
             true
         }
+
+        // 🚀 KODARI DYNAMIC LAYOUT ENGINE 🚀
+        // Calculate the exact empty gap caused by scaleY=0.85 and pull the UI up to sit flush with the card's visual bottom.
+        val bottomPanel = findViewById<View>(R.id.editor_bottom_panel)
+        container.viewTreeObserver.addOnGlobalLayoutListener(object : android.view.ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                if (container.height > 0) {
+                    val realHeight = container.height
+                    val visualHeight = realHeight * 0.85f
+                    val gap = realHeight - visualHeight
+
+                    val params = bottomPanel.layoutParams as ViewGroup.MarginLayoutParams
+                    
+                    // Add an extra ~15dp offset for visual sweetness between the card margin and buttons
+                    params.topMargin = -gap.toInt() + (15 * resources.displayMetrics.density).toInt()
+                    
+                    bottomPanel.layoutParams = params
+                    container.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                }
+            }
+        })
     }
 
     private fun showQRCodeOnStickerLayer(cardView: View) {
@@ -1477,12 +1498,13 @@ class CardEditorActivity : AppCompatActivity() {
                 val dbHelper = MemoryDatabaseHelper(this)
                 val memory = Memory(
                     photoUri = savedUri.toString(),
-                    address = address,
+                    address = address.trim(),
                     lat = lat,
                     lng = lng,
                     date = System.currentTimeMillis()
                 )
                 dbHelper.insertMemory(memory)
+                Log.d("DB_INSERT", "내 추억지도 저장 성공: ${address.trim()}")
             } catch (e: Exception) {
                 Log.e("DB_INSERT", "내 추억지도 저장 실패", e)
             }
