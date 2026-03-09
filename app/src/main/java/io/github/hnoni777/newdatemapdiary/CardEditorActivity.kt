@@ -1154,7 +1154,7 @@ class CardEditorActivity : AppCompatActivity() {
                         FrameLayout.LayoutParams.WRAP_CONTENT,
                         FrameLayout.LayoutParams.WRAP_CONTENT
                     ).apply {
-                        setMargins(150, 250, 0, 0)
+                        setMargins(150, 450, 0, 0)
                     }
                 }
 
@@ -1231,7 +1231,7 @@ class CardEditorActivity : AppCompatActivity() {
                         FrameLayout.LayoutParams.WRAP_CONTENT,
                         FrameLayout.LayoutParams.WRAP_CONTENT
                     ).apply {
-                        setMargins(150, 250, 0, 0)
+                        setMargins(150, 450, 0, 0)
                     }
                 }
 
@@ -1307,7 +1307,7 @@ class CardEditorActivity : AppCompatActivity() {
                 
                 val stickerWrapper = FrameLayout(this).apply {
                     layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
-                        setMargins(150, 250, 0, 0)
+                        setMargins(150, 450, 0, 0)
                     }
                 }
 
@@ -1534,7 +1534,8 @@ class CardEditorActivity : AppCompatActivity() {
             // Exif Metadata Injector 🕵️‍♂️
             try {
                 val exif = androidx.exifinterface.media.ExifInterface(tempFile.absolutePath)
-                val jsonMeta = "{\"lat\":$lat, \"lng\":$lng, \"addr\":\"$address\"}"
+                val encodedAddr = java.net.URLEncoder.encode(address, "UTF-8")
+                val jsonMeta = "{\"lat\":$lat, \"lng\":$lng, \"addr\":\"$encodedAddr\"}"
                 exif.setAttribute(androidx.exifinterface.media.ExifInterface.TAG_IMAGE_DESCRIPTION, jsonMeta)
                 exif.saveAttributes()
             } catch (e: Exception) {

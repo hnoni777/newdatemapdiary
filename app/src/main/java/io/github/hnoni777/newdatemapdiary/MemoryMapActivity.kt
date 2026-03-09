@@ -379,7 +379,8 @@ class MemoryMapActivity : AppCompatActivity() {
                                 val jsonObj = JSONObject(jsonMeta)
                                 val lat = jsonObj.optDouble("lat", 0.0)
                                 val lng = jsonObj.optDouble("lng", 0.0)
-                                val addr = jsonObj.optString("addr", "")
+                                val rawAddr = jsonObj.optString("addr", "")
+                                val addr = try { java.net.URLDecoder.decode(rawAddr, "UTF-8") } catch (e: Exception) { rawAddr }
                                 val dateMillis = dateAddedSecs * 1000L
                                 
                                 val newMemory = Memory(

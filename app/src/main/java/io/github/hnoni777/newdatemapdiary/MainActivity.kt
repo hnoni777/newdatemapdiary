@@ -260,19 +260,23 @@ class MainActivity : AppCompatActivity() {
         createCardBtn.visibility = View.VISIBLE
         addressTextBtn.visibility = View.VISIBLE
 
-        val savedUri = saveBitmapToGallery(bitmap, currentLat, currentLng, addressText.text.toString())
+        // 💡 주의: 여기서 DB에 자동 저장하면, 나중에 '카드 꾸미기' 후 저장할 때 중복이 생길 수 있음.
+        // 하지만 대표님께서 '스샷' 버튼을 눌렀을 때의 기록도 남기고 싶어 하시므로 유지하되, 
+        // 주소의 공백 등을 제거하여 추후 매칭이 잘 되게 함.
+        val savedUri = saveBitmapToGallery(bitmap, currentLat, currentLng, addressText.text.toString().trim())
         if (savedUri != null) {
             try {
-                // 💾 DB에 추억 저장 (내 추억지도용)
                 val dbHelper = MemoryDatabaseHelper(this)
+                // 📍 [정밀화] 저장 시점부터 주소를 트림하여 정규화 주소와의 괴리 방지
                 val memory = Memory(
                     photoUri = savedUri.toString(),
-                    address = addressText.text.toString(),
+                    address = addressText.text.toString().trim(),
                     lat = currentLat,
                     lng = currentLng,
                     date = System.currentTimeMillis()
                 )
                 dbHelper.insertMemory(memory)
+                Log.d("DB_INSERT", "메인 스샷 저장 성공")
             } catch (e: Exception) {
                 Log.e("DB_INSERT", "내 추억지도 자동 저장 실패", e)
             }
@@ -302,7 +306,8 @@ class MainActivity : AppCompatActivity() {
 
             try {
                 val exif = ExifInterface(tempFile.absolutePath)
-                val jsonMeta = "{\"lat\":$lat, \"lng\":$lng, \"addr\":\"$address\"}"
+                val encodedAddr = java.net.URLEncoder.encode(address, "UTF-8")
+                val jsonMeta = "{\"lat\":$lat, \"lng\":$lng, \"addr\":\"$encodedAddr\"}"
                 exif.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, jsonMeta)
                 exif.saveAttributes()
             } catch (e: Exception) {
