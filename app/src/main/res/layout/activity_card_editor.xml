@@ -50,12 +50,11 @@
         app:layout_constraintTop_toBottomOf="@id/editor_header"
         app:layout_constraintBottom_toTopOf="@id/editor_actions">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:paddingHorizontal="24dp"
-            android:paddingBottom="80dp"
+            android:paddingBottom="24dp"
             android:clipChildren="false"
             android:clipToPadding="false">
 
@@ -63,23 +62,41 @@
             <!-- The scale attributes make it appear smaller on screen while preserving its huge internal metrics for high-res save -->
             <FrameLayout
                 android:id="@+id/card_preview_container"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:layout_marginBottom="0dp"
                 android:scaleX="0.85"
                 android:scaleY="0.85"
-                android:transformPivotX="180dp"
-                android:transformPivotY="0dp" />
+                android:transformPivotY="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- 🛠️ Main Edit Category Buttons -->
-            <LinearLayout
-                android:id="@+id/category_button_group"
+            <Space
+                android:id="@+id/bottom_anchor"
                 android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="-70dp"
+                app:layout_constraintTop_toBottomOf="@id/card_preview_container"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <FrameLayout
+                android:id="@+id/editor_bottom_panel"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="-75dp"
-                android:baselineAligned="false">
+                app:layout_constraintTop_toBottomOf="@id/bottom_anchor"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintVertical_bias="1.0">
+
+                <!-- 🛠️ Main Edit Category Buttons -->
+                <LinearLayout
+                    android:id="@+id/category_button_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
 
                 <LinearLayout
                     android:id="@+id/btn_category_text"
@@ -130,13 +147,12 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- 🎛️ Detailed Edit Panels (Initially Hidden) -->
-            <FrameLayout
-                android:id="@+id/detail_panel_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="-75dp"
-                android:visibility="gone">
+                <!-- 🎛️ Detailed Edit Panels (Initially Hidden) -->
+                <FrameLayout
+                    android:id="@+id/detail_panel_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
 
                 <!-- [Text Input Panel] -->
                 <LinearLayout
@@ -333,9 +349,10 @@
                         android:backgroundTint="#1AFFFFFF"
                         android:layout_marginTop="8dp"/>
                 </LinearLayout>
+                </FrameLayout>
             </FrameLayout>
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
     <!-- 📤 Bottom Action Buttons -->
