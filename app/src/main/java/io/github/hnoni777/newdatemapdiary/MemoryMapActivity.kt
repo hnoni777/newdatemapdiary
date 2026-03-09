@@ -21,6 +21,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.provider.MediaStore
 import android.content.ContentUris
+import android.os.Build
+import android.app.RecoverableSecurityException
+import android.content.IntentSender
 import org.json.JSONObject
 
 class MemoryMapActivity : AppCompatActivity() {
@@ -29,6 +32,15 @@ class MemoryMapActivity : AppCompatActivity() {
     private var kakaoMap: KakaoMap? = null
     private lateinit var dbHelper: MemoryDatabaseHelper
     private var memories = listOf<Memory>()
+
+    // 🕊️ 안드로이드 10/11+ 갤러리 삭제 승인을 위한 런처
+    private val deleteLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            Toast.makeText(this, "갤러리 파일이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+            // 지도가 갱신되어야 한다면 호출
+            showMemoriesOnMap()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,9 +71,10 @@ class MemoryMapActivity : AppCompatActivity() {
                 showMemoriesOnMap()
 
                 map.setOnLabelClickListener { _, _, label ->
-                    // 🏷️ 태그 = address 문자열로 그룹 찾기
                     val tagAddr = label.tag as? String ?: ""
-                    val group = memories.filter { it.address.trim() == tagAddr.trim() }
+                    
+                    // 태그(정규화주소)와 일치하는 모든 카드 수집
+                    val group = memories.filter { normalizeAddress(it.address) == tagAddr }
                     if (group.isNotEmpty()) {
                         showMemoryCardDialog(group)
                     }
@@ -71,42 +84,51 @@ class MemoryMapActivity : AppCompatActivity() {
         })
     }
 
+    // 📍 [대표님 지시] 주소 텍스트가 사실상 같으면 무조건 하나로 합침
+    // 공백, 특수문자 등을 모두 제거하고 순수 글자만 비교하여 동일 장소 판단
+    private fun normalizeAddress(addr: String): String {
+        return addr.replace("[^ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9]".toRegex(), "")
+    }
+
     private fun showMemoriesOnMap() {
         val map = kakaoMap ?: return
+        val labelManager = map.labelManager ?: return
+        val layerId = "memories_layer"
+        
+        // 1️⃣ 기존 핀 완전 박멸 (유령 핀 방지)
+        // 레이어를 가져와서 모든 라벨을 지웁니다.
+        val layer = labelManager.getLayer(layerId) ?: labelManager.addLayer(LabelLayerOptions.from(layerId))
+        layer?.removeAll() 
+
         if (memories.isEmpty()) {
-            Toast.makeText(this, "저장된 추억이 아직 없습니다. 카드를 저장해주세요!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "저장된 추억이 없습니다.", Toast.LENGTH_SHORT).show()
             map.moveCamera(CameraUpdateFactory.newCenterPosition(LatLng.from(37.5665, 126.9780), 10))
             return
         }
 
-        val layerId = "memories_layer"
-        var layer = map.labelManager?.getLayer(layerId)
-        if (layer == null) {
-            layer = map.labelManager?.addLayer(LabelLayerOptions.from(layerId))
-        }
-        layer?.removeAll()
-
         val markerBitmap = vectorToBitmap(R.drawable.ic_red_heart_marker)
-        val styles = LabelStyles.from(
-            LabelStyle.from(markerBitmap).setAnchorPoint(0.5f, 1.0f)
-        )
+        val styles = LabelStyles.from(LabelStyle.from(markerBitmap).setAnchorPoint(0.5f, 1.0f))
 
-        // 🏠 주소 문자열 자체로 그룹화 → 완전히 같은 주소는 핀 1개만 생성
-        val groups = memories.groupBy { it.address.trim() }
+        // 🏠 [대표님 지시] 주소 텍스트가 사실상 같으면 무조건 하나로 합침
+        // normalizeAddress를 통해 공백/특수문자를 무시하고 글자만 같으면 그룹화합니다.
+        val groups = memories.groupBy { normalizeAddress(it.address) }
 
-        groups.forEach { (address, group) ->
+        groups.forEach { (normAddr, group) ->
+            // 그룹 중 가장 최근 데이터의 좌표에 핀 하나만 꽂음
             val rep = group.first()
             val pos = LatLng.from(rep.lat, rep.lng)
 
             layer?.addLabel(
                 LabelOptions.from(pos)
                     .setStyles(styles)
-                    .setTag(address) // 태그 = 주소 문자열
+                    .setTag(normAddr) 
             )
         }
 
+        // 카메라 이동 (가장 최근 촬영지)
         if (memories.isNotEmpty()) {
-            map.moveCamera(CameraUpdateFactory.newCenterPosition(LatLng.from(memories[0].lat, memories[0].lng), 12))
+            val lastPos = LatLng.from(memories[0].lat, memories[0].lng)
+            map.moveCamera(CameraUpdateFactory.newCenterPosition(lastPos, 12))
         }
     }
 
@@ -118,26 +140,33 @@ class MemoryMapActivity : AppCompatActivity() {
         val btnDelete = view.findViewById<TextView>(R.id.btn_delete_memory)
         var currentPosition = 0
         
-        pager.adapter = MemoryPagerAdapter(groupItems)
+        // 🛠️ 가변 리스트로 관리하여 삭제 시 즉각 반영되도록 함
+        val mutableGroup = groupItems.toMutableList()
+        val adapter = MemoryPagerAdapter(mutableGroup)
+        pager.adapter = adapter
         
-        if (groupItems.size > 1) {
-            indicator.visibility = View.VISIBLE
-            indicator.text = "1 / ${groupItems.size} 장의 추억"
-        } else {
-            indicator.visibility = View.GONE
+        fun updateIndicator() {
+            if (mutableGroup.size > 1) {
+                indicator.visibility = View.VISIBLE
+                indicator.text = "${pager.currentItem + 1} / ${mutableGroup.size} 장의 추억"
+            } else {
+                indicator.visibility = View.GONE
+            }
         }
+        
+        updateIndicator()
         
         pager.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 currentPosition = position
-                if (groupItems.size > 1) {
-                    indicator.text = "${position + 1} / ${groupItems.size} 장의 추억"
-                }
+                updateIndicator()
             }
         })
         
         btnDelete.setOnClickListener {
-            val memoryToDelete = groupItems[currentPosition]
+            if (currentPosition < 0 || currentPosition >= mutableGroup.size) return@setOnClickListener
+            
+            val memoryToDelete = mutableGroup[currentPosition]
             androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("추억 삭제")
                 .setMessage("이 추억을 정말 지우시겠습니까?\n한 번 삭제하면 되돌릴 수 없습니다.")
@@ -145,22 +174,54 @@ class MemoryMapActivity : AppCompatActivity() {
                     // 1️⃣ DB에서 삭제
                     val success = dbHelper.deleteMemory(memoryToDelete.id)
                     if (success) {
-                        // 2️⃣ MediaStore에서도 삭제 시도 (앱 재설치 후 불러온 카드도 정상 삭제)
+                        // 2️⃣ MediaStore에서도 삭제 시도 (갤러리 이미지 삭제)
                         try {
                             val uri = android.net.Uri.parse(memoryToDelete.photoUri)
                             if (uri.scheme == "content") {
-                                contentResolver.delete(uri, null, null)
+                                // 📱 안드로이드 11(R) 이상: createDeleteRequest 사용 권장
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                    val pendingIntent = MediaStore.createDeleteRequest(contentResolver, listOf(uri))
+                                    deleteLauncher.launch(androidx.activity.result.IntentSenderRequest.Builder(pendingIntent.intentSender).build())
+                                } else {
+                                    // 안드로이드 10 이하 또는 하위 호환
+                                    try {
+                                        contentResolver.delete(uri, null, null)
+                                    } catch (securityException: Exception) {
+                                        // 안드로이드 10에서 RecoverableSecurityException 발생 시 처리
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && securityException is RecoverableSecurityException) {
+                                            val intentSender = securityException.userAction.actionIntent.intentSender
+                                            deleteLauncher.launch(androidx.activity.result.IntentSenderRequest.Builder(intentSender).build())
+                                        } else {
+                                            throw securityException
+                                        }
+                                    }
+                                }
                             }
                         } catch (e: Exception) {
-                            android.util.Log.w("DELETE", "MediaStore 삭제 실패(무시): ${e.message}")
+                            android.util.Log.e("DELETE", "MediaStore 삭제 실패: ${e.message}")
+                            Toast.makeText(this, "갤러리 삭제 중 문제가 발생했습니다: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
 
                         Toast.makeText(this, "추억이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
+                        
+                        // 3️⃣ 데이터 리스트 갱신
+                        mutableGroup.removeAt(currentPosition)
+                        memories = dbHelper.getAllMemories() // 전체 리스트 갱신
 
-                        // 3️⃣ 지도 갱신 - 핀 포함 카드 전부 삭제 시 핀도 즉시 제거
-                        memories = dbHelper.getAllMemories()
-                        showMemoriesOnMap()
+                        if (mutableGroup.isEmpty()) {
+                            dialog.dismiss()
+                            showMemoriesOnMap()
+                        } else {
+                            // 🔥 어댑터에 데이터 변경 알림 (전체 교체보다 안전)
+                            adapter.notifyItemRemoved(currentPosition)
+                            
+                            // 삭제 후 위치 조정 및 인디케이터 갱신
+                            // notifyItemRemoved 호출 후 딜레이를 주어 안정적으로 갱신
+                            pager.post {
+                                updateIndicator()
+                                showMemoriesOnMap()
+                            }
+                        }
                     }
                 }
                 .setNegativeButton("취소", null)
@@ -275,11 +336,15 @@ class MemoryMapActivity : AppCompatActivity() {
     }
 
     private fun syncMemoriesFromGallery() {
-        var restoredCount = 0
-        val existingUris = memories.map { it.photoUri }.toSet()
+        // 1️⃣ 현재 DB 상태 파악
+        val currentDbList = dbHelper.getAllMemories()
+        
+        // 🛡️ [지문 1] 고유 URI 리스트
+        val existingUris = currentDbList.map { it.photoUri }.toMutableSet()
 
+        var restoredCount = 0
         val projection = arrayOf(
-            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media._ID, 
             MediaStore.Images.Media.DATE_ADDED
         )
         val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?"
@@ -291,7 +356,7 @@ class MemoryMapActivity : AppCompatActivity() {
                 projection,
                 selection,
                 selectionArgs,
-                null
+                "${MediaStore.Images.Media.DATE_ADDED} DESC"
             )?.use { cursor ->
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
                 val dateColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
@@ -302,55 +367,60 @@ class MemoryMapActivity : AppCompatActivity() {
                     val contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
                     val uriString = contentUri.toString()
 
-                    if (!existingUris.contains(uriString)) {
-                        // DB에 없는 갤러리 이미지 발견! EXIF 정보 스캔 시도
-                        try {
-                            contentResolver.openInputStream(contentUri)?.use { input ->
-                                val exif = androidx.exifinterface.media.ExifInterface(input)
-                                val jsonMeta = exif.getAttribute(androidx.exifinterface.media.ExifInterface.TAG_IMAGE_DESCRIPTION)
+                    // [체크 A] URI가 이미 있으면 패스
+                    if (existingUris.contains(uriString)) continue
 
-                                if (!jsonMeta.isNullOrEmpty()) {
-                                    val jsonObj = JSONObject(jsonMeta)
-                                    val lat = jsonObj.optDouble("lat", 0.0)
-                                    val lng = jsonObj.optDouble("lng", 0.0)
-                                    val addr = jsonObj.optString("addr", "알 수 없는 장소")
+                    try {
+                        contentResolver.openInputStream(contentUri)?.use { input ->
+                            val exif = androidx.exifinterface.media.ExifInterface(input)
+                            val jsonMeta = exif.getAttribute(androidx.exifinterface.media.ExifInterface.TAG_IMAGE_DESCRIPTION)
 
-                                    if (lat != 0.0 && lng != 0.0) {
-                                        val newMemory = Memory(
-                                            photoUri = uriString,
-                                            address = addr,
-                                            lat = lat,
-                                            lng = lng,
-                                            date = dateAddedSecs * 1000L
-                                        )
-                                        dbHelper.insertMemory(newMemory)
-                                        restoredCount++
-                                    }
-                                }
+                            if (!jsonMeta.isNullOrEmpty()) {
+                                val jsonObj = JSONObject(jsonMeta)
+                                val lat = jsonObj.optDouble("lat", 0.0)
+                                val lng = jsonObj.optDouble("lng", 0.0)
+                                val addr = jsonObj.optString("addr", "")
+                                val dateMillis = dateAddedSecs * 1000L
+                                
+                                val newMemory = Memory(
+                                    photoUri = uriString,
+                                    address = addr.trim(),
+                                    lat = lat,
+                                    lng = lng,
+                                    date = dateMillis
+                                )
+                                // 📍 [핵심] DB에 즉시 영구 저장. 중복 핀 로직은 지도 표출단에서 주소(normalizeAddress) 기준으로만 하나로 묶임
+                                dbHelper.insertMemory(newMemory)
+                                
+                                existingUris.add(uriString)
+                                restoredCount++
                             }
-                        } catch (e: Exception) {
-                            Log.e("SYNC", "EXIF read error for $uriString", e)
                         }
+                    } catch (e: Exception) {
+                        Log.e("SYNC", "EXIF read error: $uriString")
                     }
                 }
             }
         } catch (e: Exception) {
-            Log.e("SYNC", "MediaStore query error", e)
+            Log.e("SYNC", "Query error", e)
         }
 
+        // 3️⃣ 갱신 결과 반영
         if (restoredCount > 0) {
-            Toast.makeText(this, "${restoredCount}개의 추억을 갤러리에서 복원했습니다! 🔄", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "${restoredCount}개의 추억이 종갓집 DB에 합병되었습니다!", Toast.LENGTH_LONG).show()
+            // 무조건 최신 DB에서 다시 불러오기
             memories = dbHelper.getAllMemories()
             showMemoriesOnMap()
         } else {
-            Toast.makeText(this, "동기화 완료: 모든 추억이 이미 최신 상태입니다.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "모든 추억이 이미 안전하게 보관 중입니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onResume() {
         super.onResume()
         mapView.resume()
-        // 화면 복귀 시 memories 갱신 → 다른 화면에서 카드 삭제/추가 후 핀이 최신 상태 반영
+        // 🔥 [대통함] 화면 복귀 시 무조건 DB에서 최신 데이터 로드
+        // 다른 화면(메인/편집기)에서 추가된 데이터가 즉각 반영됨
         memories = dbHelper.getAllMemories()
         if (kakaoMap != null) showMemoriesOnMap()
     }
