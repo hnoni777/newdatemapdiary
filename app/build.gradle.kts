@@ -11,8 +11,8 @@ android {
         applicationId = "io.github.hnoni777.newdatemapdiary"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 142
+        versionName = "1.0.142"
     }
 
     buildTypes {
@@ -61,4 +61,7 @@ dependencies {
 
     // 🕵️ EXIF Metadata for Backup & Restore
     implementation("androidx.exifinterface:exifinterface:1.3.7")
+
+    // 💰 Google Play Billing Library (Premium Stickers)
+    implementation("com.android.billingclient:billing-ktx:7.1.1")
 }

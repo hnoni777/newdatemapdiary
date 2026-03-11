@@ -36,6 +36,9 @@ class CardEditorActivity : AppCompatActivity() {
     // Save the original beautiful handwriting font instantiated from XML
     private var calligraphyFont: android.graphics.Typeface? = null
 
+    private lateinit var billingManager: BillingManager
+    private var isPremiumPurchased = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_card_editor)
@@ -61,32 +64,57 @@ class CardEditorActivity : AppCompatActivity() {
 
         setupButtons()
         setupPanels()
+        
+        billingManager = BillingManager(this) { isInitialCheck ->
+            runOnUiThread {
+                isPremiumPurchased = true
+                setupStickerDrawers() // Refresh stickers to remove locks
+                if (!isInitialCheck) {
+                    Toast.makeText(this, "💎 프리미엄 스티커가 해제되었습니다!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        
         showCardPreview()
     }
 
     private fun setupPanels() {
-        val categoryGroup = findViewById<View>(R.id.category_button_group)
-        val panelContainer = findViewById<View>(R.id.detail_panel_container)
+        val tray = findViewById<View>(R.id.floating_panel_tray)
+        val dimOverlay = findViewById<View>(R.id.panel_dim_overlay)
         
         val panelText = findViewById<View>(R.id.panel_text)
         val panelTheme = findViewById<View>(R.id.panel_theme)
         val panelSticker = findViewById<View>(R.id.panel_sticker)
 
-        // Show/Hide logic
         fun showPanel(panel: View) {
-            categoryGroup.visibility = View.GONE
-            panelContainer.visibility = View.VISIBLE
-            
+            // Hide all panels first
             panelText.visibility = View.GONE
             panelTheme.visibility = View.GONE
             panelSticker.visibility = View.GONE
             
+            // Show target panel
             panel.visibility = View.VISIBLE
+            
+            // Show Tray & Overlay with animation
+            if (tray.visibility != View.VISIBLE) {
+                tray.visibility = View.VISIBLE
+                tray.translationY = 1000f // Start from below
+                tray.animate().translationY(0f).setDuration(300).setInterpolator(android.view.animation.DecelerateInterpolator()).start()
+                
+                dimOverlay.visibility = View.VISIBLE
+                dimOverlay.alpha = 0f
+                dimOverlay.animate().alpha(1f).setDuration(300).start()
+            }
         }
 
         fun hidePanels() {
-            panelContainer.visibility = View.GONE
-            categoryGroup.visibility = View.VISIBLE
+            tray.animate().translationY(1000f).setDuration(250)
+                .withEndAction { tray.visibility = View.GONE }
+                .start()
+            
+            dimOverlay.animate().alpha(0f).setDuration(250)
+                .withEndAction { dimOverlay.visibility = View.GONE }
+                .start()
         }
 
         findViewById<View>(R.id.btn_category_text).setOnClickListener { showPanel(panelText) }
@@ -96,6 +124,9 @@ class CardEditorActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_done_text).setOnClickListener { hidePanels() }
         findViewById<View>(R.id.btn_done_theme).setOnClickListener { hidePanels() }
         findViewById<View>(R.id.btn_done_sticker).setOnClickListener { hidePanels() }
+        
+        // Close when clicking outside on dim overlay
+        dimOverlay.setOnClickListener { hidePanels() }
     }
 
     private fun setupButtons() {
@@ -193,6 +224,9 @@ class CardEditorActivity : AppCompatActivity() {
         val basicContainer = findViewById<FlowLayout>(R.id.container_basic_stickers)
         val premiumContainer = findViewById<FlowLayout>(R.id.container_premium_stickers)
         
+        basicContainer.removeAllViews()
+        premiumContainer.removeAllViews()
+        
         // Basic Emojis 30
         val basicEmojis = listOf(
             "🤍", "⭐", "🌙", "☀️", "☁️", "🌸", "🌻", "🍀", "🍁", "🐾", 
@@ -238,20 +272,32 @@ class CardEditorActivity : AppCompatActivity() {
                 theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
                 foreground = getDrawable(outValue.resourceId)
                 
-                setOnClickListener { addOrToggleSticker("icon", resId, 0) }
+                setOnClickListener { 
+                    Log.d("STICKER_CLICK", "Drawable clicked. isPremium: $isPremium, purchased: $isPremiumPurchased")
+                    if (isPremium && !isPremiumPurchased) {
+                        billingManager.launchPurchaseFlow()
+                    } else {
+                        addOrToggleSticker("icon", resId, 0)
+                    }
+                }
             }
             val img = ImageView(this).apply {
                 setImageResource(resId)
                 layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
             }
             frame.addView(img)
+            
             if (isPremium) {
                 val lock = ImageView(this).apply {
+                    tag = "lock_icon"
                     setImageResource(android.R.drawable.ic_secure)
                     layoutParams = FrameLayout.LayoutParams((16 * resources.displayMetrics.density).toInt(), (16 * resources.displayMetrics.density).toInt()).apply {
                         gravity = android.view.Gravity.BOTTOM or android.view.Gravity.END
                     }
                     setColorFilter(Color.WHITE)
+                    visibility = if (isPremiumPurchased) View.GONE else View.VISIBLE
+                    // 중요: 자물쇠 아이콘 클릭도 프레임 클릭으로 연결
+                    setOnClickListener { frame.performClick() }
                 }
                 frame.addView(lock)
             }
@@ -277,7 +323,14 @@ class CardEditorActivity : AppCompatActivity() {
                 theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
                 foreground = getDrawable(outValue.resourceId)
                 
-                setOnClickListener { addEmojiSticker(emoji) }
+                setOnClickListener { 
+                    Log.d("STICKER_CLICK", "Emoji clicked: $emoji. isPremium: $isPremium, purchased: $isPremiumPurchased")
+                    if (isPremium && !isPremiumPurchased) {
+                        billingManager.launchPurchaseFlow()
+                    } else {
+                        addEmojiSticker(emoji)
+                    }
+                }
             }
             val tv = TextView(this).apply {
                 text = emoji
@@ -286,13 +339,18 @@ class CardEditorActivity : AppCompatActivity() {
                 layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
             }
             frame.addView(tv)
+            
             if (isPremium) {
                 val lock = ImageView(this).apply {
+                    tag = "lock_icon"
                     setImageResource(android.R.drawable.ic_secure)
                     layoutParams = FrameLayout.LayoutParams((16 * resources.displayMetrics.density).toInt(), (16 * resources.displayMetrics.density).toInt()).apply {
                         gravity = android.view.Gravity.BOTTOM or android.view.Gravity.END
                     }
                     setColorFilter(Color.WHITE)
+                    visibility = if (isPremiumPurchased) View.GONE else View.VISIBLE
+                    // 중요: 자물쇠 아이콘 클릭도 프레임 클릭으로 연결
+                    setOnClickListener { frame.performClick() }
                 }
                 frame.addView(lock)
             }
@@ -318,7 +376,14 @@ class CardEditorActivity : AppCompatActivity() {
                 theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
                 foreground = getDrawable(outValue.resourceId)
                 
-                setOnClickListener { addLetteringSticker(textStr) }
+                setOnClickListener { 
+                    Log.d("STICKER_CLICK", "Lettering clicked: $textStr. purchased: $isPremiumPurchased")
+                    if (!isPremiumPurchased) {
+                        billingManager.launchPurchaseFlow()
+                    } else {
+                        addLetteringSticker(textStr)
+                    }
+                }
             }
             val tv = TextView(this).apply {
                 text = textStr
@@ -334,11 +399,15 @@ class CardEditorActivity : AppCompatActivity() {
             frame.addView(tv)
             
             val lock = ImageView(this).apply {
+                tag = "lock_icon"
                 setImageResource(android.R.drawable.ic_secure)
                 layoutParams = FrameLayout.LayoutParams((14 * resources.displayMetrics.density).toInt(), (14 * resources.displayMetrics.density).toInt()).apply {
                     gravity = android.view.Gravity.BOTTOM or android.view.Gravity.END
                 }
                 setColorFilter(Color.WHITE)
+                visibility = if (isPremiumPurchased) View.GONE else View.VISIBLE
+                // 중요: 자물쇠 아이콘 클릭도 프레임 클릭으로 연결
+                setOnClickListener { frame.performClick() }
             }
             frame.addView(lock)
             
@@ -395,6 +464,28 @@ class CardEditorActivity : AppCompatActivity() {
         updateCardMessageText()
         showQRCodeOnStickerLayer(cardView)
         
+        // --- 📏 PERFECT FIT SCALING ---
+        // Automatically scale the card to fill the workspace perfectly without clipping.
+        val workspace = findViewById<View>(R.id.card_workspace)
+        workspace.post {
+            val cardW = cardView.width.toFloat()
+            val cardH = cardView.height.toFloat()
+            
+            val wsW = (workspace.width - workspace.paddingLeft - workspace.paddingRight).toFloat()
+            val wsH = (workspace.height - workspace.paddingTop - workspace.paddingBottom).toFloat()
+            
+            if (cardW > 0 && cardH > 0 && wsW > 0 && wsH > 0) {
+                val scaleW = wsW / cardW
+                val scaleH = wsH / cardH
+                val targetScale = minOf(scaleW, scaleH) * 0.96f // 4% safety margin
+                
+                container.scaleX = targetScale
+                container.scaleY = targetScale
+                container.pivotX = cardW / 2f
+                container.pivotY = cardH / 2f
+            }
+        }
+
         val stickerLayer = cardView.findViewById<View>(R.id.sticker_container)
         val gestureDetector = android.view.GestureDetector(this, object : android.view.GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapUp(e: android.view.MotionEvent): Boolean {
@@ -406,27 +497,6 @@ class CardEditorActivity : AppCompatActivity() {
             gestureDetector.onTouchEvent(event)
             true
         }
-
-        // 🚀 KODARI DYNAMIC LAYOUT ENGINE 🚀
-        // Calculate the exact empty gap caused by scaleY=0.85 and pull the UI up to sit flush with the card's visual bottom.
-        val bottomPanel = findViewById<View>(R.id.editor_bottom_panel)
-        container.viewTreeObserver.addOnGlobalLayoutListener(object : android.view.ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                if (container.height > 0) {
-                    val realHeight = container.height
-                    val visualHeight = realHeight * 0.85f
-                    val gap = realHeight - visualHeight
-
-                    val params = bottomPanel.layoutParams as ViewGroup.MarginLayoutParams
-                    
-                    // Add an extra ~15dp offset for visual sweetness between the card margin and buttons
-                    params.topMargin = -gap.toInt() + (15 * resources.displayMetrics.density).toInt()
-                    
-                    bottomPanel.layoutParams = params
-                    container.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                }
-            }
-        })
     }
 
     private fun showQRCodeOnStickerLayer(cardView: View) {
@@ -458,8 +528,14 @@ class CardEditorActivity : AppCompatActivity() {
         if (container.childCount > 0) {
             val cardView = container.getChildAt(0)
             val userMessage = editCardMessage.text.toString()
-            cardView.findViewById<TextView>(R.id.card_message).text =
-                if (userMessage.isNotEmpty()) userMessage else "오늘의 로맨틱한 순간"
+            cardView.findViewById<TextView>(R.id.card_message).apply {
+                text = if (userMessage.isNotEmpty()) userMessage else "오늘의 로맨틱한 순간"
+                // 🖋️ Improve Typography Quality
+                paint.isAntiAlias = true
+                paint.isSubpixelText = true
+                setShadowLayer(1.5f, 0.5f, 0.5f, Color.parseColor("#20000000")) // Subtle lift
+                letterSpacing = 0.02f
+            }
         }
     }
 
@@ -1320,6 +1396,8 @@ class CardEditorActivity : AppCompatActivity() {
                         setMargins(30, 30, 30, 30) // padding for close button
                     }
                     paint.isFakeBoldText = true
+                    paint.isAntiAlias = true
+                    paint.isSubpixelText = true
                     setShadowLayer(8f, 2f, 2f, Color.parseColor("#99000000"))
                 }
 
@@ -1394,103 +1472,26 @@ class CardEditorActivity : AppCompatActivity() {
         clearStickerSelection()
         
         val container = findViewById<FrameLayout>(R.id.card_preview_container)
-        
-        val innerCard = if (container.childCount > 0) {
-            val cardView = container.getChildAt(0) as? ViewGroup
-            cardView?.getChildAt(0) ?: container
-        } else container
+        if (container.childCount == 0) return
+        val cardView = container.getChildAt(0) as? androidx.cardview.widget.CardView ?: return
 
-        val photoView = innerCard.findViewById<View>(R.id.card_image)
-        var photoCardView: View? = null
+        // --- 🚀 ULTRA-HIGH RESOLUTION CAPTURE 🚀 ---
+        // 뭉개짐(Mangling) 해결을 위해 화면 해상도보다 훨씬 높은 해상도로 렌더링합니다.
+        val qualityScale = 2.5f 
+        val exportWidth = (cardView.width * qualityScale).toInt()
+        val exportHeight = (cardView.height * qualityScale).toInt()
         
-        if (photoView != null) {
-            var current: View? = photoView
-            while (current != null && current != innerCard && current !is androidx.cardview.widget.CardView) {
-                current = current.parent as? View
-            }
-            photoCardView = current ?: photoView
-            // 💡 꼼수: 먼저 숨겨서 직각으로 그려지는 것 방지!
-            photoCardView.visibility = android.view.View.INVISIBLE
-        }
-        
-        val bitmap = Bitmap.createBitmap(innerCard.width, innerCard.height, Bitmap.Config.ARGB_8888)
+        if (exportWidth <= 0 || exportHeight <= 0) return
+
+        val bitmap = Bitmap.createBitmap(exportWidth, exportHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         
-        innerCard.draw(canvas)
+        // Settings for high quality
+        canvas.drawColor(android.graphics.Color.WHITE)
+        canvas.scale(qualityScale, qualityScale)
         
-        try {
-            if (photoView != null && photoCardView != null) {
-                // 원래대로 원상복구
-                photoCardView.visibility = android.view.View.VISIBLE
-                
-                var rx = 0f
-                var ry = 0f
-                var pCurrent: View? = photoCardView
-                while (pCurrent != null && pCurrent != innerCard) {
-                    rx += pCurrent.x
-                    ry += pCurrent.y
-                    pCurrent = pCurrent.parent as? View
-                }
-                
-                val left = rx
-                val top = ry
-                val right = left + photoCardView.width
-                val bottom = top + photoCardView.height
-                
-                val radiusPx = (photoCardView as? androidx.cardview.widget.CardView)?.radius ?: (12 * resources.displayMetrics.density)
-                
-                val path = android.graphics.Path().apply {
-                    addRoundRect(
-                        android.graphics.RectF(left, top, right, bottom),
-                        radiusPx, radiusPx,
-                        android.graphics.Path.Direction.CW
-                    )
-                }
-                
-                canvas.save()
-                canvas.clipPath(path)
-                // 직각 찌꺼기가 애초에 없으므로, 배경 채색(drawRect)으로 가릴 필요 없이 그냥 예쁘게 그리기만 하면 됨!
-                canvas.translate(left, top)
-                photoCardView.draw(canvas)
-                canvas.restore()
-                
-                // Redraw the premium border if it's visible so it overlays the newly drawn photo properly
-                val premiumBorder = innerCard.findViewById<View>(R.id.card_premium_border)
-                if (premiumBorder != null && premiumBorder.visibility == android.view.View.VISIBLE) {
-                    var bx = 0f
-                    var by = 0f
-                    var bCurrent: View? = premiumBorder
-                    while (bCurrent != null && bCurrent != innerCard) {
-                        bx += bCurrent.x
-                        by += bCurrent.y
-                        bCurrent = bCurrent.parent as? View
-                    }
-                    canvas.save()
-                    canvas.translate(bx, by)
-                    premiumBorder.draw(canvas)
-                    canvas.restore()
-                }
-
-                val stickerLayer = innerCard.findViewById<View>(R.id.sticker_container)
-                if (stickerLayer != null) {
-                    var sdx = 0f
-                    var sdy = 0f
-                    var sCurrent: View? = stickerLayer
-                    while (sCurrent != null && sCurrent != innerCard) {
-                        sdx += sCurrent.x
-                        sdy += sCurrent.y
-                        sCurrent = sCurrent.parent as? View
-                    }
-                    canvas.save()
-                    canvas.translate(sdx, sdy)
-                    stickerLayer.draw(canvas)
-                    canvas.restore()
-                }
-            }
-        } catch (e: Exception) {
-            photoCardView?.visibility = android.view.View.VISIBLE
-            Log.e("SCREENSHOT_ROUNDING", "Precision drawing failed", e)
-        }
+        // 🔲 사장님 요청: 외각은 곡선(라운딩) 없이 직각으로 깔끔하게 출력!
+        cardView.draw(canvas)
         val savedUri = saveBitmapToGallery(bitmap, lat, lng, address)
         if (savedUri != null) {
             try {

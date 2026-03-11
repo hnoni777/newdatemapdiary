@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="com.android.vending.BILLING" />
     
     <!-- 갤러리 복원을 위한 권한 (앱 재설치시 이전 파일 읽기) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
@@ -11,9 +12,10 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
 
     <application
-        android:allowBackup="true"
-        android:icon="@drawable/ic_app_launcher_v7"
-        android:roundIcon="@drawable/ic_app_launcher_v7"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:icon="@drawable/ic_app_launcher_v8"
+        android:roundIcon="@drawable/ic_app_launcher_v8"
         android:label="HereWithU"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 

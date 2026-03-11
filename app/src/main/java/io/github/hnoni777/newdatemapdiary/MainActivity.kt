@@ -501,6 +501,9 @@ class MainActivity : AppCompatActivity() {
             override fun onMapDestroy() {}
             override fun onMapError(error: Exception) {
                 Log.e("MAP_ERROR", error.toString())
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "📍 지도 오류: ${error.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }, object : KakaoMapReadyCallback() {
             override fun onMapReady(map: KakaoMap) {
@@ -576,9 +579,11 @@ class MainActivity : AppCompatActivity() {
                 val conn = url.openConnection() as HttpURLConnection
                 conn.setRequestProperty("Authorization", "KakaoAK $KAKAO_REST_KEY")
 
-                val json = conn.inputStream.bufferedReader().readText()
-                val root = JSONObject(json)
-                val docs = root.getJSONArray("documents")
+                val responseCode = conn.responseCode
+                if (responseCode == 200) {
+                    val json = conn.inputStream.bufferedReader().readText()
+                    val root = JSONObject(json)
+                    val docs = root.getJSONArray("documents")
 
                 if (docs.length() > 0) {
                     val obj = docs.getJSONObject(0)
@@ -590,9 +595,19 @@ class MainActivity : AppCompatActivity() {
                         addressText.text = addr
                         showCardPreview() // 주소가 오면 카드 프리뷰 다시 갱신
                     }
+                    }
+                } else {
+                    val err = conn.errorStream?.bufferedReader()?.readText() ?: "오류 정보 없음"
+                    Log.e("KAKAO_ADDRESS", "HTTP $responseCode: $err")
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, "🏠 주소 오류($responseCode): $err", Toast.LENGTH_LONG).show()
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("KAKAO_ADDRESS", e.toString())
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "🏠 주소 오류: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
