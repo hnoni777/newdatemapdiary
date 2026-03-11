@@ -28,14 +28,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp"
+            android:padding="20dp"
             android:background="#FFFFFF">
 
-            <!-- 📸 Image Area: Modern Polaroid Look -->
+            <!-- 📸 Image Area -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
+                app:cardCornerRadius="10dp"
                 app:cardElevation="0dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -57,48 +57,48 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- 📝 Premium Typography Area -->
+            <!-- 📝 Integrated Typography Area -->
             <LinearLayout
                 android:id="@+id/card_text_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingTop="32dp"
-                android:paddingBottom="8dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="4dp"
                 android:gravity="center"
                 android:background="@android:color/transparent">
 
-                <!-- 💬 Romantic Message (Serif style for premium look) -->
+                <!-- 💬 Message -->
                 <TextView
                     android:id="@+id/card_message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="언젠가 너와 다시 오고 싶은 장소"
-                    android:textSize="24sp"
+                    android:textSize="22sp"
                     android:textStyle="bold"
                     android:fontFamily="@font/kyobo_hand_family"
                     android:textColor="#221018"
                     android:gravity="center"
                     android:letterSpacing="0.01" />
 
-                <!-- 📍 Location Label with elegant design -->
+                <!-- 📍 Slim Location Pill -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="10dp"
                     android:background="@drawable/bg_gold_pill_button"
                     android:backgroundTint="#1A221018"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp">
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="5dp">
                     
                     <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
                         android:src="@drawable/ic_white_location"
                         app:tint="#8C8C8C"
-                        android:layout_marginEnd="6dp" />
+                        android:layout_marginEnd="4dp" />
 
                     <TextView
                         android:id="@+id/card_address"
@@ -106,20 +106,20 @@
                         android:layout_height="wrap_content"
                         android:text="경기도 광명시 소하로 10"
                         android:fontFamily="@font/kyobo_hand_family"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textColor="#666666" />
                 </LinearLayout>
 
-                <!-- 📅 Date, Branding, and QR Code Footer -->
+                <!-- 📅 Compact Footer (All in one tight line) -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="16dp"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical"
+                    android:gravity="bottom"
                     android:baselineAligned="false">
 
-                    <!-- Left: Date and Watermark -->
+                    <!-- Left: Date & Watermark Stacked -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -131,10 +131,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="2026.02.25"
-                            android:textSize="13sp"
+                            android:textSize="12sp"
                             android:textColor="#999999"
                             android:fontFamily="@font/kyobo_hand_family"
-                            android:letterSpacing="0.1" />
+                            android:letterSpacing="0.05" />
 
                         <TextView
                             android:id="@+id/card_watermark"
@@ -142,22 +142,21 @@
                             android:layout_height="wrap_content"
                             android:text="HereWithYou"
                             android:textStyle="italic|bold"
-                            android:textSize="14sp"
-                            android:layout_marginTop="4dp"
+                            android:textSize="13sp"
+                            android:layout_marginTop="2dp"
                             android:fontFamily="@font/kyobo_hand_family"
                             android:textColor="#D4AF37"
-                            android:alpha="0.8"
-                            android:letterSpacing="0.05" />
+                            android:alpha="0.8" />
                     </LinearLayout>
 
-                    <!-- Right: QR Code -->
+                    <!-- Right: Smaller QR Code -->
                     <ImageView
                         android:id="@+id/card_qr_code"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_marginStart="16dp"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_marginStart="8dp"
                         android:background="@android:color/white"
-                        android:padding="2dp"
+                        android:padding="1dp"
                         android:visibility="gone"
                         android:scaleType="fitCenter" />
                 </LinearLayout>
