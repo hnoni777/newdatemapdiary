@@ -1,0 +1,33 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="36dp"
+    android:viewportWidth="24"
+    android:viewportHeight="34">
+
+    <!-- Drop Shadow -->
+    <path
+        android:fillColor="#22000000"
+        android:pathData="M12,29.5 C15.5,29.5 18,30.5 18,31.5 C18,32.5 15.5,33.5 12,33.5 C8.5,33.5 6,32.5 6,31.5 C6,30.5 8.5,29.5 12,29.5 Z"/>
+
+    <!-- Location Pin Outline/Base -->
+    <path
+        android:fillColor="#ec135b"
+        android:pathData="M12,1.5 C6.2,1.5 1.5,6.2 1.5,12 C1.5,18.5 12,30 12,30 S22.5,18.5 22.5,12 C22.5,6.2 17.8,1.5 12,1.5 Z"/>
+
+    <!-- Inner White Circle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,4.5 C16.14,4.5 19.5,7.86 19.5,12 C19.5,16.14 16.14,19.5 12,19.5 C7.86,19.5 4.5,16.14 4.5,12 C4.5,7.86 7.86,4.5 12,4.5 Z"/>
+
+    <!-- Heart inside the white circle -->
+    <group
+        android:translateX="6.2"
+        android:translateY="6.5"
+        android:scaleX="0.48"
+        android:scaleY="0.48">
+        <path
+            android:fillColor="#ec135b"
+            android:pathData="M12,21.35l-1.45,-1.32C5.4,15.36 2,12.28 2,8.5 2,5.42 4.42,3 7.5,3c1.74,0 3.41,0.81 4.5,2.09C13.09,3.81 14.76,3 16.5,3 19.58,3 22,5.42 22,8.5c0,3.78 -3.4,6.86 -8.55,11.54L12,21.35z"/>
+    </group>
+
+</vector>

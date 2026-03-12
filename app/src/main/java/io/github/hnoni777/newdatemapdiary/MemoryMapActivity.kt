@@ -1,5 +1,6 @@
 package io.github.hnoni777.newdatemapdiary
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -25,8 +26,15 @@ import android.os.Build
 import android.app.RecoverableSecurityException
 import android.content.IntentSender
 import org.json.JSONObject
+import com.google.android.gms.location.LocationServices
+import com.kakao.vectormap.route.*
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlin.concurrent.thread
 
 class MemoryMapActivity : AppCompatActivity() {
+
+    private val KAKAO_REST_KEY = "83aa83329de094b2cf52a2e8a34206fa"
 
     private lateinit var mapView: MapView
     private var kakaoMap: KakaoMap? = null
@@ -138,12 +146,32 @@ class MemoryMapActivity : AppCompatActivity() {
         val pager = view.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.dialog_card_pager)
         val indicator = view.findViewById<TextView>(R.id.text_page_indicator)
         val btnDelete = view.findViewById<TextView>(R.id.btn_delete_memory)
+        val btnGetDirections = view.findViewById<View>(R.id.btn_get_directions)
         var currentPosition = 0
-        
+
         // 🛠️ 가변 리스트로 관리하여 삭제 시 즉각 반영되도록 함
         val mutableGroup = groupItems.toMutableList()
         val adapter = MemoryPagerAdapter(mutableGroup)
         pager.adapter = adapter
+
+        btnGetDirections.setOnClickListener {
+            if (currentPosition < 0 || currentPosition >= mutableGroup.size) return@setOnClickListener
+            val target = mutableGroup[currentPosition]
+            
+            // 🛣️ [새로운 페이지] 길찾기 전용 액티비티 실행
+            if (target.lat != 0.0 && target.lng != 0.0) {
+                Log.d("MAP_NAV", "Starting navigation to: ${target.lat}, ${target.lng}")
+                val intent = Intent(this, DirectionsActivity::class.java).apply {
+                    putExtra("lat", target.lat)
+                    putExtra("lng", target.lng)
+                    putExtra("address", target.address)
+                }
+                startActivity(intent)
+                dialog.dismiss()
+            } else {
+                Toast.makeText(this, "좌표 정보가 없는 추억입니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
         
         fun updateIndicator() {
             if (mutableGroup.size > 1) {

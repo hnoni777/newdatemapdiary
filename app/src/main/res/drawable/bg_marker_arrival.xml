@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="30dp"
+    android:height="40dp"
+    android:viewportWidth="32"
+    android:viewportHeight="40">
+    <!-- Red Teardrop for Arrival -->
+    <!-- Head is PERFECTLY CENTERED at (16, 20) in a 40-unit viewport -->
+    <path
+        android:fillColor="#FF4141"
+        android:pathData="M16,8c-6.63,0 -12,5.37 -12,12 0,9 12,20 12,20s12,-11 12,-20c0,-6.63 -5.37,-12 -12,-12z"/>
+    <!-- Inner core guide -->
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.1"
+        android:pathData="M16,20m-9,0a9,9 0,1 1,18 0a9,9 0,1 1,-18 0"/>
+</vector>

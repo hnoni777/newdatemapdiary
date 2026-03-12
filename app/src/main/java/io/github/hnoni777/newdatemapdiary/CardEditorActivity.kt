@@ -65,12 +65,14 @@ class CardEditorActivity : AppCompatActivity() {
         setupButtons()
         setupPanels()
         
-        billingManager = BillingManager(this) { isInitialCheck ->
+        billingManager = BillingManager(this) { isPremium, isInitialCheck ->
             runOnUiThread {
-                isPremiumPurchased = true
-                setupStickerDrawers() // Refresh stickers to remove locks
-                if (!isInitialCheck) {
+                isPremiumPurchased = isPremium
+                setupStickerDrawers() // Refresh stickers to update locks (lock or unlock)
+                if (isPremium && !isInitialCheck) {
                     Toast.makeText(this, "💎 프리미엄 스티커가 해제되었습니다!", Toast.LENGTH_SHORT).show()
+                } else if (!isPremium && isInitialCheck) {
+                    Log.d("BILLING", "프리미엄 권한 없음 확인됨 (자물쇠 활성화)")
                 }
             }
         }

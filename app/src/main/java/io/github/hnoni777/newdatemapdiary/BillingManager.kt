@@ -10,7 +10,7 @@ import com.android.billingclient.api.QueryProductDetailsParams.Product
  * 💰 진짜 구글 플레이 결제 매니저 (Real Billing Manager)
  * premium_stickers_all 상품을 실제로 결제하고 처리합니다.
  */
-class BillingManager(private val activity: Activity, private val onPurchaseSuccess: (isInitialCheck: Boolean) -> Unit) {
+class BillingManager(private val activity: Activity, private val onBillingResult: (isPremium: Boolean, isInitialCheck: Boolean) -> Unit) {
 
     private val billingClient: BillingClient = BillingClient.newBuilder(activity)
         .setListener { billingResult, purchases ->
@@ -55,7 +55,9 @@ class BillingManager(private val activity: Activity, private val onPurchaseSucce
             .build()
 
         billingClient.queryPurchasesAsync(params) { billingResult, purchases ->
+            var isPremium = false
             Log.d("BILLING", "구매 내역 조회 결과: ${billingResult.responseCode}, 개수: ${purchases.size}")
+            
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 if (purchases.isEmpty()) {
                     Log.d("BILLING", "구매 내역이 비어있습니다. (정상 환불됨)")
@@ -64,11 +66,15 @@ class BillingManager(private val activity: Activity, private val onPurchaseSucce
                     Log.d("BILLING", "발견된 상품: ${purchase.products}, 상태: ${purchase.purchaseState}")
                     if (purchase.products.contains(STICKER_SKU) && 
                         purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                        onPurchaseSuccess(true) // Initial check / Restore
+                        isPremium = true
                         Log.d("BILLING", "이미 구매한 상품 확인됨: $STICKER_SKU")
                     }
                 }
             }
+            
+            // 프리미엄 여부를 확실하게 전달 (환불 시 false 전달됨)
+            onBillingResult(isPremium, true)
+            Log.d("BILLING", "최종 프리미엄 판정 결과 전달: $isPremium")
         }
     }
 
@@ -116,11 +122,11 @@ class BillingManager(private val activity: Activity, private val onPurchaseSucce
                 billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
                     if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                         Log.d("BILLING", "구매 승인 완료: $STICKER_SKU")
-                        onPurchaseSuccess(false) // New purchase
+                        onBillingResult(true, false) // New purchase
                     }
                 }
             } else {
-                onPurchaseSuccess(false) // New purchase (already acknowledged or edge case)
+                onBillingResult(true, false) // New purchase (already acknowledged or edge case)
             }
         }
     }

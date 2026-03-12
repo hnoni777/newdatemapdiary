@@ -25,7 +25,7 @@
             android:id="@+id/text_page_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="start|center_vertical"
             android:textColor="#FFFFFF"
             android:background="@drawable/bg_gold_pill_button"
             android:backgroundTint="#99221018"
@@ -53,6 +53,29 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/dialog_card_pager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp" />
+
+    <!-- 🗺️ [내비게이션 버튼] 카드 바로 밑에 큼직하고 예쁘게 배치 -->
+    <LinearLayout
+        android:id="@+id/btn_get_directions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="@drawable/bg_gold_pill_button"
+        android:backgroundTint="#CC221018"
+        android:paddingVertical="12dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🗺️ 이 장소로 길찾기 시작"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:fontFamily="@font/kyobo_hand_family" />
+    </LinearLayout>
 
 </LinearLayout>
