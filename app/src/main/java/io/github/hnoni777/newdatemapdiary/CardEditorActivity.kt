@@ -137,12 +137,7 @@ class CardEditorActivity : AppCompatActivity() {
         }
 
         // 🎨 Theme Selection
-        findViewById<View>(R.id.theme_pale_blue).setOnClickListener { updateCardTheme("#F0F7FF") }
-        findViewById<View>(R.id.theme_romantic_pink).setOnClickListener { updateCardTheme("#FFF0F5") }
-        findViewById<View>(R.id.theme_warm_vintage).setOnClickListener { updateCardTheme("#FFF8E1") }
-        findViewById<View>(R.id.theme_modern_minimal).setOnClickListener { updateCardTheme("#F5F5F5") }
-
-        // 👑 VVIP Premium Effects
+        // 🎨 Effects Selection (Merged into Basic)
         findViewById<View>(R.id.btn_effect_basic).setOnClickListener { applyCardEffect("basic") }
         findViewById<View>(R.id.btn_effect_vip).setOnClickListener { applyCardEffect("vip") }
         findViewById<View>(R.id.btn_effect_letter).setOnClickListener { applyCardEffect("letter") }
@@ -538,29 +533,6 @@ class CardEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateCardTheme(colorHex: String) {
-        val color = Color.parseColor(colorHex)
-        val container = findViewById<FrameLayout>(R.id.card_preview_container)
-        if (container.childCount > 0) {
-            val cardView = container.getChildAt(0) as? androidx.cardview.widget.CardView
-            val contentLayout = cardView?.findViewById<View>(R.id.card_content_layout)
-            
-            // 프리미엄/VVIP 효과가 적용되어 있을 경우 배경색 변경 무시
-            val currentTag = contentLayout?.tag as? String
-            if (currentTag != "basic" && currentTag != "glass" && currentTag != null) {
-                return
-            }
-            
-            cardView?.setCardBackgroundColor(color)
-            
-            // Keep content layout background transparent or colored depending on current effect (Basic vs Glass)
-            // By default let's make it the same as the card
-            if (currentTag != "glass") {
-                contentLayout?.setBackgroundColor(color)
-                cardView?.findViewById<View>(R.id.card_text_layout)?.setBackgroundColor(color)
-            }
-        }
-    }
 
     private fun applyCardEffect(effect: String) {
         val container = findViewById<FrameLayout>(R.id.card_preview_container)
