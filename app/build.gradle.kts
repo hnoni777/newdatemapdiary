@@ -11,13 +11,24 @@ android {
         applicationId = "io.github.hnoni777.newdatemapdiary"
         minSdk = 26
         targetSdk = 35
-        versionCode = 143
-        versionName = "1.0.143"
+        versionCode = 144
+        versionName = "1.0.144"
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        debug {
+            // ✅ 배포용 디버그 빌드에서도 용량 최적화를 위해 활성화합니다.
+            isDebuggable = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

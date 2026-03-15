@@ -14,8 +14,8 @@
     <application
         android:allowBackup="false"
         android:fullBackupContent="false"
-        android:icon="@drawable/ic_app_launcher_v9"
-        android:roundIcon="@drawable/ic_app_launcher_v9"
+        android:icon="@mipmap/ic_app_launcher_v9"
+        android:roundIcon="@mipmap/ic_app_launcher_v9"
         android:label="HereWithU"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
