@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 🎨 영자 수석 디자이너 제작 - Champagne Gold Pill Button -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="135"
+        android:startColor="#D4B87A"
+        android:centerColor="#C9A96E"
+        android:endColor="#B8965A"
+        android:type="linear" />
+    <corners android:radius="100dp" />
+</shape>

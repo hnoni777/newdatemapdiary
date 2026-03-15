@@ -18,8 +18,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="← 돌아가기"
-        android:backgroundTint="#99330000"
-        android:textColor="#FFFFFF"
+        android:backgroundTint="#FFD700"
+        android:textColor="#000000"
         android:textSize="14sp"
         android:fontFamily="@font/kyobo_hand_family"
         android:textStyle="bold"
@@ -28,7 +28,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
-        android:elevation="8dp"/>
+        android:elevation="12dp"/>
 
     <!-- 🔄 추억 동기화 (복원) 버튼 -->
     <Button
@@ -36,8 +36,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="🔄 추억 복원"
-        android:backgroundTint="#99330000"
-        android:textColor="#FFFFFF"
+        android:backgroundTint="#FFD700"
+        android:textColor="#000000"
         android:textSize="14sp"
         android:fontFamily="@font/kyobo_hand_family"
         android:textStyle="bold"
@@ -46,7 +46,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="24dp"
-        android:elevation="8dp"/>
+        android:elevation="12dp"/>
 
     <!-- 추억 타이틀 -->
     <TextView
@@ -65,5 +65,25 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="16dp"
         android:layout_marginTop="12dp" />
+
+    <!-- ▶️ 추억 재생 버튼 (Path Animation) -->
+    <Button
+        android:id="@+id/btn_play_path"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="▶️ 추억 따라가기"
+        android:backgroundTint="#FFD700"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:fontFamily="@font/kyobo_hand_family"
+        android:textStyle="bold"
+        app:cornerRadius="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="32dp"
+        android:elevation="12dp"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="12dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

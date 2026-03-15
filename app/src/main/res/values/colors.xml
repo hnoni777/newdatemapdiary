@@ -8,9 +8,14 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <!-- Premium Dark Theme Colors -->
+    <color name="champagne_gold">#C9A96E</color>
+    <color name="premium_dark_bg">#0D0D0D</color>
+    <color name="charcoal_gray">#A0A0A0</color>
+    <color name="glass_white_10">#1AFFFFFF</color>
+    <color name="glass_white_20">#33FFFFFF</color>
+
     <!-- Romantic Theme Colors -->
     <color name="primary_pink">#FF1493</color>
     <color name="bg_dark_maroon">#221016</color>
-    <color name="bg_soft_white">#f8f6f6</color>
-    <color name="text_slate_gray">#94a3b8</color>
 </resources>

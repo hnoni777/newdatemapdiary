@@ -26,17 +26,17 @@ class IntroActivity : AppCompatActivity() {
 
         val pages = listOf(
             IntroPageItem(
-                R.drawable.ic_gold_heart,
+                R.drawable.intro_hero_couple,
                 "둘만의 소중한 데이트 기록",
                 "우리가 함께한 예쁜 순간들을\n나만의 다이어리에 담아보세요"
             ),
             IntroPageItem(
-                R.drawable.ic_white_location,
+                R.drawable.intro_hero_polaroid,
                 "폴라로이드 카드로 찰칵! 📸",
                 "예쁜 스티커로 카드를 꾸미고\n지도에 하트 핀을 꽂아 남겨보세요!"
             ),
             IntroPageItem(
-                R.drawable.ic_modern_share, 
+                R.drawable.intro_hero_share,
                 "추억을 함께 나눠요",
                 "만들어진 예쁜 추억 카드들을\n연인과 친구들에게 편하게 공유해봐요!"
             )
@@ -64,16 +64,35 @@ class IntroActivity : AppCompatActivity() {
     }
 
     private fun updateIndicator(position: Int) {
-        val activeBg = R.drawable.bg_gold_pill_button
-        val inactiveBg = "#33FFFFFF"
+        // 🎨 [영자 디자인] 활성화: 샴페인 골드 채워진 원 / 비활성화: 흰색 반투명 작은 원
+        val activeBg = R.drawable.bg_champagne_gold_button
+        val inactiveColor = android.graphics.Color.parseColor("#2EFFFFFF")
 
-        dot1.setBackgroundResource(if (position == 0) activeBg else 0)
-        if (position != 0) dot1.setBackgroundColor(android.graphics.Color.parseColor(inactiveBg))
+        // Dot 1
+        if (position == 0) {
+            dot1.setBackgroundResource(activeBg)
+            val lp = dot1.layoutParams; lp.width = 24; lp.height = 24; dot1.layoutParams = lp
+        } else {
+            dot1.setBackgroundColor(inactiveColor)
+            val lp = dot1.layoutParams; lp.width = 18; lp.height = 18; dot1.layoutParams = lp
+        }
 
-        dot2.setBackgroundResource(if (position == 1) activeBg else 0)
-        if (position != 1) dot2.setBackgroundColor(android.graphics.Color.parseColor(inactiveBg))
+        // Dot 2
+        if (position == 1) {
+            dot2.setBackgroundResource(activeBg)
+            val lp = dot2.layoutParams; lp.width = 24; lp.height = 24; dot2.layoutParams = lp
+        } else {
+            dot2.setBackgroundColor(inactiveColor)
+            val lp = dot2.layoutParams; lp.width = 18; lp.height = 18; dot2.layoutParams = lp
+        }
 
-        dot3.setBackgroundResource(if (position == 2) activeBg else 0)
-        if (position != 2) dot3.setBackgroundColor(android.graphics.Color.parseColor(inactiveBg))
+        // Dot 3
+        if (position == 2) {
+            dot3.setBackgroundResource(activeBg)
+            val lp = dot3.layoutParams; lp.width = 24; lp.height = 24; dot3.layoutParams = lp
+        } else {
+            dot3.setBackgroundColor(inactiveColor)
+            val lp = dot3.layoutParams; lp.width = 18; lp.height = 18; dot3.layoutParams = lp
+        }
     }
 }

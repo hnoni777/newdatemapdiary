@@ -16,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.kakao.vectormap.*
-import com.kakao.vectormap.camera.CameraUpdateFactory
+import com.kakao.vectormap.camera.*
 import com.kakao.vectormap.label.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -40,6 +40,17 @@ class MemoryMapActivity : AppCompatActivity() {
     private var kakaoMap: KakaoMap? = null
     private lateinit var dbHelper: MemoryDatabaseHelper
     private var memories = listOf<Memory>()
+    private var sortedMemoriesForPath = listOf<Memory>()
+    private var memoryStopIndexes = mutableListOf<Int>() // fullJourneyPoints 내의 정지 지점 인덱스
+    private var isPathPlaying = false
+    private var isMovingToPoint = false
+    private var currentPathIndex = 0
+    private var fullJourneyPoints = listOf<LatLng>()
+    private var flightAnimator: android.animation.Animator? = null
+    private var airplaneLabel: Label? = null
+    private var currentRouteLine: RouteLine? = null
+    private var isRouteReady = false
+    private var cachedAirplaneBitmap: Bitmap? = null
 
     // 🕊️ 안드로이드 10/11+ 갤러리 삭제 승인을 위한 런처
     private val deleteLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult()) { result ->
@@ -68,6 +79,10 @@ class MemoryMapActivity : AppCompatActivity() {
             checkPermissionAndSyncMemories()
         }
 
+        findViewById<View>(R.id.btn_play_path).setOnClickListener {
+            startPathAnimation()
+        }
+
         mapView.start(object : MapLifeCycleCallback() {
             override fun onMapDestroy() {}
             override fun onMapError(error: Exception) {
@@ -87,6 +102,18 @@ class MemoryMapActivity : AppCompatActivity() {
                         showMemoryCardDialog(group)
                     }
                     true
+                }
+
+                // 🎬 [애니메이션 리스너]
+                map.setOnCameraMoveEndListener { _, _, gestureType ->
+                    if (isPathPlaying && gestureType == GestureType.Unknown) {
+                        // fitMapPoints 등이 끝났을 때 첫 시작
+                        if (currentPathIndex == 0 && !isMovingToPoint) {
+                            mapView.postDelayed({
+                                playNextFlight()
+                            }, 1000)
+                        }
+                    }
                 }
             }
         })
@@ -454,13 +481,503 @@ class MemoryMapActivity : AppCompatActivity() {
         if (kakaoMap != null) showMemoriesOnMap()
     }
 
+    private fun updateAirplanePosition(pos: LatLng, rotation: Float = 0f, scaleMultiplier: Float = 1.0f) {
+        val map = kakaoMap ?: return
+        val labelManager = map.labelManager ?: return
+        val layer = labelManager.getLayer("airplane_layer") ?: labelManager.addLayer(LabelLayerOptions.from("airplane_layer"))
+        
+        // 🚀 [메모리 세이프] 미리 스케일링된 캐시 비트맵 사용
+        val baseBitmap = cachedAirplaneBitmap ?: return
+
+        if (airplaneLabel == null) {
+            val style = LabelStyle.from(baseBitmap).setAnchorPoint(0.5f, 0.5f)
+            airplaneLabel = layer?.addLabel(LabelOptions.from(pos).setStyles(LabelStyles.from(style)))
+        }
+
+        airplaneLabel?.moveTo(pos)
+        
+        // ✨ [스페이스 점프 스케일링] 크기 조절과 회전을 동시에 적용
+        val matrix = android.graphics.Matrix().apply {
+            postScale(scaleMultiplier, scaleMultiplier)
+            postRotate(rotation)
+        }
+        
+        // 스케일 변화 시 원본보다 작아지면 안되므로 최소 1픽셀 방어 로직
+        val targetWidth = Math.max(1, (baseBitmap.width * scaleMultiplier).toInt())
+        val targetHeight = Math.max(1, (baseBitmap.height * scaleMultiplier).toInt())
+        
+        // 크기가 달라지므로 createBitmap에 원본 사이즈를 넘기고 matrix로 변환해야 함
+        val transformedBitmap = Bitmap.createBitmap(baseBitmap, 0, 0, baseBitmap.width, baseBitmap.height, matrix, true)
+        
+        val style = LabelStyle.from(transformedBitmap).setAnchorPoint(0.5f, 0.5f)
+        airplaneLabel?.changeStyles(LabelStyles.from(style))
+    }
+
     override fun onPause() {
         super.onPause()
         mapView.pause()
     }
 
+    private fun startPathAnimation() {
+        val map = kakaoMap ?: return
+        val routeLineManager = map.routeLineManager ?: return
+        val labelManager = map.labelManager ?: return
+        
+        // 1️⃣ 시간 순 정렬
+        val originalSorted = memories.sortedBy { it.date }
+        if (originalSorted.size < 2) {
+            Toast.makeText(this, "경로를 그리려면 최소 2개 이상의 추억이 필요합니다!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // 🚀 [코다리 부장의 테스트 기믹] 타지역 비행 테스트를 위해 상위 최대 4개 카드의 좌표를 강제 변환
+        val tempTestList = originalSorted.toMutableList()
+        val testOffsets = listOf(
+            Pair(0.0, 0.0),      // 원본 (예: 광명)
+            Pair(-0.4, -0.4),    // 약 40km (충남 당진 쯤)
+            Pair(-0.8, -0.1),    // 약 80km (천안/대전 쯤)
+            Pair(-2.0, +1.0)     // 약 250km (경남 부산 쯤)
+        )
+        for (i in 0 until Math.min(tempTestList.size, 4)) {
+            val offset = testOffsets[i]
+            val m = tempTestList[i]
+            tempTestList[i] = m.copy(
+                lat = m.lat + offset.first,
+                lng = m.lng + offset.second,
+                address = "[테스트 비행 목적지 ${i+1}]"
+            )
+        }
+        
+        // 데이터 준비
+        sortedMemoriesForPath = tempTestList
+
+        // 초기화
+        isPathPlaying = true
+        isMovingToPoint = false
+        currentPathIndex = 0
+        fullJourneyPoints = listOf()
+        memoryStopIndexes.clear()
+        flightAnimator?.cancel()
+        
+        routeLineManager.layer.removeAll()
+        labelManager.getLayer("popup_layer")?.removeAll()
+        labelManager.getLayer("airplane_layer")?.removeAll()
+        airplaneLabel = null
+        currentRouteLine = null
+        isRouteReady = false
+
+        // 🎨 [비행기 아이콘 준비]
+        val original = vectorToBitmap(R.drawable.ic_airplane_cute_v2)
+        val scaled = Bitmap.createScaledBitmap(original, 100, 100, true)
+        
+        val width = scaled.width
+        val height = scaled.height
+        val pixels = IntArray(width * height)
+        scaled.getPixels(pixels, 0, width, 0, 0, width, height)
+        for (i in pixels.indices) {
+            val c = pixels[i]
+            val r = (c shr 16) and 0xFF
+            val g = (c shr 8) and 0xFF
+            val b = c and 0xFF
+            if (r > 245 && g > 245 && b > 245) pixels[i] = 0x00FFFFFF
+        }
+        val transparentBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        transparentBitmap.setPixels(pixels, 0, width, 0, 0, width, height)
+        cachedAirplaneBitmap = transparentBitmap
+
+        cachedAirplaneBitmap = transparentBitmap
+
+        // 🚀 [추억 여행의 시작] 첫 번째 사진을 먼저 보여줍니다. (클래식 모드 복구)
+        showPhotoPopup() 
+        
+        Toast.makeText(this, "우리의 소중한 추억 여행을 준비 중입니다... ✈️", Toast.LENGTH_SHORT).show()
+    }
+
+
+
+    private fun fetchFullRoute() {
+        if (sortedMemoriesForPath.size < 2) return
+        
+        if (sortedMemoriesForPath.size > 17) {
+            startDirectFlight()
+            return
+        }
+
+        thread {
+            try {
+                val origin = sortedMemoriesForPath.first()
+                val destination = sortedMemoriesForPath.last()
+                
+                val waypointsStr = StringBuilder()
+                for (i in 1 until sortedMemoriesForPath.size - 1) {
+                    val m = sortedMemoriesForPath[i]
+                    if (waypointsStr.isNotEmpty()) waypointsStr.append("|")
+                    waypointsStr.append("${m.lng},${m.lat}")
+                }
+                
+                var urlString = "https://apis-navi.kakaomobility.com/v1/directions?origin=${origin.lng},${origin.lat}&destination=${destination.lng},${destination.lat}&priority=RECOMMEND"
+                if (waypointsStr.isNotEmpty()) {
+                    urlString += "&waypoints=$waypointsStr"
+                }
+                
+                val url = URL(urlString)
+                val conn = url.openConnection() as HttpURLConnection
+                conn.setRequestProperty("Authorization", "KakaoAK $KAKAO_REST_KEY")
+                conn.connectTimeout = 3000
+                conn.readTimeout = 3000
+                
+                if (conn.responseCode == 200) {
+                    val json = conn.inputStream.bufferedReader().readText()
+                    val root = JSONObject(json)
+                    val routes = root.getJSONArray("routes")
+                    if (routes.length() > 0) {
+                        val route = routes.getJSONObject(0)
+                        if (route.getInt("result_code") == 0) {
+                            val sections = route.getJSONArray("sections")
+                            val allPoints = mutableListOf<LatLng>()
+                            val stops = mutableListOf<Int>()
+                            
+                            stops.add(0)
+                            for (i in 0 until sections.length()) {
+                                val roads = sections.getJSONObject(i).getJSONArray("roads")
+                                for (j in 0 until roads.length()) {
+                                    val vArray = roads.getJSONObject(j).getJSONArray("vertexes")
+                                    for (k in 0 until vArray.length() step 2) {
+                                        val point = LatLng.from(vArray.getDouble(k + 1), vArray.getDouble(k))
+                                        if (allPoints.isEmpty() || allPoints.last() != point) allPoints.add(point)
+                                    }
+                                }
+                                stops.add(allPoints.size - 1)
+                            }
+                            
+                            runOnUiThread {
+                                val map = kakaoMap ?: return@runOnUiThread
+                                val routeLineManager = map.routeLineManager ?: return@runOnUiThread
+                                
+                                fullJourneyPoints = allPoints
+                                memoryStopIndexes = stops
+                                
+                                // 🛣️ [프리미엄 세팅] 전체 경로를 연회색으로 전경 처리 (선을 6f로 얇게 조정)
+                                val baseStyle = RouteLineStyle.from(6f, Color.parseColor("#E0E0E0"), 1.5f, Color.WHITE)
+                                val baseSegment = RouteLineSegment.from(allPoints, RouteLineStyles.from(baseStyle))
+                                routeLineManager.layer.addRouteLine(RouteLineOptions.from(baseSegment))
+                                
+                                isRouteReady = true
+                                Log.d("NAV_PATH", "Route is ready for takeoff!")
+                            }
+                            return@thread
+                        }
+                    }
+                }
+                // API 응답 실패 시 또는 결과 코드가 정상이 아닐 시
+                Log.e("NAV_PATH", "API Failure: ${conn.responseCode}")
+                runOnUiThread { startDirectFlight() }
+            } catch (e: Exception) {
+                Log.e("NAV_PATH", "Error: ${e.message}")
+                runOnUiThread { startDirectFlight() }
+            }
+        }
+    }
+
+    private fun startDirectFlight() {
+        // 실제 도로를 찾기 힘들 경우 (너무 멀거나, 좌표가 없거나), 장소들을 직선으로 연결하여 애니메이션 수행
+        
+        fullJourneyPoints = sortedMemoriesForPath.map { LatLng.from(it.lat, it.lng) }
+        
+        // 정지 인덱스는 각 메모리의 인덱스 그대로 사용 (0, 1, 2...)
+        val stops = mutableListOf<Int>()
+        for (i in 0 until fullJourneyPoints.size) {
+            stops.add(i)
+        }
+        memoryStopIndexes = stops
+        
+        // 🛣️ [프리미엄 세팅] 직선 경로라도 연회색으로 가이드라인 제공 (선을 6f로 얇게 조정)
+        val map = kakaoMap
+        val routeLineManager = map?.routeLineManager
+        if (routeLineManager != null) {
+            val baseStyle = RouteLineStyle.from(6f, Color.parseColor("#E0E0E0"), 1.5f, Color.WHITE)
+            val baseSegment = RouteLineSegment.from(fullJourneyPoints, RouteLineStyles.from(baseStyle))
+            routeLineManager.layer.addRouteLine(RouteLineOptions.from(baseSegment))
+        }
+
+        isRouteReady = true // 🚀 비행 준비 완료 신호!
+    }
+
+    private fun playNextFlight() {
+        val map = kakaoMap ?: return
+        val routeLineManager = map.routeLineManager ?: return
+        
+        // 비행 준비가 안 됐거나 이미 종료된 경우 중단
+        if (!isPathPlaying || !isRouteReady) {
+            Log.d("FLY", "Not ready: playing=$isPathPlaying, ready=$isRouteReady")
+            return
+        }
+
+        // 🌟 [피날레 체크]
+        if (currentPathIndex >= sortedMemoriesForPath.size - 1) {
+            isPathPlaying = false
+            airplaneLabel?.remove()
+            airplaneLabel = null
+            Toast.makeText(this, "우리의 모든 추억 조각을 찾아보았습니다! ✨", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val startIndex = if (currentPathIndex < memoryStopIndexes.size) memoryStopIndexes[currentPathIndex] else 0
+        val endIndex = if (currentPathIndex + 1 < memoryStopIndexes.size) memoryStopIndexes[currentPathIndex + 1] else fullJourneyPoints.size - 1
+        
+        val segmentVertexes = fullJourneyPoints.subList(startIndex, endIndex + 1)
+        
+        if (segmentVertexes.size < 2) {
+            currentPathIndex++
+            showPhotoPopup()
+            return
+        }
+        
+        isMovingToPoint = true
+        map.labelManager?.getLayer("popup_layer")?.removeAll()
+
+        flightAnimator?.cancel()
+        
+        // 거리 맵 대폭 최적화
+        val distanceMap = DoubleArray(segmentVertexes.size)
+        var accDist = 0.0
+        distanceMap[0] = 0.0
+        for (i in 0 until segmentVertexes.size - 1) {
+            val results = FloatArray(1)
+            android.location.Location.distanceBetween(
+                segmentVertexes[i].latitude, segmentVertexes[i].longitude,
+                segmentVertexes[i+1].latitude, segmentVertexes[i+1].longitude, results
+            )
+            accDist += results[0]
+            distanceMap[i+1] = accDist
+        }
+
+        // 🔥 [코다리 다이내믹 줌] 대표님 극약처방: "타지역 이동이면 속력 구분 없이 무조건 광속 터보!!" 🚀
+        var durationMultiplier = 0.15 // 근거리(동네)용 속도
+        if (accDist > 10000) {
+            // 10km 이상(타지역 이동)이면 기존 "3번째 지역(초장거리)" 갈 때 쓰던 극단적 최고속도(0.02)를 일괄 적용!
+            durationMultiplier = 0.02 
+        }
+
+        // 최소 0.4초 ~ 최대 2초 사이로 비행 시간 제한 하향 (거의 0.4초 ~ 1초 대에 타지역 주파!)
+        val durationMs = Math.max(400L, (accDist * durationMultiplier).toLong()).coerceAtMost(2000L)
+
+        // 🛫 [1단계: 제자리 이륙]
+        val baseZoom = 14.0
+        val zoomOutIntensity = Math.min(7.0, (accDist / 40000.0) * 7.0) 
+        val targetZoom = baseZoom - zoomOutIntensity
+        
+        val scaleIntensity = Math.min(0.8f, (accDist / 40000f).toFloat() * 0.8f) 
+        val targetScale = 1.0f + scaleIntensity
+        
+        val firstPos = segmentVertexes.first()
+        val lastPos = segmentVertexes.last()
+        val initialBearing = if (segmentVertexes.size > 1) calculateBearing(firstPos, segmentVertexes[1]) else 0f
+        val finalBearing = if (segmentVertexes.size > 1) calculateBearing(segmentVertexes[segmentVertexes.size - 2], lastPos) else 0f
+
+        val takeoffAnimator = android.animation.ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 400L // 0.8초 -> 0.4초 초고속 이륙
+            interpolator = android.view.animation.AccelerateDecelerateInterpolator()
+            addUpdateListener { animator ->
+                val fraction = animator.animatedValue as Float
+                val currentZoom = baseZoom - (zoomOutIntensity * fraction)
+                val currentScale = 1.0f + (scaleIntensity * fraction)
+                
+                updateAirplanePosition(firstPos, initialBearing, currentScale)
+                map.moveCamera(CameraUpdateFactory.newCenterPosition(firstPos, currentZoom.toInt()))
+            }
+        }
+
+        // 🚀 [2단계: 고도 유지 순항]
+        val cruiseAnimator = android.animation.ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = durationMs
+            interpolator = android.view.animation.LinearInterpolator()
+            var lastDrawTime = 0L
+
+            addUpdateListener { animator ->
+                val fraction = animator.animatedValue as Float
+                val targetDist = accDist * fraction
+                
+                var idx = 0
+                while (idx < distanceMap.size - 1 && distanceMap[idx + 1] < targetDist) idx++
+                
+                val p1 = segmentVertexes[idx]
+                val p2 = segmentVertexes[Math.min(idx + 1, segmentVertexes.size - 1)]
+                val segDist = distanceMap[Math.min(idx + 1, distanceMap.size - 1)] - distanceMap[idx]
+                val segFraction = if (segDist > 0) (targetDist - distanceMap[idx]) / segDist else 0.0
+                
+                val currentPos = LatLng.from(
+                    p1.latitude + (p2.latitude - p1.latitude) * segFraction,
+                    p1.longitude + (p2.longitude - p1.longitude) * segFraction
+                )
+                
+                val currentBearing = calculateBearing(p1, p2)
+                updateAirplanePosition(currentPos, currentBearing, targetScale)
+                
+                val now = System.currentTimeMillis()
+                if (now - lastDrawTime > 33 || fraction >= 1f) {
+                    val tailPoints = segmentVertexes.subList(0, idx + 1).toMutableList()
+                    tailPoints.add(currentPos)
+                    
+                    val blueStyle = RouteLineStyle.from(7f, Color.parseColor("#4D7CFF"), 2f, Color.WHITE)
+                    val newLine = routeLineManager.layer.addRouteLine(RouteLineOptions.from(RouteLineSegment.from(tailPoints, RouteLineStyles.from(blueStyle))))
+                    
+                    currentRouteLine?.remove()
+                    currentRouteLine = newLine
+                    lastDrawTime = now
+                }
+                
+                map.moveCamera(CameraUpdateFactory.newCenterPosition(currentPos, targetZoom.toInt()))
+            }
+        }
+
+        // 🛬 [3단계: 제자리 착륙]
+        val landingAnimator = android.animation.ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 400L // 0.8초 -> 0.4초 초고속 착륙
+            interpolator = android.view.animation.AccelerateDecelerateInterpolator()
+            addUpdateListener { animator ->
+                val fraction = animator.animatedValue as Float
+                val currentZoom = targetZoom + (zoomOutIntensity * fraction)
+                val currentScale = targetScale - (scaleIntensity * fraction)
+                
+                updateAirplanePosition(lastPos, finalBearing, currentScale)
+                map.moveCamera(CameraUpdateFactory.newCenterPosition(lastPos, currentZoom.toInt()))
+            }
+        }
+
+        // 🌟 코다리의 3단 애니메이션 합체
+        flightAnimator = android.animation.AnimatorSet().apply {
+            playSequentially(takeoffAnimator, cruiseAnimator, landingAnimator)
+            addListener(object : android.animation.AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: android.animation.Animator) {
+                    if (isPathPlaying) {
+                        isMovingToPoint = false
+                        
+                        // 현재 비행 구간을 고정 레이어에 확정 (파란색 세련된 선)
+                        val blueStyle = RouteLineStyle.from(7f, Color.parseColor("#4D7CFF"), 2f, Color.WHITE)
+                        routeLineManager.layer.addRouteLine(RouteLineOptions.from(RouteLineSegment.from(segmentVertexes, RouteLineStyles.from(blueStyle))))
+                        currentRouteLine?.remove()
+                        currentRouteLine = null
+
+                        currentPathIndex++ 
+                        showPhotoPopup()
+                    }
+                }
+            })
+            start()
+        }
+    }
+
+    private fun calculateBearing(start: LatLng, end: LatLng): Float {
+        if (start == end) return 0f
+        val lat1 = Math.toRadians(start.latitude)
+        val lon1 = Math.toRadians(start.longitude)
+        val lat2 = Math.toRadians(end.latitude)
+        val lon2 = Math.toRadians(end.longitude)
+        val dLon = lon2 - lon1
+        val y = Math.sin(dLon) * Math.cos(lat2)
+        val x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon)
+        val bearing = Math.toDegrees(Math.atan2(y, x)).toFloat()
+        return (bearing + 360) % 360
+    }
+
+
+    private fun showPhotoPopup() {
+        val map = kakaoMap ?: return
+        if (currentPathIndex >= sortedMemoriesForPath.size) return
+        
+        val memory = sortedMemoriesForPath[currentPathIndex]
+        val pos = LatLng.from(memory.lat, memory.lng)
+        
+        if (currentPathIndex == 0) fetchFullRoute()
+
+        thread {
+            try {
+                // [프리미엄 딜레이] 사용자가 준비될 수 있게 사진 로딩 전 약간의 여유를 둡니다.
+                val photoBitmap = createPhotoMarkerBitmap(memory.photoUri) ?: vectorToBitmap(R.drawable.bg_invitation)
+                
+                // 경로 데이터가 올 때까지 최대 5초간 대기 (Race Condition 방지)
+                if (currentPathIndex == 0) {
+                    var waitCount = 0
+                    while (!isRouteReady && waitCount < 50) { 
+                        Thread.sleep(100)
+                        waitCount++
+                    }
+                }
+
+                runOnUiThread {
+                    val labelManager = map.labelManager ?: return@runOnUiThread
+                    val layer = labelManager.getLayer("popup_layer") ?: labelManager.addLayer(LabelLayerOptions.from("popup_layer"))
+                    
+                    val styles = LabelStyles.from(LabelStyle.from(photoBitmap).setAnchorPoint(0.5f, 1.1f))
+                    layer?.addLabel(LabelOptions.from(pos).setStyles(styles))
+                    
+                    // 🕒 [추억 감상 타임] 사진을 충분히 보실 수 있도록 2.5초간 머무릅니다. (요청에 따른 연장)
+                    mapView.postDelayed({
+                        if (currentPathIndex < sortedMemoriesForPath.size - 1) {
+                            playNextFlight()
+                        } else {
+                            // 피날레
+                            isPathPlaying = false
+                            airplaneLabel?.remove()
+                            airplaneLabel = null
+                            Toast.makeText(this, "모든 추억을 완벽하게 감상해 보았습니다! ✨", Toast.LENGTH_LONG).show()
+                        }
+                    }, 2500) 
+                }
+            } catch (e: Exception) {
+                Log.e("POPUP", e.message ?: "")
+                // 에러 발생 시에도 흐름이 끊기지 않게 조치
+                runOnUiThread { 
+                    if (currentPathIndex < sortedMemoriesForPath.size - 1) playNextFlight()
+                }
+            }
+        }
+    }
+
+    private fun createPhotoMarkerBitmap(uriString: String): Bitmap? {
+        return try {
+            val uri = Uri.parse(uriString)
+            val inputStream = contentResolver.openInputStream(uri)
+            val original = android.graphics.BitmapFactory.decodeStream(inputStream)
+            inputStream?.close() ?: return null
+
+            // 📏 원본 비율 유지 리사이징
+            val maxSide = 400
+            val (targetW, targetH) = if (original.width > original.height) {
+                val ratio = original.height.toFloat() / original.width.toFloat()
+                Pair(maxSide, (maxSide * ratio).toInt())
+            } else {
+                val ratio = original.width.toFloat() / original.height.toFloat()
+                Pair((maxSide * ratio).toInt(), maxSide)
+            }
+            
+            val scaled = Bitmap.createScaledBitmap(original, Math.max(1, targetW), Math.max(1, targetH), true)
+            
+            // 프리미엄 화이트 액자 효과
+            val borderSize = 16
+            val output = Bitmap.createBitmap(scaled.width + borderSize * 2, scaled.height + borderSize * 2, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(output)
+            val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+            
+            // 깔끔한 둥근 모서리 배경
+            paint.color = Color.WHITE
+            canvas.drawRoundRect(0f, 0f, output.width.toFloat(), output.height.toFloat(), 20f, 20f, paint)
+            
+            // 사진 그리기
+            canvas.drawBitmap(scaled, borderSize.toFloat(), borderSize.toFloat(), null)
+            
+            output
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        flightAnimator?.cancel()
+        cachedAirplaneBitmap?.recycle()
+        cachedAirplaneBitmap = null
         mapView.finish()
     }
 }

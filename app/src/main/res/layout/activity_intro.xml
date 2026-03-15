@@ -1,117 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- 🎨 영자 수석 디자이너 - Premium Dark Intro v2 (시안 충실 재현) -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="@drawable/bg_intro_dark_glow">
+    android:background="#0D0D0D">
 
+    <!-- ★ 배경 미세 글로우 (중앙 아주 살짝 밝게) -->
+    <View
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        android:background="@drawable/bg_romantic_gradient"
+        android:alpha="0.05"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ✨ App Wordmark -->
     <TextView
         android:id="@+id/tv_app_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginTop="52dp"
         android:text="HereWithYou"
         android:textColor="#FFFFFF"
-        android:textSize="56sp"
+        android:textSize="40sp"
         android:textStyle="bold"
         android:fontFamily="serif"
-        android:letterSpacing="0.01"
+        android:letterSpacing="0.08"
         android:gravity="center"
         android:maxLines="1"
         app:autoSizeTextType="uniform"
-        app:autoSizeMaxTextSize="64sp"
-        app:autoSizeMinTextSize="24sp"
+        app:autoSizeMaxTextSize="44sp"
+        app:autoSizeMinTextSize="20sp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/main_card"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="48dp"
-        android:layout_marginBottom="24dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <androidx.cardview.widget.CardView
+    <!-- 🥂 Champagne Gold Thin Underline -->
+    <View
+        android:id="@+id/view_gold_line"
+        android:layout_width="56dp"
+        android:layout_height="1.5dp"
+        android:background="#C9A96E"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/tv_app_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 🪟 GLASSMORPHISM MAIN CARD - 시안의 핵심! -->
+    <!-- stroke 효과는 FrameLayout + 배경 drawable로 처리 -->
+    <FrameLayout
         android:id="@+id/main_card"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginHorizontal="24dp"
-        app:cardBackgroundColor="#0DFFFFFF"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="0dp"
-        app:layout_constraintTop_toBottomOf="@id/tv_app_title"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/bg_glass_card_premium"
+        app:layout_constraintTop_toBottomOf="@id/view_gold_line"
         app:layout_constraintBottom_toTopOf="@id/indicator_layout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="24dp">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </androidx.cardview.widget.CardView>
+    </FrameLayout>
 
+    <!-- ⚪ Minimal Dot Indicators -->
     <LinearLayout
         android:id="@+id/indicator_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintTop_toBottomOf="@id/main_card"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="22dp"
         app:layout_constraintBottom_toTopOf="@id/btn_take_photo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Active dot: 골드 채워진 원 -->
         <View
             android:id="@+id/dot1"
             android:layout_width="8dp"
             android:layout_height="8dp"
-            android:layout_marginHorizontal="6dp"
-            android:background="@drawable/bg_gold_pill_button" />
+            android:layout_marginHorizontal="5dp"
+            android:background="@drawable/bg_champagne_gold_button" />
 
+        <!-- Inactive dots: 흰색 외곽선 원 -->
         <View
             android:id="@+id/dot2"
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            android:layout_marginHorizontal="6dp"
-            android:background="#33FFFFFF" />
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginHorizontal="5dp"
+            android:background="#2EFFFFFF" />
 
         <View
             android:id="@+id/dot3"
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            android:layout_marginHorizontal="6dp"
-            android:background="#33FFFFFF" />
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginHorizontal="5dp"
+            android:background="#2EFFFFFF" />
+
     </LinearLayout>
 
+    <!-- 🥂 CTA: 샴페인 골드 pill 버튼 -->
     <Button
         android:id="@+id/btn_take_photo"
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
-        android:paddingHorizontal="48dp"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/bg_gold_pill_button"
+        android:layout_width="0dp"
+        android:layout_height="58dp"
+        android:layout_marginHorizontal="64dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_champagne_gold_button"
         android:stateListAnimator="@null"
-        android:elevation="8dp"
+        android:elevation="10dp"
         android:text="추억 남기기"
-        android:textColor="#221018"
+        android:textColor="#1A1A1A"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:letterSpacing="0.02"
-        app:layout_constraintTop_toBottomOf="@id/indicator_layout"
+        android:letterSpacing="0.04"
         app:layout_constraintBottom_toTopOf="@id/btn_how_to_use"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- 앱 사용 방법 -->
     <TextView
         android:id="@+id/btn_how_to_use"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
         android:padding="8dp"
-        android:text="앱 사용 방법 보기 >"
-        android:textColor="#B3FFFFFF"
-        android:textSize="14sp"
-        app:layout_constraintTop_toBottomOf="@id/btn_take_photo"
+        android:text="앱 사용 방법 보기  ›"
+        android:textColor="#55FFFFFF"
+        android:textSize="13sp"
+        android:letterSpacing="0.02"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

@@ -4,57 +4,58 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="@drawable/bg_intro_dark_glow">
+    android:background="@color/premium_dark_bg">
 
     <!-- 🏷️ Header -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/editor_header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical"
+        android:layout_height="60dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
             android:id="@+id/btn_back"
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:layout_marginStart="8dp"
             android:src="@android:drawable/ic_menu_revert"
             android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="@color/white" />
+            app:tint="@color/champagne_gold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="메모리 카드 꾸미기"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:fontFamily="serif"
-            android:gravity="center"
-            android:letterSpacing="0.05" />
+            android:letterSpacing="0.05"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-        <View
-            android:layout_width="48dp"
-            android:layout_height="48dp" />
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- 🌚 Dim Overlay -->
     <View
         android:id="@+id/panel_dim_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#99000000"
+        android:background="#B3000000"
         android:visibility="gone"
         android:elevation="10dp"/>
 
-    <!-- 💌 Main Workspace (Scrollable to prevent clipping, 1:1 Scale for sharpness) -->
+    <!-- 💌 Main Workspace -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/card_scroll_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintTop_toBottomOf="@id/editor_header"
         app:layout_constraintBottom_toTopOf="@id/editor_bottom_panel_container">
 
@@ -62,34 +63,38 @@
             android:id="@+id/card_workspace"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp">
+            android:padding="24dp">
 
             <FrameLayout
                 android:id="@+id/card_preview_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:background="@drawable/bg_glass_card_premium"
+                android:padding="2dp" />
         </FrameLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- 🛠️ Bottom Controls Container (Slimmer) -->
+    <!-- 🛠️ Bottom Controls Container -->
     <LinearLayout
         android:id="@+id/editor_bottom_panel_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@android:color/transparent"
-        android:paddingTop="20dp"
+        android:background="#0A0A0A"
+        android:paddingTop="24dp"
+        android:elevation="12dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <!-- 🏷️ Category Menu (Slimmer Buttons) -->
+        <!-- 🏷️ Category Menu (Minimal Luxury Pill Buttons) -->
         <LinearLayout
             android:id="@+id/category_button_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:paddingBottom="12dp">
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="20dp"
+            android:weightSum="3">
             
             <LinearLayout
                 android:id="@+id/btn_category_text"
@@ -98,13 +103,11 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="@drawable/bg_romantic_button"
-                android:backgroundTint="#D81B60"
-                android:elevation="4dp"
-                android:paddingVertical="10dp"
-                android:layout_marginEnd="4dp">
-                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@android:drawable/ic_menu_edit" app:tint="@color/white"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="문구" android:textColor="@color/white" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
+                android:background="@drawable/bg_glass_card_premium"
+                android:paddingVertical="12dp"
+                android:layout_marginEnd="6dp">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@android:drawable/ic_menu_edit" app:tint="@color/champagne_gold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="문구" android:textColor="@color/white" android:textSize="11sp" android:layout_marginTop="4dp"/>
             </LinearLayout>
 
             <LinearLayout
@@ -114,13 +117,11 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="@drawable/bg_romantic_button"
-                android:backgroundTint="#6A1B9A"
-                android:elevation="4dp"
-                android:paddingVertical="10dp"
-                android:layout_marginHorizontal="2dp">
-                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/white"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="테마" android:textColor="@color/white" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
+                android:background="@drawable/bg_glass_card_premium"
+                android:paddingVertical="12dp"
+                android:layout_marginHorizontal="3dp">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/champagne_gold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="테마" android:textColor="@color/white" android:textSize="11sp" android:layout_marginTop="4dp"/>
             </LinearLayout>
 
             <LinearLayout
@@ -130,51 +131,48 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="@drawable/bg_romantic_button"
-                android:backgroundTint="#FF8F00"
-                android:elevation="4dp"
-                android:paddingVertical="10dp"
-                android:layout_marginStart="4dp">
-                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@android:drawable/btn_star_big_on" app:tint="@color/white"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="스티커" android:textColor="@color/white" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
+                android:background="@drawable/bg_glass_card_premium"
+                android:paddingVertical="12dp"
+                android:layout_marginStart="6dp">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@android:drawable/btn_star_big_on" app:tint="@color/champagne_gold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="스티커" android:textColor="@color/white" android:textSize="11sp" android:layout_marginTop="4dp"/>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 📤 Save/Share Buttons (Slimmer) -->
+        <!-- 📤 Save/Share Buttons (Premium Gold Buttons) -->
         <LinearLayout
             android:id="@+id/editor_actions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:paddingBottom="16dp">
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="24dp">
 
             <Button
                 android:id="@+id/btn_save_photo"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="54dp"
                 android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                android:padding="0dp"
-                android:background="@drawable/bg_romantic_button"
-                android:backgroundTint="#C2185B"
-                android:text="저장"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_glass_card_premium"
+                android:text="내 폰 저장"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:stateListAnimator="@null" />
 
             <Button
                 android:id="@+id/btn_share_photo"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="54dp"
                 android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:padding="0dp"
-                android:background="@drawable/bg_gold_pill_button"
-                android:text="공유"
-                android:textColor="#221018"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_champagne_gold_button"
+                android:text="추억 공유"
+                android:textColor="#1A1A1A"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:stateListAnimator="@null" />
         </LinearLayout>
     </LinearLayout>
 
@@ -208,24 +206,24 @@
                     android:id="@+id/edit_card_message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_romantic_button"
-                    android:backgroundTint="#1AFFFFFF"
+                    android:background="@drawable/bg_glass_card_premium"
                     android:hint="오늘의 로맨틱한 순간을 기록하세요..."
-                    android:textColorHint="#80FFFFFF"
+                    android:textColorHint="#60FFFFFF"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    android:padding="16dp"
+                    android:padding="18dp"
                     android:minLines="2"
                     android:maxLines="3"
                     android:inputType="textMultiLine" />
                 <Button
                     android:id="@+id/btn_done_text"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="52dp"
                     android:text="작성 완료"
-                    android:textColor="#FF1493"
-                    android:backgroundTint="#1AFFFFFF"
-                    android:layout_marginTop="16dp"/>
+                    android:textColor="#1A1A1A"
+                    android:textStyle="bold"
+                    android:backgroundTint="@color/champagne_gold"
+                    android:layout_marginTop="20dp"/>
             </LinearLayout>
 
             <!-- [Theme Panel] -->
@@ -235,72 +233,71 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="gone">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="배경 컬러" android:textColor="#A0FFFFFF" android:textSize="12sp" android:layout_marginBottom="8dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="배경 컬러" android:textColor="@color/charcoal_gray" android:textSize="12sp" android:layout_marginBottom="10dp"/>
                 <HorizontalScrollView
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="56dp"
                     android:scrollbars="none">
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_romantic_button"
-                        android:backgroundTint="#1AFFFFFF"
+                        android:background="@drawable/bg_glass_card_premium"
                         android:paddingHorizontal="16dp">
-                        <View android:id="@+id/theme_pale_blue" android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_romantic_button" android:backgroundTint="#F0F7FF" android:layout_marginEnd="16dp" />
-                        <View android:id="@+id/theme_romantic_pink" android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_romantic_button" android:backgroundTint="#FFF0F5" android:layout_marginEnd="16dp" />
-                        <View android:id="@+id/theme_warm_vintage" android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_romantic_button" android:backgroundTint="#FFF8E1" android:layout_marginEnd="16dp" />
-                        <View android:id="@+id/theme_modern_minimal" android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_romantic_button" android:backgroundTint="#F5F5F5" android:layout_marginEnd="16dp" />
+                        <View android:id="@+id/theme_pale_blue" android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_circle" android:backgroundTint="#F0F7FF" android:layout_marginEnd="16dp" />
+                        <View android:id="@+id/theme_romantic_pink" android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_circle" android:backgroundTint="#FFF0F5" android:layout_marginEnd="16dp" />
+                        <View android:id="@+id/theme_warm_vintage" android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_circle" android:backgroundTint="#FFF8E1" android:layout_marginEnd="16dp" />
+                        <View android:id="@+id/theme_modern_minimal" android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_color_circle" android:backgroundTint="#F5F5F5" android:layout_marginEnd="16dp" />
                     </LinearLayout>
                 </HorizontalScrollView>
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="👑 VVIP 효과" android:textColor="#FFDF00" android:textSize="12sp" android:layout_marginTop="12dp" android:layout_marginBottom="8dp" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="👑 Premium Effects" android:textColor="@color/champagne_gold" android:textSize="12sp" android:layout_marginTop="16dp" android:layout_marginBottom="10dp" android:textStyle="bold"/>
                 <HorizontalScrollView
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="64dp"
                     android:scrollbars="none">
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_romantic_button"
-                        android:backgroundTint="#1AFFFFFF"
+                        android:background="@drawable/bg_glass_card_premium"
                         android:paddingHorizontal="16dp">
-                        <TextView android:id="@+id/btn_effect_basic" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🔄 초기화" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_vip" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="✨ VIP 스페셜" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_burgundy" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🍷 와인 럭셔리" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_navy" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🌌 네이비 클래식" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_cream" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🕊️ 퓨어 엠보스" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_emerald" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🌿 포레스트 다이아" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_pearl" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🤍 화이트 펄" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_rosegold" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🌸 로즈골드 블러시" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_midnight" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🖤 미드나잇 플래티넘" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_purple" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🔮 로열 자수정" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_dreamy" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="☁️ 몽환 글래스" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_brutalism" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="💛 키치 팝" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_ticket" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🎫 감성 티켓" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_cyber" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🌌 사이버 네온" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_letter" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="✉️ 감성 편지" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_cute" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🎀 큐티 쁘띠" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_heart" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="❤️ 러블리 하트" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_starry" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="⭐ 별 헤는 밤" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_cat" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🐈 냥이 야옹" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_dessert" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🍰 달콤 디저트" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_bw" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🎞️ 흑백 필터" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/btn_effect_sakura" android:layout_width="wrap_content" android:layout_height="40dp" android:gravity="center" android:paddingHorizontal="12dp" android:text="🌸 벚꽃 흩날림" android:background="@drawable/bg_romantic_button" android:backgroundTint="#33FFFFFF" android:textColor="@color/white" android:textSize="12sp"/>
+                        <TextView android:id="@+id/btn_effect_basic" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🔄 초기화" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_vip" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="✨ VIP 스페셜" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_letter" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="✉️ 빈티지 편지" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_burgundy" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🍷 와인 럭셔리" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_navy" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🌌 네이비 클래식" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_cream" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🕊️ 크림 엠보싱" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_emerald" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🌿 포레스트 그린" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_pearl" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🤍 화이트 펄" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_rosegold" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🌸 로즈골드 블러시" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_midnight" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🖤 미드나잇 플래티넘" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_purple" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🔮 로열 자수정" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_dreamy" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="☁️ 드림 파스텔" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_brutalism" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="💛 뉴트로 키치" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_ticket" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🎫 감성 티켓" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_cyber" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🌌 사이버 펑크" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_cute" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🎀 큐티 쁘띠" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_heart" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="❤️ 하트 뿅뿅" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_starry" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="⭐ 별이 빛나는" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_cat" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🐈 냥이 발바닥" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_dessert" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🍰 달콤 디저트" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_bw" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🎞️ 흑백 필터" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_sakura" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🌸 벚꽃 연금" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp"/>
                     </LinearLayout>
                 </HorizontalScrollView>
 
                 <Button
                     android:id="@+id/btn_done_theme"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="52dp"
                     android:text="테마 저장"
-                    android:textColor="#FF1493"
-                    android:backgroundTint="#1AFFFFFF"
-                    android:layout_marginTop="16dp"/>
+                    android:textColor="#1A1A1A"
+                    android:textStyle="bold"
+                    android:backgroundTint="@color/champagne_gold"
+                    android:layout_marginTop="20dp"/>
             </LinearLayout>
 
             <!-- [Sticker Panel] -->
@@ -316,71 +313,72 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_gravity="center"
-                    android:layout_marginBottom="12dp"
-                    android:background="@drawable/bg_romantic_button"
-                    android:backgroundTint="#33FFFFFF"
-                    android:padding="4dp">
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_glass_card_premium"
+                    android:padding="5dp">
                     <TextView
                         android:id="@+id/tab_sticker_basic"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="베이직"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/white"
                         android:textSize="13sp"
                         android:textStyle="bold"
-                        android:paddingHorizontal="16dp"
-                        android:paddingVertical="8dp"
+                        android:paddingHorizontal="18dp"
+                        android:paddingVertical="9dp"
                         android:background="@drawable/bg_romantic_button"
-                        android:backgroundTint="#FF1493"/>
+                        android:backgroundTint="@color/primary_pink"/>
                     <TextView
                         android:id="@+id/tab_sticker_premium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="프리미엄 👑"
-                        android:textColor="#80FFFFFF"
+                        android:textColor="@color/charcoal_gray"
                         android:textSize="13sp"
-                        android:paddingHorizontal="16dp"
-                        android:paddingVertical="8dp"
+                        android:paddingHorizontal="18dp"
+                        android:paddingVertical="9dp"
                         android:background="?attr/selectableItemBackground"/>
                 </LinearLayout>
 
                 <androidx.core.widget.NestedScrollView
                     android:id="@+id/scroll_sticker_basic"
                     android:layout_width="match_parent"
-                    android:layout_height="220dp"
+                    android:layout_height="240dp"
                     android:scrollbars="vertical">
                     <io.github.hnoni777.newdatemapdiary.FlowLayout
                         android:id="@+id/container_basic_stickers"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_romantic_button"
-                        android:backgroundTint="#1AFFFFFF"
-                        android:padding="8dp"/>
+                        android:background="@drawable/bg_glass_card_premium"
+                        android:backgroundTint="@color/glass_white_10"
+                        android:padding="12dp"/>
                 </androidx.core.widget.NestedScrollView>
 
+                <!-- Restore Missing Premium Sticker Area -->
                 <androidx.core.widget.NestedScrollView
                     android:id="@+id/scroll_sticker_premium"
                     android:layout_width="match_parent"
-                    android:layout_height="220dp"
+                    android:layout_height="240dp"
                     android:scrollbars="vertical"
                     android:visibility="gone">
                     <io.github.hnoni777.newdatemapdiary.FlowLayout
                         android:id="@+id/container_premium_stickers"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_romantic_button"
-                        android:backgroundTint="#1AFFFFFF"
-                        android:padding="8dp"/>
+                        android:background="@drawable/bg_glass_card_premium"
+                        android:backgroundTint="@color/glass_white_10"
+                        android:padding="12dp"/>
                 </androidx.core.widget.NestedScrollView>
 
                 <Button
                     android:id="@+id/btn_done_sticker"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="52dp"
                     android:text="스티커 닫기"
-                    android:textColor="#FF1493"
-                    android:backgroundTint="#1AFFFFFF"
-                    android:layout_marginTop="16dp"/>
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:backgroundTint="@color/glass_white_20"
+                    android:layout_marginTop="20dp"/>
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>
