@@ -502,26 +502,27 @@ class CardEditorActivity : AppCompatActivity() {
     }
 
     private fun showQRCodeOnStickerLayer(cardView: View) {
-        try {
-            // ✂️ Shorten data to make QR code less dense (easier to scan!)
-            val shortLat = String.format("%.6f", lat)
-            val shortLng = String.format("%.6f", lng)
-            val shortAddr = if (address.length > 20) address.substring(0, 20) else address
-            val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
-            
-            val link = "https://hnoni777.github.io/newdatemapdiary/share/map.html?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
-            val qrBitmap = generateQRCode(link)
-            
-            val qrView = cardView.findViewById<ImageView>(R.id.card_qr_code)
-            if (qrBitmap != null && qrView != null) {
-                qrView.setImageBitmap(qrBitmap)
-                qrView.visibility = View.VISIBLE
-                Log.d("QR_CODE", "Optimized QR Added to layout: $link")
-            } else if (qrView != null) {
-                qrView.visibility = View.INVISIBLE
+        val qrView = cardView.findViewById<ImageView>(R.id.card_qr_code) ?: return
+        
+        // 💡 [코부장 최적화] 메인 화면과 동일하게 비동기 스레드에서 생성합니다.
+        kotlin.concurrent.thread {
+            try {
+                // 💡 [코부장 배포 최적화] 새로운 블랙&골드 랜딩 페이지로 연결합니다.
+                val link = "https://hnoni777.github.io/newdatemapdiary/"
+                val qrBitmap = generateQRCode(link)
+                
+                runOnUiThread {
+                    if (qrBitmap != null) {
+                        qrView.setImageBitmap(qrBitmap)
+                        qrView.visibility = View.VISIBLE
+                        Log.d("QR_CODE", "Optimized QR Added to editor: $link")
+                    } else {
+                        qrView.visibility = View.INVISIBLE
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("QR_CODE", "Failed to add QR", e)
             }
-        } catch (e: Exception) {
-            Log.e("QR_CODE", "Failed to add QR", e)
         }
     }
     
@@ -1568,22 +1569,25 @@ class CardEditorActivity : AppCompatActivity() {
                 com.google.zxing.EncodeHintType.MARGIN to 1,
                 com.google.zxing.EncodeHintType.CHARACTER_SET to "UTF-8"
             ) 
+            // 💡 [코부장 최적화] 256x256 크기로 줄이고, setPixels로 속도를 대폭 향상
             val bitMatrix = writer.encode(
                 url,
                 com.google.zxing.BarcodeFormat.QR_CODE,
-                512,
-                512,
+                256,
+                256,
                 hints
             )
             val width = bitMatrix.width
             val height = bitMatrix.height
-            val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            for (x in 0 until width) {
-                for (y in 0 until height) {
-                    // Standard Black on Transparent (ImageView background handles white)
-                    bmp.setPixel(x, y, if (bitMatrix.get(x, y)) Color.BLACK else Color.TRANSPARENT)
+            val pixels = IntArray(width * height)
+            for (y in 0 until height) {
+                val offset = y * width
+                for (x in 0 until width) {
+                    pixels[offset + x] = if (bitMatrix.get(x, y)) Color.BLACK else Color.TRANSPARENT
                 }
             }
+            val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            bmp.setPixels(pixels, 0, width, 0, 0, width, height)
             bmp
         } catch (e: Exception) {
             Log.e("QR_GEN", "Error", e)
