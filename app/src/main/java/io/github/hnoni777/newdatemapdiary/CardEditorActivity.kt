@@ -1482,8 +1482,10 @@ class CardEditorActivity : AppCompatActivity() {
         }
 
         if (shareAfter && savedUri != null) {
+            Toast.makeText(this, "추억 카드를 보냅니다...", Toast.LENGTH_SHORT).show()
             shareImage(savedUri, lat, lng, address)
-            // saved successfully
+        } else if (savedUri != null) {
+            Toast.makeText(this, "갤러리 및 추억지도에 저장되었습니다! ✨", Toast.LENGTH_SHORT).show()
         }
     }
 
