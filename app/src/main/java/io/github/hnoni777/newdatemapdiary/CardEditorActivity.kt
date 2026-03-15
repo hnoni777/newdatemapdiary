@@ -1031,7 +1031,6 @@ class CardEditorActivity : AppCompatActivity() {
                     startSakuraEffect()
                 }
             }
-            }
         }
         
         contentLayout.requestLayout()
