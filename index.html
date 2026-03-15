@@ -4,16 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HereWithYou - 사랑을 지도로 기록하다</title>
+    <title>HereWithYou - 프리미엄 데이트 다이어리</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --bg-bright: #FFF5F8;
-            --accent-gold: #D4AF37;
-            --primary-pink: #FF4D8D;
-            --text-main: #4A3036;
+            --bg-dark: #0D0D0D;
+            --accent-gold: #C9A96E;
+            --text-white: #FFFFFF;
+            --glass-bg: rgba(255, 255, 255, 0.05);
         }
 
         * {
@@ -24,12 +24,13 @@
 
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: var(--bg-bright);
-            color: var(--text-main);
+            background-color: var(--bg-dark);
+            color: var(--text-white);
             overflow-x: hidden;
             line-height: 1.6;
-            background-image: radial-gradient(circle at top right, #FFD9EC, transparent 50%),
-                radial-gradient(circle at bottom left, #FFF9E6, transparent 50%);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(201, 169, 110, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(201, 169, 110, 0.05) 0%, transparent 40%);
         }
 
         /* Hero Section */
@@ -49,26 +50,37 @@
             animation: fadeIn 1.2s ease-out;
         }
 
+        .brand-label {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            letter-spacing: 8px;
+            color: var(--accent-gold);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
         h1 {
             font-family: 'Playfair Display', serif;
             font-size: 5rem;
-            font-style: italic;
-            margin-bottom: 20px;
-            color: var(--primary-pink);
+            line-height: 1.1;
+            margin-bottom: 24px;
+            color: var(--text-white);
             letter-spacing: -1px;
         }
 
         h1 span {
-            font-style: normal;
-            font-weight: 700;
-            color: var(--text-main);
+            color: var(--accent-gold);
+            font-style: italic;
         }
 
         .subtitle {
-            font-size: 1.4rem;
-            color: #886A71;
-            margin-bottom: 45px;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 48px;
             font-weight: 300;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .cta-group {
@@ -78,105 +90,111 @@
         }
 
         .btn {
-            padding: 20px 45px;
+            padding: 18px 45px;
             border-radius: 50px;
             font-weight: 700;
             text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 1.1rem;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            font-size: 1.05rem;
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-primary {
-            background-color: var(--primary-pink);
-            color: white;
-            box-shadow: 0 10px 30px rgba(255, 77, 141, 0.3);
+            background-color: var(--accent-gold);
+            color: #1A1A1A;
+            box-shadow: 0 10px 40px rgba(201, 169, 110, 0.3);
         }
 
         .btn-primary:hover {
             transform: translateY(-5px);
-            background-color: #ff2b70;
-            box-shadow: 0 15px 40px rgba(255, 77, 141, 0.5);
+            background-color: #d4bc8d;
+            box-shadow: 0 15px 50px rgba(201, 169, 110, 0.5);
         }
 
         .btn-outline {
-            border: 2px solid #FFE4EE;
-            background: white;
-            color: var(--primary-pink);
+            border: 1.5px solid rgba(201, 169, 110, 0.3);
+            background: transparent;
+            color: var(--accent-gold);
         }
 
         .btn-outline:hover {
-            border-color: var(--primary-pink);
+            background: rgba(201, 169, 110, 0.1);
+            border-color: var(--accent-gold);
         }
 
         /* Features Section */
         .features {
-            padding: 120px 20px;
+            padding: 140px 20px;
             text-align: center;
-            background: rgba(255, 255, 255, 0.5);
         }
 
         .section-title {
             font-family: 'Playfair Display', serif;
-            font-size: 3rem;
-            margin-bottom: 70px;
-            color: var(--text-main);
+            font-size: 3.2rem;
+            margin-bottom: 80px;
+            color: var(--text-white);
         }
 
         .feature-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 40px;
-            max-width: 1100px;
+            gap: 32px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
         .feature-item {
-            background: white;
-            padding: 60px 40px;
-            border-radius: 40px;
-            box-shadow: 0 20px 50px rgba(255, 77, 141, 0.05);
-            transition: all 0.4s;
-            border: 1px solid #FFF1F5;
+            background: var(--glass-bg);
+            padding: 64px 40px;
+            border-radius: 32px;
+            transition: all 0.5s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
         }
 
         .feature-item:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 30px 60px rgba(255, 77, 141, 0.15);
+            transform: translateY(-12px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(201, 169, 110, 0.3);
         }
 
         .feature-icon {
-            font-size: 3.5rem;
-            margin-bottom: 30px;
+            font-size: 3rem;
+            margin-bottom: 32px;
             display: block;
+            filter: drop-shadow(0 0 10px rgba(201, 169, 110, 0.3));
         }
 
         .feature-item h3 {
             font-size: 1.6rem;
-            margin-bottom: 15px;
-            color: var(--primary-pink);
+            margin-bottom: 16px;
+            color: var(--accent-gold);
+            font-family: 'Playfair Display', serif;
         }
 
         .feature-item p {
-            color: #886A71;
+            color: rgba(255, 255, 255, 0.6);
             font-size: 1rem;
+            font-weight: 300;
         }
 
         /* Footer */
         footer {
-            padding: 60px 20px;
+            padding: 80px 20px;
             text-align: center;
-            color: #886A71;
+            color: rgba(255, 255, 255, 0.4);
             font-size: 0.9rem;
-            border-top: 1px solid #FFE4EE;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -191,6 +209,10 @@
             .cta-group {
                 flex-direction: column;
             }
+            
+            .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -199,42 +221,39 @@
 
     <section class="hero">
         <div class="hero-content">
-            <div
-                style="font-size: 1.1rem; margin-bottom: 20px; letter-spacing: 6px; color: var(--primary-pink); font-weight: 700;">
-                HERE WITH YOU</div>
-            <h1>Every Date, <br> <span>a Story.</span></h1>
-            <p class="subtitle">우리가 함께한 모든 장소, <br> 가장 화사하고 낭만적으로 기록하세요.</p>
+            <div class="brand-label">Here With You</div>
+            <h1>Every Date, <br> <span>a Masterpiece.</span></h1>
+            <p class="subtitle">우리가 함께한 모든 찬란한 순간, <br> 프리미엄 다크 & 골드 테마로 품격 있게 기록하세요.</p>
 
             <div class="cta-group">
-                <a href="download/HereWithU_latest_v8.apk" class="btn btn-primary">지금 시작하기 (Android APK)</a>
-                <a href="#features" class="btn btn-outline">기능 살펴보기</a>
+                <a href="app-debug.apk" class="btn btn-primary">v5 최신 버전 다운로드</a>
+                <a href="#features" class="btn btn-outline">새로운 기능</a>
             </div>
         </div>
     </section>
 
     <section id="features" class="features">
-        <h3 class="section-title">Romantic Memories</h3>
         <div class="feature-grid">
             <div class="feature-item">
-                <span class="feature-icon">📍</span>
-                <h3>Map Your Love</h3>
-                <p>우리가 다녀간 로맨틱한 장소들을 지도 위에 하트 핀으로 남겨보세요. 하나씩 채워지는 우리만의 지도.</p>
+                <span class="feature-icon">✨</span>
+                <h3>Premium Design</h3>
+                <p>영자 수석 디자이너의 손길로 탄생한 블랙 & 골드 테마. 모든 페이지가 예술이 됩니다.</p>
             </div>
             <div class="feature-item">
-                <span class="feature-icon">📸</span>
-                <h3>Design Your Card</h3>
-                <p>로맨틱한 테마와 귀여운 스티커로 그날의 분위기를 담은 폴라로이드 카드를 완성하세요.</p>
+                <span class="feature-icon">🚀</span>
+                <h3>Optimized Speed</h3>
+                <p>코부장의 퍼포먼스 튜닝으로 위치 수신부터 QR 생성까지 멈춤 없는 쾌적함을 선사합니다.</p>
             </div>
             <div class="feature-item">
-                <span class="feature-icon">💌</span>
-                <h3>Instant Share</h3>
-                <p>복잡한 공유는 그만! 클릭 한 번으로 연인에게 우리가 함께할 장소를 링크로 전달하세요.</p>
+                <span class="feature-icon">🗂️</span>
+                <h3>Memory Archive</h3>
+                <p>'메모리 카드 보관함'에서 소중한 추억들을 날짜별로 한눈에 모아보세요.</p>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>&copy; 2026 HereWithYou. Build with 💖 for Lovers.</p>
+        <p>&copy; 2026 HereWithYou. Crafted with Luxury for Lovers.</p>
     </footer>
 
 </body>

@@ -661,12 +661,8 @@ class MainActivity : AppCompatActivity() {
         // 💡 [코부장 최적화] QR 생성은 무거운 루프가 포함되므로 백그라운드 스레드로 분리합니다.
         thread {
             try {
-                val shortLat = String.format("%.6f", lat)
-                val shortLng = String.format("%.6f", lng)
-                val shortAddr = if (addr.length > 20) addr.substring(0, 20) else addr
-                val addrEncoded = java.net.URLEncoder.encode(shortAddr, "UTF-8")
-                
-                val link = "https://hnoni777.github.io/newdatemapdiary/share/map.html?lat=$shortLat&lng=$shortLng&addr=$addrEncoded"
+                // 💡 [코부장 배포 최적화] 새로운 블랙&골드 랜딩 페이지로 연결합니다.
+                val link = "https://hnoni777.github.io/newdatemapdiary/"
                 val qrBitmap = generateQRCode(link)
                 
                 runOnUiThread {
