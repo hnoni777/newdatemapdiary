@@ -46,7 +46,7 @@
         android:id="@+id/panel_dim_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#B3000000"
+        android:background="@android:color/transparent"
         android:visibility="gone"
         android:elevation="10dp"/>
 

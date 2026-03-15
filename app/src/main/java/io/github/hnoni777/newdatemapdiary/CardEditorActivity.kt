@@ -97,15 +97,13 @@ class CardEditorActivity : AppCompatActivity() {
             // Show target panel
             panel.visibility = View.VISIBLE
             
-            // Show Tray & Overlay with animation
+            // Show Tray & Overlay (Transparent)
             if (tray.visibility != View.VISIBLE) {
                 tray.visibility = View.VISIBLE
                 tray.translationY = 1000f // Start from below
                 tray.animate().translationY(0f).setDuration(300).setInterpolator(android.view.animation.DecelerateInterpolator()).start()
                 
                 dimOverlay.visibility = View.VISIBLE
-                dimOverlay.alpha = 0f
-                dimOverlay.animate().alpha(1f).setDuration(300).start()
             }
         }
 
@@ -114,9 +112,7 @@ class CardEditorActivity : AppCompatActivity() {
                 .withEndAction { tray.visibility = View.GONE }
                 .start()
             
-            dimOverlay.animate().alpha(0f).setDuration(250)
-                .withEndAction { dimOverlay.visibility = View.GONE }
-                .start()
+            dimOverlay.visibility = View.GONE
         }
 
         findViewById<View>(R.id.btn_category_text).setOnClickListener { showPanel(panelText) }
@@ -127,7 +123,7 @@ class CardEditorActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_done_theme).setOnClickListener { hidePanels() }
         findViewById<View>(R.id.btn_done_sticker).setOnClickListener { hidePanels() }
         
-        // Close when clicking outside on dim overlay
+        // Close when clicking outside on overlay (now transparent)
         dimOverlay.setOnClickListener { hidePanels() }
     }
 
@@ -552,7 +548,6 @@ class CardEditorActivity : AppCompatActivity() {
             // 프리미엄/VVIP 효과가 적용되어 있을 경우 배경색 변경 무시
             val currentTag = contentLayout?.tag as? String
             if (currentTag != "basic" && currentTag != "glass" && currentTag != null) {
-                Toast.makeText(this, "프리미엄 테마 적용 중에는 배경 컬러 기능을 사용할 수 없습니다. 초기화 후 사용해주세요.", Toast.LENGTH_SHORT).show()
                 return
             }
             
@@ -619,7 +614,6 @@ class CardEditorActivity : AppCompatActivity() {
                 }
                 
                 stopSakuraEffect()
-                Toast.makeText(this, "카드 효과가 초기화되었습니다.", Toast.LENGTH_SHORT).show()
             }
             "vip" -> {
                 cardMessage.setTextColor(Color.parseColor("#221018"))
@@ -646,8 +640,6 @@ class CardEditorActivity : AppCompatActivity() {
                 
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                
-                Toast.makeText(this, "✨ 코부장이 드리는 VIP 고감격 다이나믹 에디션!", Toast.LENGTH_SHORT).show()
             }
             "burgundy" -> {
                 cardMessage.setTextColor(Color.parseColor("#FAFAF5"))
@@ -669,7 +661,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "🍷 우아하고 클래식한 버건디 럭셔리 적용!", Toast.LENGTH_SHORT).show()
             }
             "navy" -> {
                 cardMessage.setTextColor(Color.parseColor("#FAFAF5"))
@@ -691,7 +682,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "🌌 모던하고 세련된 네이비 클래식 적용!", Toast.LENGTH_SHORT).show()
             }
             "cream" -> {
                 cardMessage.setTextColor(Color.parseColor("#221018"))
@@ -713,7 +703,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "🕊️ 고급스러운 무색 양각 크림 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "emerald" -> {
                 cardMessage.setTextColor(Color.parseColor("#FAFAF5"))
@@ -735,7 +724,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "🌿 신비로운 포레스트 에메랄드 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "pearl" -> {
                 cardMessage.setTextColor(Color.parseColor("#2C3A47"))
@@ -757,7 +745,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "🤍 순백의 우아함 화이트 펄 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "rosegold" -> {
                 cardMessage.setTextColor(Color.parseColor("#5F3A3E"))
@@ -779,7 +766,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "🌸 로맨틱한 로즈골드 블러시 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "midnight" -> {
                 cardMessage.setTextColor(Color.parseColor("#FFFFFF"))
@@ -823,7 +809,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "🔮 매혹적인 로열 자수정 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "dreamy" -> {
                 cardMessage.setTextColor(Color.parseColor("#4A4A68"))
@@ -845,7 +830,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "☁️ 포근하고 몽환적인 파스텔 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "brutalism" -> {
                 cardMessage.setTextColor(Color.parseColor("#1A1A1A"))
@@ -867,7 +851,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "💛 통통 튀는 키치한 뉴트로 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "ticket" -> {
                 cardMessage.setTextColor(Color.parseColor("#5D4037"))
@@ -889,7 +872,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "🎫 감성 돋는 빈티지 티켓 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "cyber" -> {
                 cardMessage.setTextColor(Color.parseColor("#FFFFFF"))
@@ -911,7 +893,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "🌌 사이버 펑크 네온 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "letter" -> {
                 cardMessage.setTextColor(Color.parseColor("#221018"))
@@ -938,8 +919,6 @@ class CardEditorActivity : AppCompatActivity() {
                 
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                
-                Toast.makeText(this, "✉️ 아날로그 감성 편지지 적용 완료!", Toast.LENGTH_SHORT).show()
             }
             "cute" -> {
                 cardMessage.setTextColor(Color.parseColor("#221018"))
@@ -964,8 +943,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                
-                Toast.makeText(this, "🎀 뽀짝뽀짝 큐티 쁘띠 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "heart" -> {
                 cardMessage.setTextColor(Color.parseColor("#221018"))
@@ -985,7 +962,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "❤️ 러블리 하트 뿅뿅 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "starry" -> {
                 cardMessage.setTextColor(Color.parseColor("#221018"))
@@ -1005,7 +981,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "⭐ 별이 쏟아지는 감성 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "cat" -> {
                 cardMessage.setTextColor(Color.parseColor("#221018"))
@@ -1025,7 +1000,6 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "🐈 귀여운 냥이 발바닥 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "dessert" -> {
                 cardMessage.setTextColor(Color.parseColor("#221018"))
@@ -1046,21 +1020,17 @@ class CardEditorActivity : AppCompatActivity() {
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                Toast.makeText(this, "🍰 달콤함이 팡팡! 디저트 테마 적용!", Toast.LENGTH_SHORT).show()
             }
             "bw" -> {
                 val matrix = android.graphics.ColorMatrix()
                 matrix.setSaturation(0f)
                 cardImage.colorFilter = android.graphics.ColorMatrixColorFilter(matrix)
-                Toast.makeText(this, "🎞️ 흑백 빈티지 필터 적용!", Toast.LENGTH_SHORT).show()
             }
             "sakura" -> {
                 if (sakuraRunnable == null) {
                     startSakuraEffect()
-                } else {
-                    stopSakuraEffect()
-                    Toast.makeText(this, "🌸 벚꽃 효과 종료", Toast.LENGTH_SHORT).show()
                 }
+            }
             }
         }
         
@@ -1077,8 +1047,6 @@ class CardEditorActivity : AppCompatActivity() {
         
         // Remove existing first to avoid duplication
         stopSakuraEffect()
-        
-        Toast.makeText(this, "🌸 카드 전체에 예쁜 벚꽃이 박제되었습니다(공유가능)!", Toast.LENGTH_SHORT).show()
         
         stickerLayer.post {
             val w = if (stickerLayer.width > 0) stickerLayer.width.toFloat() else (resources.displayMetrics.widthPixels).toFloat()
@@ -1516,8 +1484,7 @@ class CardEditorActivity : AppCompatActivity() {
 
         if (shareAfter && savedUri != null) {
             shareImage(savedUri, lat, lng, address)
-        } else if(savedUri != null) {
-            Toast.makeText(this, "갤러리 및 추억지도에 저장되었습니다", Toast.LENGTH_SHORT).show()
+            // saved successfully
         }
     }
 
