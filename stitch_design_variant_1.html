@@ -1,107 +1,277 @@
 <!DOCTYPE html>
+<html lang="ko">
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Love, Thoughtfully - Intro</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#ec135b",
-                        "background-light": "#f8f6f6",
-                        "background-dark": "#221016",
-                    },
-                    fontFamily: {
-                        "display": ["Plus Jakarta Sans", "sans-serif"],
-                        "serif": ["Playfair Display", "serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "1rem",
-                        "lg": "2rem",
-                        "xl": "3rem",
-                        "full": "9999px"
-                    },
-                },
-            },
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HereWithYou - 프리미엄 데이트 다이어리</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0D0D0D;
+            --accent-gold: #C9A96E;
+            --text-white: #FFFFFF;
+            --glass-bg: rgba(255, 255, 255, 0.05);
         }
-    </script>
-<style>
-        .glow-button {
-            box-shadow: 0 0 20px 2px rgba(236, 19, 91, 0.4);
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .vignette-overlay {
-            background: radial-gradient(circle, rgba(34, 16, 22, 0.2) 0%, rgba(34, 16, 22, 0.8) 100%);
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            overflow-x: hidden;
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(201, 169, 110, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(201, 169, 110, 0.05) 0%, transparent 40%);
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .hero-content {
+            z-index: 10;
+            max-width: 900px;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .brand-label {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            letter-spacing: 8px;
+            color: var(--accent-gold);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 5rem;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            color: var(--text-white);
+            letter-spacing: -1px;
+        }
+
+        h1 span {
+            color: var(--accent-gold);
+            font-style: italic;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 48px;
+            font-weight: 300;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 18px 45px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-gold);
+            color: #1A1A1A;
+            box-shadow: 0 10px 40px rgba(201, 169, 110, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            background-color: #d4bc8d;
+            box-shadow: 0 15px 50px rgba(201, 169, 110, 0.5);
+        }
+
+        .btn-outline {
+            border: 1.5px solid rgba(201, 169, 110, 0.3);
+            background: transparent;
+            color: var(--accent-gold);
+        }
+
+        .btn-outline:hover {
+            background: rgba(201, 169, 110, 0.1);
+            border-color: var(--accent-gold);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 140px 20px;
+            text-align: center;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.2rem;
+            margin-bottom: 80px;
+            color: var(--text-white);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            background: var(--glass-bg);
+            padding: 64px 40px;
+            border-radius: 32px;
+            transition: all 0.5s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-item:hover {
+            transform: translateY(-12px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(201, 169, 110, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 32px;
+            display: block;
+            filter: drop-shadow(0 0 10px rgba(201, 169, 110, 0.3));
+        }
+
+        .feature-item h3 {
+            font-size: 1.6rem;
+            margin-bottom: 16px;
+            color: var(--accent-gold);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .feature-item p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* Footer */
+        footer {
+            padding: 80px 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3.5rem;
+            }
+
+            .cta-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
         }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-  </head>
-<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
-<!-- Main Container (iPhone Aspect Ratio Simulation) -->
-<div class="relative flex flex-col h-screen w-full max-w-md mx-auto overflow-hidden bg-background-dark shadow-2xl">
-<!-- Background Image Container -->
-<div class="absolute inset-0 w-full h-full overflow-hidden">
-<div class="absolute inset-0 scale-110 blur-sm brightness-75 bg-cover bg-center transition-transform duration-1000" data-alt="Blurred artistic shot of a couple holding hands gently" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDnSb40Wcv2sEc4dM3O0QSDnx8FTPEGmOODifSiJu9yQF9jOreois4H_PeHS1dfERe2ISHxD2kQWnFyvMjUrk1HnlcO3oEp4jRjArsk8CbPVw7zUtQwAdnrm6Be4za0XZ9KIY98_9StpSzPk4VSlWgJLKdyL0ozK-AEzx6UE3pTFll3Yc4CqJHr9TECoGSugVsnzmj4TuFlKFkQi2NIHJfi0nqXQMdS6ga4UU7iflzn2zkPH-fTtJuw98UWjycqyfRjZS4duy2TZNw");'></div>
-<!-- Dark Gradient Overlays for Readability -->
-<div class="absolute inset-0 bg-gradient-to-b from-background-dark/40 via-transparent to-background-dark/90"></div>
-<div class="absolute inset-0 vignette-overlay"></div>
-</div>
-<!-- Top Navigation / Close -->
-<div class="relative z-10 flex items-center justify-between p-6">
-<div class="text-slate-100/50 hover:text-white cursor-pointer transition-colors">
-<span class="material-symbols-outlined text-[28px]">close</span>
-</div>
-<div class="flex items-center gap-1 opacity-80">
-<span class="material-symbols-outlined text-primary text-[18px] fill-1">favorite</span>
-<span class="text-xs font-bold tracking-widest uppercase text-slate-100">L'Amour</span>
-</div>
-<div class="w-7"></div> <!-- Spacer for balance -->
-</div>
-<!-- Content Section -->
-<div class="relative z-10 flex flex-col items-center justify-center flex-1 px-8 text-center">
-<!-- Decorative Icon -->
-<div class="mb-8 p-4 bg-primary/10 rounded-full border border-primary/20 backdrop-blur-md">
-<span class="material-symbols-outlined text-primary text-[40px]">auto_awesome</span>
-</div>
-<!-- Headline -->
-<h1 class="font-serif italic text-white text-5xl md:text-6xl leading-tight mb-4 drop-shadow-lg">
-                Love, <br/> <span class="not-italic font-bold">thoughtfully.</span>
-</h1>
-<!-- Subtitle -->
-<p class="text-slate-200 text-lg font-light leading-relaxed max-w-[260px] opacity-90">
-                Find a connection that lasts and grows with you.
-            </p>
-</div>
-<!-- Action Section -->
-<div class="relative z-10 p-8 pb-12 flex flex-col gap-6 items-center w-full">
-<!-- Get Started Button -->
-<button class="glow-button w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-full transition-all active:scale-95 flex items-center justify-center gap-2 group">
-<span class="text-lg">Get Started</span>
-<span class="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</span>
-</button>
-<!-- Bottom Links -->
-<div class="flex flex-col items-center gap-4">
-<p class="text-slate-400 text-sm">
-                    Already have an account? 
-                    <button class="text-primary font-bold hover:underline ml-1">Sign In</button>
-</p>
-<!-- Indicator for Apple/Modern iOS UI -->
-<div class="mt-4 w-32 h-1 bg-white/20 rounded-full"></div>
-</div>
-</div>
-<!-- Floating Decorative Element (Top Right) -->
-<div class="absolute top-20 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-[60px] pointer-events-none"></div>
-<!-- Floating Decorative Element (Bottom Left) -->
-<div class="absolute bottom-40 -left-10 w-48 h-48 bg-primary/5 rounded-full blur-[80px] pointer-events-none"></div>
-</div>
-</body></html>
+</head>
+
+<body>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="brand-label">Here With You</div>
+            <h1>Every Date, <br> <span>a Masterpiece.</span></h1>
+            <p class="subtitle">우리가 함께한 모든 찬란한 순간, <br> 프리미엄 다크 & 골드 테마로 품격 있게 기록하세요.</p>
+
+            <div class="cta-group">
+                <a href="NewDateMapDiary_v10_1_StickerPerfect.apk" class="btn btn-primary">v10.1 Sticker Perfect Edition 다운로드</a>
+                <a href="#recovery" class="btn btn-outline">복구 지점 확인</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recovery Point Section -->
+    <section id="recovery" class="features" style="background: rgba(201, 169, 110, 0.05); padding: 80px 20px;">
+        <h2 class="section-title" style="font-size: 2.5rem; margin-bottom: 40px;">Recovery Archive</h2>
+        <div class="feature-grid" style="max-width: 800px;">
+            <div class="feature-item" style="padding: 30px; text-align: left;">
+                <h4 style="color: var(--accent-gold); margin-bottom: 10px;">v1.0.1 - [Sticker Perfect Edition]</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 15px;">코부장 & 영자의 정밀 누끼 로직이 적용된 14종 프리미엄 3D 스티커 세트가 포함된 최신 복구 지점입니다.</p>
+                <div style="display: flex; gap: 10px;">
+                    <a href="processed_stickers_v1.0.1/" style="color: var(--accent-gold); font-size: 0.8rem; text-decoration: underline;">스티커 에셋 보기</a>
+                    <span style="color: rgba(255,255,255,0.3);">|</span>
+                    <a href="NewDateMapDiary_v10_1_StickerPerfect.apk" style="color: var(--accent-gold); font-size: 0.8rem; text-decoration: underline;">APK 다운로드</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="feature-grid">
+            <div class="feature-item">
+                <span class="feature-icon">✨</span>
+                <h3>Premium Design</h3>
+                <p>영자 수석 디자이너의 손길로 탄생한 블랙 & 골드 테마. 모든 페이지가 예술이 됩니다.</p>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🚀</span>
+                <h3>Optimized Speed</h3>
+                <p>코부장의 퍼포먼스 튜닝으로 위치 수신부터 QR 생성까지 멈춤 없는 쾌적함을 선사합니다.</p>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🗂️</span>
+                <h3>Memory Archive</h3>
+                <p>'메모리 카드 보관함'에서 소중한 추억들을 날짜별로 한눈에 모아보세요.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 HereWithYou. Crafted with Luxury for Lovers.</p>
+    </footer>
+
+</body>
+
+</html>

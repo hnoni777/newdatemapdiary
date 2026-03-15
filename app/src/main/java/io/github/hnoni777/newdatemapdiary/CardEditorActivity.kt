@@ -433,7 +433,10 @@ class CardEditorActivity : AppCompatActivity() {
             R.drawable.stk_premium_rose,
             R.drawable.stk_premium_teddy,
             R.drawable.stk_premium_coffee,
-            R.drawable.stk_premium_cake
+            R.drawable.stk_premium_cake,
+            R.drawable.stk_premium_airplane,
+            R.drawable.stk_premium_gift,
+            R.drawable.stk_premium_sun
         )
         
         premium3DStickers.forEach { resId ->

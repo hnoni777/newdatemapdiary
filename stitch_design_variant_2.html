@@ -1,117 +1,277 @@
 <!DOCTYPE html>
+<html lang="ko">
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Soulmate - Intro Screen</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#ec135b",
-                        "background-light": "#f8f6f6",
-                        "background-dark": "#221016",
-                        "accent-lavender": "#9d8df1",
-                        "accent-rose": "#f472b6"
-                    },
-                    fontFamily: {
-                        "display": ["Plus Jakarta Sans", "sans-serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "1rem",
-                        "lg": "2rem",
-                        "xl": "3rem",
-                        "full": "9999px"
-                    },
-                },
-            },
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HereWithYou - 프리미엄 데이트 다이어리</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0D0D0D;
+            --accent-gold: #C9A96E;
+            --text-white: #FFFFFF;
+            --glass-bg: rgba(255, 255, 255, 0.05);
         }
-    </script>
-<style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            overflow-x: hidden;
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(201, 169, 110, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(201, 169, 110, 0.05) 0%, transparent 40%);
         }
-        .gradient-mesh {
-            background: radial-gradient(circle at 50% 0%, rgba(236, 19, 91, 0.15) 0%, rgba(157, 141, 241, 0.1) 40%, rgba(34, 16, 22, 1) 100%);
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .hero-content {
+            z-index: 10;
+            max-width: 900px;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .brand-label {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            letter-spacing: 8px;
+            color: var(--accent-gold);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 5rem;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            color: var(--text-white);
+            letter-spacing: -1px;
+        }
+
+        h1 span {
+            color: var(--accent-gold);
+            font-style: italic;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 48px;
+            font-weight: 300;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 18px 45px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-gold);
+            color: #1A1A1A;
+            box-shadow: 0 10px 40px rgba(201, 169, 110, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            background-color: #d4bc8d;
+            box-shadow: 0 15px 50px rgba(201, 169, 110, 0.5);
+        }
+
+        .btn-outline {
+            border: 1.5px solid rgba(201, 169, 110, 0.3);
+            background: transparent;
+            color: var(--accent-gold);
+        }
+
+        .btn-outline:hover {
+            background: rgba(201, 169, 110, 0.1);
+            border-color: var(--accent-gold);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 140px 20px;
+            text-align: center;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.2rem;
+            margin-bottom: 80px;
+            color: var(--text-white);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            background: var(--glass-bg);
+            padding: 64px 40px;
+            border-radius: 32px;
+            transition: all 0.5s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-item:hover {
+            transform: translateY(-12px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(201, 169, 110, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 32px;
+            display: block;
+            filter: drop-shadow(0 0 10px rgba(201, 169, 110, 0.3));
+        }
+
+        .feature-item h3 {
+            font-size: 1.6rem;
+            margin-bottom: 16px;
+            color: var(--accent-gold);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .feature-item p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* Footer */
+        footer {
+            padding: 80px 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3.5rem;
+            }
+
+            .cta-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
         }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-  </head>
-<body class="bg-background-light dark:bg-background-dark font-display antialiased overflow-hidden">
-<!-- Main Container representing a Phone Screen -->
-<div class="relative flex h-screen w-full flex-col justify-between gradient-mesh overflow-hidden">
-<!-- Status Bar Area Spacer -->
-<div class="h-12 w-full"></div>
-<!-- Upper Half: Artistic Illustration -->
-<div class="flex flex-col items-center justify-center grow px-8">
-<div class="relative w-64 h-64 flex items-center justify-center">
-<!-- Artistic Intertwining Hearts (Represented by an SVG illustration) -->
-<svg class="w-full h-full drop-shadow-[0_0_15px_rgba(236,19,91,0.3)]" viewbox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-<path class="opacity-80" d="M100 160C100 160 30 110 30 65C30 40 50 25 70 25C85 25 95 35 100 45C105 35 115 25 130 25C150 25 170 40 170 65C170 110 100 160 100 160Z" fill="none" stroke="#ec135b" stroke-width="2"></path>
-<path class="opacity-60" d="M80 140C80 140 10 90 10 45C10 20 30 5 50 5C65 5 75 15 80 25C85 15 95 5 110 5C130 5 150 20 150 45C150 90 80 140 80 140Z" fill="none" stroke="#9d8df1" stroke-width="1.5" transform="translate(20, 30) rotate(-15, 80, 72)"></path>
-</svg>
-</div>
-</div>
-<!-- Middle Content: Branding & Text -->
-<div class="flex flex-col items-center px-8 pb-12">
-<h1 class="text-slate-900 dark:text-slate-100 text-5xl font-extrabold tracking-tight mb-4">
-                Soulmate
-            </h1>
-<p class="text-slate-600 dark:text-slate-400 text-lg font-light italic text-center max-w-xs leading-relaxed">
-                Where hearts meet and stories begin.
-            </p>
-</div>
-<!-- Bottom Section: CTAs & Social -->
-<div class="flex flex-col w-full px-8 pb-16 space-y-8">
-<!-- Primary Action -->
-<button class="w-full bg-primary hover:bg-primary/90 text-white h-14 rounded-full font-bold text-lg tracking-wide shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2">
-<span>Begin Journey</span>
-<span class="material-symbols-outlined text-xl">favorite</span>
-</button>
-<!-- Social Login Divider -->
-<div class="flex items-center gap-4 w-full">
-<div class="h-[1px] grow bg-primary/10 dark:bg-primary/20"></div>
-<span class="text-slate-400 dark:text-slate-500 text-sm font-medium">Or continue with</span>
-<div class="h-[1px] grow bg-primary/10 dark:bg-primary/20"></div>
-</div>
-<!-- Social Icons Row -->
-<div class="flex justify-center items-center gap-6">
-<!-- Apple -->
-<button class="w-14 h-14 rounded-full flex items-center justify-center bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 text-slate-900 dark:text-slate-100 transition-colors hover:bg-slate-900/10 dark:hover:bg-white/10">
-<svg class="w-6 h-6 fill-current" data-alt="Minimalist Apple icon logo" viewbox="0 0 24 24">
-<path d="M17.05 20.28c-.98.95-2.05 1.72-3.21 1.72-1.14 0-1.55-.71-2.92-.71-1.35 0-1.84.7-2.92.71-1.12 0-2.29-.82-3.3-1.82C2.63 18.11 1 15.1 1 12.08c0-4.74 3.12-7.25 6.13-7.25 1.58 0 2.72.93 3.65.93.89 0 2.15-.98 3.82-.98 1.41 0 5.4.52 6.4 5.24-.05.02-3.14 1.18-3.14 4.81 0 3.51 3.03 4.71 3.1 4.74-.03.11-.47 1.62-1.91 3.51zM11.95 4.8c-.02-2.13 1.75-3.85 3.85-4.14.28 2.45-2.32 4.67-3.85 4.14z"></path>
-</svg>
-</button>
-<!-- Google -->
-<button class="w-14 h-14 rounded-full flex items-center justify-center bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 text-slate-900 dark:text-slate-100 transition-colors hover:bg-slate-900/10 dark:hover:bg-white/10">
-<svg class="w-6 h-6 fill-current" data-alt="Minimalist Google G logo" viewbox="0 0 24 24">
-<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"></path>
-<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"></path>
-<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"></path>
-<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"></path>
-</svg>
-</button>
-<!-- Facebook -->
-<button class="w-14 h-14 rounded-full flex items-center justify-center bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 text-slate-900 dark:text-slate-100 transition-colors hover:bg-slate-900/10 dark:hover:bg-white/10">
-<svg class="w-6 h-6 fill-current" data-alt="Minimalist Meta Facebook f logo" viewbox="0 0 24 24">
-<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
-</svg>
-</button>
-</div>
-</div>
-<!-- Safe Area Home Indicator Mockup -->
-<div class="h-8 flex justify-center items-end pb-2">
-<div class="w-32 h-1.5 bg-slate-900/20 dark:bg-white/20 rounded-full"></div>
-</div>
-</div>
-</body></html>
+</head>
+
+<body>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="brand-label">Here With You</div>
+            <h1>Every Date, <br> <span>a Masterpiece.</span></h1>
+            <p class="subtitle">우리가 함께한 모든 찬란한 순간, <br> 프리미엄 다크 & 골드 테마로 품격 있게 기록하세요.</p>
+
+            <div class="cta-group">
+                <a href="NewDateMapDiary_v10_1_StickerPerfect.apk" class="btn btn-primary">v10.1 Sticker Perfect Edition 다운로드</a>
+                <a href="#recovery" class="btn btn-outline">복구 지점 확인</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recovery Point Section -->
+    <section id="recovery" class="features" style="background: rgba(201, 169, 110, 0.05); padding: 80px 20px;">
+        <h2 class="section-title" style="font-size: 2.5rem; margin-bottom: 40px;">Recovery Archive</h2>
+        <div class="feature-grid" style="max-width: 800px;">
+            <div class="feature-item" style="padding: 30px; text-align: left;">
+                <h4 style="color: var(--accent-gold); margin-bottom: 10px;">v1.0.1 - [Sticker Perfect Edition]</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 15px;">코부장 & 영자의 정밀 누끼 로직이 적용된 14종 프리미엄 3D 스티커 세트가 포함된 최신 복구 지점입니다.</p>
+                <div style="display: flex; gap: 10px;">
+                    <a href="processed_stickers_v1.0.1/" style="color: var(--accent-gold); font-size: 0.8rem; text-decoration: underline;">스티커 에셋 보기</a>
+                    <span style="color: rgba(255,255,255,0.3);">|</span>
+                    <a href="NewDateMapDiary_v10_1_StickerPerfect.apk" style="color: var(--accent-gold); font-size: 0.8rem; text-decoration: underline;">APK 다운로드</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="feature-grid">
+            <div class="feature-item">
+                <span class="feature-icon">✨</span>
+                <h3>Premium Design</h3>
+                <p>영자 수석 디자이너의 손길로 탄생한 블랙 & 골드 테마. 모든 페이지가 예술이 됩니다.</p>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🚀</span>
+                <h3>Optimized Speed</h3>
+                <p>코부장의 퍼포먼스 튜닝으로 위치 수신부터 QR 생성까지 멈춤 없는 쾌적함을 선사합니다.</p>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🗂️</span>
+                <h3>Memory Archive</h3>
+                <p>'메모리 카드 보관함'에서 소중한 추억들을 날짜별로 한눈에 모아보세요.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 HereWithYou. Crafted with Luxury for Lovers.</p>
+    </footer>
+
+</body>
+
+</html>
