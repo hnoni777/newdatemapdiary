@@ -407,23 +407,38 @@ class CardEditorActivity : AppCompatActivity() {
             return frame
         }
 
-        // Add 20 Basic (1 tape + 19 emojis)
+        // --- [Basic Stickers Section] ---
+        // 1. Initial Tape & Basic Emojis
         basicContainer.addView(createDrawableIcon(R.drawable.ic_sticker_tape, 60, false))
         basicEmojis.forEach { basicContainer.addView(createEmojiIcon(it, false)) }
+        
+        // 2. Transferred 2D content from Premium (as per User's strategy)
+        premiumEmojis.forEach { basicContainer.addView(createEmojiIcon(it, false)) }
+        premiumLetterings.forEach { basicContainer.addView(createLetteringIcon(it)) }
+        vvipHeartEmojis.forEach { basicContainer.addView(createEmojiIcon(it, false)) }
+        vvipWatercolorEmojis.forEach { basicContainer.addView(createEmojiIcon(it, false)) }
+        vvipNeonEmojis.forEach { basicContainer.addView(createEmojiIcon(it, false)) }
+        vvipLetterings.forEach { basicContainer.addView(createLetteringIcon(it)) }
 
-        // --- 1. Top priority: Heart Emojis ---
-        vvipHeartEmojis.forEach { premiumContainer.addView(createEmojiIcon(it, true)) }
-
-        // --- 2. VVIP Premium Emojis (Watercolor & Neon) ---
-        vvipWatercolorEmojis.forEach { premiumContainer.addView(createEmojiIcon(it, true)) }
-        vvipNeonEmojis.forEach { premiumContainer.addView(createEmojiIcon(it, true)) }
-
-        // --- 3. Standard Premium Emojis ---
-        premiumEmojis.forEach { premiumContainer.addView(createEmojiIcon(it, true)) }
-
-        // --- 4. Lettering Stickers (Moved to Bottom) ---
-        vvipLetterings.forEach { premiumContainer.addView(createLetteringIcon(it)) }
-        premiumLetterings.forEach { premiumContainer.addView(createLetteringIcon(it)) }
+        // --- [Premium Stickers Section] ---
+        // 👑 NEW: High-Quality 3D Opaque Stickers
+        val premium3DStickers = listOf(
+            R.drawable.stk_premium_heart_red,
+            R.drawable.stk_premium_star,
+            R.drawable.stk_premium_cat_paw,
+            R.drawable.stk_premium_rainbow,
+            R.drawable.stk_premium_camera,
+            R.drawable.stk_premium_champagne,
+            R.drawable.stk_premium_diamond,
+            R.drawable.stk_premium_rose,
+            R.drawable.stk_premium_teddy,
+            R.drawable.stk_premium_coffee,
+            R.drawable.stk_premium_cake
+        )
+        
+        premium3DStickers.forEach { resId ->
+            premiumContainer.addView(createDrawableIcon(resId, 44, true))
+        }
     }
 
     private fun showCardPreview() {
