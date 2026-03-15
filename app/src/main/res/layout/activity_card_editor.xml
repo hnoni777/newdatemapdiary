@@ -271,6 +271,23 @@
                     </LinearLayout>
                 </HorizontalScrollView>
 
+                <!-- 💎 Premium Effects (Coming Soon) -->
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="💎 Premium Effects" android:textColor="@color/champagne_gold" android:textSize="12sp" android:layout_marginTop="16dp" android:layout_marginBottom="10dp" android:textStyle="bold"/>
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:scrollbars="none">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_glass_card_premium"
+                        android:paddingHorizontal="16dp">
+                        <TextView android:id="@+id/btn_effect_premium_coming" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="20dp" android:text="✨ Coming Soon..." android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/champagne_gold" android:textSize="12sp" android:alpha="0.6"/>
+                    </LinearLayout>
+                </HorizontalScrollView>
+
                 <Button
                     android:id="@+id/btn_done_theme"
                     android:layout_width="match_parent"
