@@ -436,7 +436,22 @@ class CardEditorActivity : AppCompatActivity() {
             R.drawable.stk_premium_cake,
             R.drawable.stk_premium_airplane,
             R.drawable.stk_premium_gift,
-            R.drawable.stk_premium_sun
+            R.drawable.stk_premium_sun,
+            R.drawable.stk_premium_moon,
+            R.drawable.stk_premium_cloud,
+            R.drawable.stk_premium_sakura,
+            R.drawable.stk_premium_clover,
+            R.drawable.stk_premium_balloon,
+            R.drawable.stk_premium_letter,
+            R.drawable.stk_premium_butterfly,
+            R.drawable.stk_premium_puppy,
+            R.drawable.stk_premium_crown,
+            R.drawable.stk_premium_wine,
+            R.drawable.stk_premium_sunflower,
+            R.drawable.stk_premium_strawberry,
+            R.drawable.stk_premium_rocket,
+            R.drawable.stk_premium_ribbon,
+            R.drawable.stk_premium_palette
         )
         
         premium3DStickers.forEach { resId ->

@@ -5,37 +5,40 @@ description: How to create a formal Recovery Point (by Kodari Manager)
 // turbo-all
 Whenever the USER asks to "잡아달라" (capture/create) a recovery point, follow these steps exactly without skipping:
 
-### 1. Identify Version Number
+### 1. Identify & Bump Version Code
 - Determine the next version (e.g., v1.0.1 -> v1.0.2).
+- **CRITICAL**: Update `app/build.gradle.kts` with a new `versionCode` and `versionName`.
 
-### 2. Archive Current Best Assets
-- Create a backup directory: `processed_stickers_v[VERSION]`
-- Copy all critical assets (like stickers from `app/src/main/res/drawable-nodpi/stk_premium_*.png`) to this directory.
+### 2. New Build Generation (The most important step)
+- Run fresh build to embed latest code and assets.
 ```powershell
-mkdir processed_stickers_v[VERSION]
-copy app\src\main\res\drawable-nodpi\stk_premium_*.png processed_stickers_v[VERSION]\ /y
+gradlew.bat assembleDebug
+```
+- Verify `app-debug.apk` is generated, then copy to versioned name:
+```powershell
+copy app\build\outputs\apk\debug\app-debug.apk NewDateMapDiary_v[VERSION]_Description.apk /y
 ```
 
-### 3. Create Versioned APK
-- Duplicate the latest build to a versioned name.
-```powershell
-copy NewDateMapDiary_v9_B148.apk NewDateMapDiary_v[VERSION]_Description.apk /y
-```
+### 3. Archive Master Assets
+- Create backup directory: `processed_stickers_v[VERSION]`
+- Copy all critical assets from `app/src/main/res/drawable-nodpi/stk_premium_*.png`.
 
 ### 4. Update Landing Page (index.html)
-- Update the main `btn-primary` link to the new versioned APK.
-- Add a new `feature-item` entry to the `<section id="recovery">` with the version summary and download links.
+- Update the main `btn-primary` link to the NEW versioned APK.
+- Update the version text (e.g., v10.1).
+- Add a new entry to the `<section id="recovery">`.
+- **Mirroring**: Ensure `intro_variant_1.html` and others are mirrored with the same content.
 
-### 5. Generate Manifest Artifact
-- Create a `RECOVERY_POINT_v[VERSION].md` artifact.
-- Document:
-    - Version Name & Timestamp.
-    - Verified Asset List.
-    - Processing Logic DNA (Nukki/Crop settings used).
-    - System status.
+### 5. Git Deployment (Deployment)
+- Stage, commit, and push to ensure the live server is updated.
+```powershell
+git add .
+git commit -m "Capture Recovery Point v[VERSION]: [Description]"
+git push origin master
+```
 
-### 6. Verify QR Code Link
-- Ensure all QR generation code in `MainActivity.kt` and `CardEditorActivity.kt` points to the root landing page URL.
+### 6. Generate Manifest Artifact
+- Create `RECOVERY_POINT_v[VERSION].md` documenting the state.
 
-### 7. Final Report
-- Inform the USER that the recovery point has been captured, the web page updated, and the manual followed 100%.
+### 7. Final Verification
+- Check the live URL if possible. Notify USER that build, versioning, and deployment are 100% complete.
