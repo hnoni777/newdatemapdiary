@@ -475,8 +475,28 @@ class MemoryMapActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         mapView.resume()
+        
+        // 🧹 [고스트 메모리 청소 로직] 외부 갤러리 앱에서 삭제된 사진 감지 및 DB 동기화
+        var ghostsRemoved = false
+        val currentDbList = dbHelper.getAllMemories()
+        currentDbList.forEach { dbMemory ->
+            var fileExists = false
+            try {
+                contentResolver.openAssetFileDescriptor(Uri.parse(dbMemory.photoUri), "r")?.use {
+                    fileExists = true
+                }
+            } catch (e: Exception) {
+                fileExists = false
+            }
+            if (!fileExists) {
+                dbHelper.deleteMemory(dbMemory.id)
+                ghostsRemoved = true
+                Log.d("GHOST_CLEANUP", "Deleted ghost memory from DB: ${dbMemory.photoUri}")
+            }
+        }
+        
         // 🔥 [대통함] 화면 복귀 시 무조건 DB에서 최신 데이터 로드
-        // 다른 화면(메인/편집기)에서 추가된 데이터가 즉각 반영됨
+        // 다른 화면(메인/편집기)에서 추가된 데이터나 삭제된 고스트 파일이 즉각 반영됨
         memories = dbHelper.getAllMemories()
         if (kakaoMap != null) showMemoriesOnMap()
     }
