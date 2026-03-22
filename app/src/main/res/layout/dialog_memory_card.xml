@@ -56,26 +56,59 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp" />
 
-    <!-- 🗺️ [내비게이션 버튼] 카드 바로 밑에 큼직하고 예쁘게 배치 -->
+    <!-- 🗺️ [내비게이션 및 로드뷰 버튼] 카드 바로 밑에 나란히 배치 -->
     <LinearLayout
-        android:id="@+id/btn_get_directions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center"
-        android:background="@drawable/bg_gold_pill_button"
-        android:backgroundTint="#CC221018"
-        android:paddingVertical="12dp"
-        android:clickable="true"
-        android:focusable="true">
+        android:baselineAligned="false"
+        android:weightSum="2">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/btn_get_directions"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="🗺️ 이 장소로 길찾기 시작"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:fontFamily="@font/kyobo_hand_family" />
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@drawable/bg_gold_pill_button"
+            android:backgroundTint="#CC221018"
+            android:paddingVertical="12dp"
+            android:layout_marginEnd="4dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🗺️ 길찾기"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:fontFamily="@font/kyobo_hand_family" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_open_roadview"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@drawable/bg_gold_pill_button"
+            android:backgroundTint="#CC221018"
+            android:paddingVertical="12dp"
+            android:layout_marginStart="4dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="👀 로드뷰"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:fontFamily="@font/kyobo_hand_family" />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

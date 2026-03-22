@@ -34,6 +34,9 @@ class DirectionsActivity : AppCompatActivity() {
     private var destLng: Double = 0.0
     private var destAddr: String = ""
 
+    private var startLat: Double = 0.0
+    private var startLng: Double = 0.0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         try {
@@ -58,26 +61,30 @@ class DirectionsActivity : AppCompatActivity() {
             }
 
             findViewById<TextView>(R.id.text_directions_address)?.text = destAddr
-            findViewById<TextView>(R.id.text_start_address)?.text = "현재 위치" // 나중에 GPS 정보로 보완 가능
+            findViewById<TextView>(R.id.text_start_address)?.text = "현재 위치" 
             findViewById<View>(R.id.btn_directions_back)?.setOnClickListener { finish() }
 
-            // 🚗 [카카오맵 앱 연동] 내비게이션 실행 및 미설치 시 가이드
+            // 🚗 [대표님 지시: 앱 우선 길찾기 & 미설치 시 마켓 연동] 
+            // 최고의 안내 경험을 위해 카카오맵 앱을 먼저 호출하고, 없는 경우 설치 페이지로 안내합니다.
             findViewById<View>(R.id.btn_launch_kakao_map)?.setOnClickListener {
+                val appUrl = "kakaomap://route?ep=$destLat,$destLng&by=CAR"
+                val marketUrl = "market://details?id=net.daum.android.map"
+                val webMarketUrl = "https://play.google.com/store/apps/details?id=net.daum.android.map"
+
                 try {
-                    // 카카오맵 길찾기 스킴 (자동차 길찾기 모드)
-                    val url = "kakaomap://route?ep=$destLat,$destLng&by=CAR"
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    // 🚀 1순위: 카카오맵 앱 실행 (목적지까지 바로 안심 경로 안내)
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(appUrl))
                     startActivity(intent)
                 } catch (e: Exception) {
-                    // 🚨 카카오맵이 없는 경우: 안내 메시지 출력 후 플레이스토어로 연결
-                    Toast.makeText(this, "카카오맵이 설치되어 있지 않습니다. 더 나은 길안내를 위해 카카오맵을 설치해 주세요!", Toast.LENGTH_LONG).show()
-                    
+                    // 📥 2순위: 앱이 없는 경우 안내 문구 노출 및 플레이스토로 이동
+                    runOnUiThread {
+                        Toast.makeText(this, "카카오맵 앱이 설치되어 있지 않아 설치 페이지로 이동합니다.", Toast.LENGTH_LONG).show()
+                    }
+                    Log.d("DIRECTIONS_DEBUG", "KakaoMap App not found, redirecting to Market")
                     try {
-                        // 플레이스토어 앱 실행 (카카오맵 패키지: net.daum.android.map)
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=net.daum.android.map")))
-                    } catch (playEx: Exception) {
-                        // 플레이스토어 앱도 없는 경우 (브라우저로 이동)
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=net.daum.android.map")))
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(marketUrl)))
+                    } catch (e2: Exception) {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(webMarketUrl)))
                     }
                 }
             }
@@ -138,8 +145,8 @@ class DirectionsActivity : AppCompatActivity() {
             fused.lastLocation.addOnSuccessListener { loc ->
                 runOnUiThread {
                     if (loc != null) {
-                        val startLat = loc.latitude
-                        val startLng = loc.longitude
+                        startLat = loc.latitude
+                        startLng = loc.longitude
                         Log.d("DIRECTIONS_DEBUG", "My Location: $startLat, $startLng")
                         
                         // 🌍 [주소 가져오기] 현재 위치의 주소를 텍스트로 표시

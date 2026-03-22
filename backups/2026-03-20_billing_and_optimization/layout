@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <!-- 📸 사진 영역 -->
+    <ImageView
+        android:id="@+id/card_image"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="6"
+        android:scaleType="centerCrop"
+        android:background="#000000" />
+
+    <!-- 📝 텍스트 영역 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- 💬 감성 문구 -->
+        <TextView
+            android:id="@+id/card_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="너와 함께라서 기억하고 싶은 하루"
+            android:textSize="18sp"
+            android:textColor="#222222"
+            android:textStyle="bold"
+            android:lineSpacingExtra="6dp" />
+
+        <!-- 📍 주소 -->
+        <TextView
+            android:id="@+id/card_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="서울특별시 어딘가"
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:layout_marginTop="12dp" />
+
+        <!-- 📅 날짜 -->
+        <TextView
+            android:id="@+id/card_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2026-01-10"
+            android:textSize="13sp"
+            android:textColor="#999999"
+            android:layout_marginTop="6dp" />
+
+        <!-- 🔖 워터마크 -->
+        <TextView
+            android:id="@+id/card_watermark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="HereWithYou"
+            android:textSize="12sp"
+            android:textColor="#BBBBBB"
+            android:gravity="end"
+            android:layout_marginTop="16dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

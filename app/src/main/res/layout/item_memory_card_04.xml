@@ -110,6 +110,46 @@
                         android:textColor="#666666" />
                 </LinearLayout>
 
+                <!-- ⭐ 설렘지수 (Rating Stars) -->
+                <LinearLayout
+                    android:id="@+id/card_rating_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="설렘지수"
+                        android:textSize="12sp"
+                        android:textColor="#8C8C8C"
+                        android:fontFamily="@font/kyobo_hand_family"
+                        android:layout_marginEnd="8dp" />
+
+                    <ImageView
+                        android:id="@+id/star_1"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_star_rate_empty"
+                        android:layout_marginEnd="4dp"
+                        android:contentDescription="Star 1" />
+                    <ImageView
+                        android:id="@+id/star_2"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_star_rate_empty"
+                        android:layout_marginEnd="4dp"
+                        android:contentDescription="Star 2" />
+                    <ImageView
+                        android:id="@+id/star_3"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_star_rate_empty"
+                        android:contentDescription="Star 3" />
+                </LinearLayout>
+
                 <!-- 📅 Compact Footer (All in one tight line) -->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -172,11 +212,17 @@
             android:visibility="gone" />
 
         <!-- 🎀 Dedicated Sticker Container (Overlay on entire card) -->
-        <!-- Placed after LinearLayout so it draws on top of everything -->
         <FrameLayout
             android:id="@+id/sticker_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-            
+
+        <!-- 🖍️ Drawing Canvas Layer (Topmost inside card) -->
+        <io.github.hnoni777.newdatemapdiary.DrawingView
+            android:id="@+id/card_drawing_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="0dp" />
+
     </FrameLayout>
 </androidx.cardview.widget.CardView>

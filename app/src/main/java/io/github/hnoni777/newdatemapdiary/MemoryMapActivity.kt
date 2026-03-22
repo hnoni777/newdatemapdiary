@@ -141,9 +141,6 @@ class MemoryMapActivity : AppCompatActivity() {
             return
         }
 
-        val markerBitmap = vectorToBitmap(R.drawable.ic_red_heart_marker)
-        val styles = LabelStyles.from(LabelStyle.from(markerBitmap).setAnchorPoint(0.5f, 1.0f))
-
         // 🏠 [대표님 지시] 주소 텍스트가 사실상 같으면 무조건 하나로 합침
         // normalizeAddress를 통해 공백/특수문자를 무시하고 글자만 같으면 그룹화합니다.
         val groups = memories.groupBy { normalizeAddress(it.address) }
@@ -151,6 +148,20 @@ class MemoryMapActivity : AppCompatActivity() {
         groups.forEach { (normAddr, group) ->
             // 그룹 중 가장 최근 데이터의 좌표에 핀 하나만 꽂음
             val rep = group.first()
+            
+            // ⭐ [코부장 정밀 세팅] 핀 위에 별 갯수 배지를 입힙니다.
+            // 📍 [대표님 지시] 가장 최근 카드(Latest)의 별점을 표시합니다.
+            val latestRating = rep.rating
+            val baseMarkerRes = R.drawable.ic_red_heart_marker // 기본 핀은 정통 하트로 통일!
+            
+            val finalMarkerBitmap = if (latestRating > 0) {
+                drawRatingStarsToBitmap(baseMarkerRes, latestRating)
+            } else {
+                vectorToBitmap(baseMarkerRes)
+            }
+            
+            val styles = LabelStyles.from(LabelStyle.from(finalMarkerBitmap).setAnchorPoint(0.5f, 1.0f))
+            
             val pos = LatLng.from(rep.lat, rep.lng)
 
             layer?.addLabel(
@@ -159,12 +170,77 @@ class MemoryMapActivity : AppCompatActivity() {
                     .setTag(normAddr) 
             )
         }
-
+        
         // 카메라 이동 (가장 최근 촬영지)
         if (memories.isNotEmpty()) {
             val lastPos = LatLng.from(memories[0].lat, memories[0].lng)
             map.moveCamera(CameraUpdateFactory.newCenterPosition(lastPos, 12))
         }
+    }
+
+    // 🎨 [코부장 전용 도구] 핀 위에 앙증맞은 골드 별 배지를 그립니다.
+    private fun drawRatingStarsToBitmap(markerRes: Int, rating: Int): Bitmap {
+        val baseBitmap = vectorToBitmap(markerRes)
+        val mutableBitmap = baseBitmap.copy(Bitmap.Config.ARGB_8888, true)
+        val canvas = Canvas(mutableBitmap)
+        
+        val starSize = 18f 
+        val starPadding = 2f
+        
+        // 별 아이콘을 핀 상단 중앙에 배치
+        val totalWidth = (starSize * rating) + (starPadding * (rating - 1))
+        val startX = (mutableBitmap.width - totalWidth) / 2f
+        val startY = 5f 
+        
+        // 🌑 [영자 감성 필살기] 입체 그림자 페인트 (약간 번지는 검은색/다크브라운)
+        val shadowPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#44000000") // 반투명 블랙 그림자
+            style = android.graphics.Paint.Style.FILL
+            // 쉐도우 레이어 효과 (고급 입체감)
+            setShadowLayer(4f, 2f, 2f, Color.parseColor("#88000000"))
+        }
+        
+        // ⚪ [가독성 보조] 화이트 외곽선 (그림자와 별 사이 분리)
+        val strokePaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            style = android.graphics.Paint.Style.STROKE
+            strokeWidth = 2.5f
+        }
+        
+        // 🌟 [메인] 골드 채우기
+        val fillPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#FFD700") 
+            style = android.graphics.Paint.Style.FILL
+        }
+        
+        // 🌟 레이어별로 덧그리기 (그림자 -> 외곽선 -> 채우기)
+        for (i in 0 until rating) {
+            val cx = startX + (starSize + starPadding) * i + starSize / 2f
+            val cy = startY + starSize / 2f
+            
+            // 1. 입체 그림자 (약간 아래쪽으로 오프셋)
+            drawSmallStar(canvas, cx + 1f, cy + 1f, starSize / 2f, shadowPaint)
+            // 2. 화이트 테두리
+            drawSmallStar(canvas, cx, cy, starSize / 2f, strokePaint)
+            // 3. 골드 별 채우기
+            drawSmallStar(canvas, cx, cy, starSize / 2f, fillPaint)
+        }
+        
+        return mutableBitmap
+    }
+
+    private fun drawSmallStar(canvas: Canvas, cx: Float, cy: Float, radius: Float, paint: android.graphics.Paint) {
+        val path = android.graphics.Path()
+        val innerRadius = radius * 0.4f
+        for (i in 0 until 10) {
+            val angle = Math.toRadians((i * 36 - 90).toDouble())
+            val r = if (i % 2 == 0) radius else innerRadius
+            val x = cx + r * Math.cos(angle).toFloat()
+            val y = cy + r * Math.sin(angle).toFloat()
+            if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+        }
+        path.close()
+        canvas.drawPath(path, paint)
     }
 
     private fun showMemoryCardDialog(groupItems: List<Memory>) {
@@ -174,6 +250,7 @@ class MemoryMapActivity : AppCompatActivity() {
         val indicator = view.findViewById<TextView>(R.id.text_page_indicator)
         val btnDelete = view.findViewById<TextView>(R.id.btn_delete_memory)
         val btnGetDirections = view.findViewById<View>(R.id.btn_get_directions)
+        val btnOpenRoadview = view.findViewById<View>(R.id.btn_open_roadview)
         var currentPosition = 0
 
         // 🛠️ 가변 리스트로 관리하여 삭제 시 즉각 반영되도록 함
@@ -194,6 +271,34 @@ class MemoryMapActivity : AppCompatActivity() {
                     putExtra("address", target.address)
                 }
                 startActivity(intent)
+                dialog.dismiss()
+            } else {
+                Toast.makeText(this, "좌표 정보가 없는 추억입니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        btnOpenRoadview?.setOnClickListener {
+            if (currentPosition < 0 || currentPosition >= mutableGroup.size) return@setOnClickListener
+            val target = mutableGroup[currentPosition]
+            
+            if (target.lat != 0.0 && target.lng != 0.0) {
+                val appUrl = "kakaomap://roadview?p=${target.lat},${target.lng}"
+                val marketUrl = "market://details?id=net.daum.android.map"
+                val webMarketUrl = "https://play.google.com/store/apps/details?id=net.daum.android.map"
+
+                try {
+                    // 🚀 1순위: 카카오맵 앱으로 로드뷰 실행
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(appUrl))
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    // 📥 2순위: 앱 미설치 시 안내 문구 후 마켓으로 이동
+                    Toast.makeText(this, "카카오맵 앱이 설치되어 있지 않아 설치 페이지로 이동합니다.", Toast.LENGTH_LONG).show()
+                    try {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(marketUrl)))
+                    } catch (e2: Exception) {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(webMarketUrl)))
+                    }
+                }
                 dialog.dismiss()
             } else {
                 Toast.makeText(this, "좌표 정보가 없는 추억입니다.", Toast.LENGTH_SHORT).show()

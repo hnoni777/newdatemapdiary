@@ -109,6 +109,20 @@
             android:layout_marginHorizontal="5dp"
             android:background="#2EFFFFFF" />
 
+        <View
+            android:id="@+id/dot4"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginHorizontal="5dp"
+            android:background="#2EFFFFFF" />
+
+        <View
+            android:id="@+id/dot5"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginHorizontal="5dp"
+            android:background="#2EFFFFFF" />
+
     </LinearLayout>
 
     <!-- 🥂 CTA: 샴페인 골드 pill 버튼 -->

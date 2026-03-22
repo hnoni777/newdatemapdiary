@@ -11,13 +11,14 @@ data class Memory(
     val address: String,
     val lat: Double,
     val lng: Double,
-    val date: Long
+    val date: Long,
+    val rating: Int = 0 // ✨ 신규: 별점 점수 (0~3)
 )
 
 class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         const val DATABASE_NAME = "memories.db"
-        const val DATABASE_VERSION = 1
+        const val DATABASE_VERSION = 2 // ✨ DB 버전 업 (별점 기능 추가)
         const val TABLE_MEMORIES = "memories"
         
         const val COLUMN_ID = "id"
@@ -26,6 +27,7 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
         const val COLUMN_LAT = "lat"
         const val COLUMN_LNG = "lng"
         const val COLUMN_DATE = "date"
+        const val COLUMN_RATING = "rating"
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -36,15 +38,18 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
                 $COLUMN_ADDRESS TEXT,
                 $COLUMN_LAT REAL,
                 $COLUMN_LNG REAL,
-                $COLUMN_DATE INTEGER
+                $COLUMN_DATE INTEGER,
+                $COLUMN_RATING INTEGER DEFAULT 0
             )
         """.trimIndent()
         db.execSQL(createTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_MEMORIES")
-        onCreate(db)
+        if (oldVersion < 2) {
+            // 버전 1 -> 2 업그레이드 시 rating 컬럼을 추가하며, 기존 데이터는 0(별 없음)으로 기본값 처리
+            db.execSQL("ALTER TABLE $TABLE_MEMORIES ADD COLUMN $COLUMN_RATING INTEGER DEFAULT 0")
+        }
     }
 
     fun insertMemory(memory: Memory): Long {
@@ -55,6 +60,7 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
             put(COLUMN_LAT, memory.lat)
             put(COLUMN_LNG, memory.lng)
             put(COLUMN_DATE, memory.date)
+            put(COLUMN_RATING, memory.rating)
         }
         return db.insert(TABLE_MEMORIES, null, values)
     }
@@ -66,13 +72,18 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
         
         if (cursor.moveToFirst()) {
             do {
+                // 이 전 버전에 없는 컬럼도 대비 (안정성)
+                val ratingIndex = cursor.getColumnIndex(COLUMN_RATING)
+                val rating = if (ratingIndex != -1) cursor.getInt(ratingIndex) else 0
+
                 val memory = Memory(
                     id = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID)),
                     photoUri = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PHOTO_URI)),
                     address = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ADDRESS)),
                     lat = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LAT)),
                     lng = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LNG)),
-                    date = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_DATE))
+                    date = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_DATE)),
+                    rating = rating
                 )
                 memories.add(memory)
             } while (cursor.moveToNext())

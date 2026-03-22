@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="320dp"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="20dp"
+    app:cardBackgroundColor="#F21A1A1A">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="28dp"
+        android:gravity="center">
+
+        <!-- Glowing Star Icon -->
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/stk_premium_sparkle"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="💎 프리미엄 혜택"
+            android:textColor="@color/champagne_gold"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="serif"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:id="@+id/tv_billing_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="딱 커피 한 잔 값으로,\n영원히 빛나는 프리미엄 스티커를\n평생 소장해 보세요 ✨"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:lineSpacingExtra="6dp"
+            android:gravity="center"
+            android:layout_marginBottom="32dp" />
+
+        <Button
+            android:id="@+id/btn_purchase_premium"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="프리미엄 해제하기"
+            android:textColor="#1A1A1A"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_champagne_gold_button"
+            android:stateListAnimator="@null"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:id="@+id/btn_close_billing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="다음에 할게요"
+            android:textColor="#80FFFFFF"
+            android:textSize="14sp"
+            android:padding="8dp" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

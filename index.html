@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HereWithYou - 프리미엄 데이트 다이어리</title>
+    <title>HereWithYou - 1.13.0 Artist Drawing Edition</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap"
         rel="stylesheet">
@@ -14,6 +14,11 @@
             --accent-gold: #C9A96E;
             --text-white: #FFFFFF;
             --glass-bg: rgba(255, 255, 255, 0.05);
+            --theme-oatmeal: #F8F5F0;
+            --theme-matcha: #F0F8F1;
+            --theme-peach: #FFF0F0;
+            --theme-lavender: #F5F0F8;
+            --theme-midnight: #1A1D24;
         }
 
         * {
@@ -28,12 +33,9 @@
             color: var(--text-white);
             overflow-x: hidden;
             line-height: 1.6;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(201, 169, 110, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(201, 169, 110, 0.05) 0%, transparent 40%);
         }
 
-        /* Hero Section */
+        /* Hero Section with Custom Image */
         .hero {
             position: relative;
             height: 100vh;
@@ -42,6 +44,10 @@
             justify-content: center;
             text-align: center;
             padding: 0 20px;
+            background: linear-gradient(rgba(13, 13, 13, 0.6), rgba(13, 13, 13, 0.9)), 
+                        url('hero_masterpiece_preview_1774150315656.png');
+            background-size: cover;
+            background-position: center;
         }
 
         .hero-content {
@@ -62,10 +68,10 @@
         h1 {
             font-family: 'Playfair Display', serif;
             font-size: 5rem;
-            line-height: 1.1;
+            line-height: 1;
             margin-bottom: 24px;
             color: var(--text-white);
-            letter-spacing: -1px;
+            letter-spacing: -2px;
         }
 
         h1 span {
@@ -74,13 +80,14 @@
         }
 
         .subtitle {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.84);
             margin-bottom: 48px;
             font-weight: 300;
-            max-width: 600px;
+            max-width: 650px;
             margin-left: auto;
             margin-right: auto;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
         .cta-group {
@@ -105,25 +112,58 @@
         .btn-primary {
             background-color: var(--accent-gold);
             color: #1A1A1A;
-            box-shadow: 0 10px 40px rgba(201, 169, 110, 0.3);
+            box-shadow: 0 10px 40px rgba(201, 169, 110, 0.4);
         }
 
         .btn-primary:hover {
-            transform: translateY(-5px);
+            transform: translateY(-5px) scale(1.05);
             background-color: #d4bc8d;
-            box-shadow: 0 15px 50px rgba(201, 169, 110, 0.5);
         }
 
         .btn-outline {
-            border: 1.5px solid rgba(201, 169, 110, 0.3);
-            background: transparent;
-            color: var(--accent-gold);
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            backdrop-filter: blur(5px);
         }
 
         .btn-outline:hover {
-            background: rgba(201, 169, 110, 0.1);
             border-color: var(--accent-gold);
+            color: var(--accent-gold);
         }
+
+        /* Theme Gallery Section */
+        .themes-section {
+            padding: 120px 20px;
+            background: #111;
+            text-align: center;
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 60px auto 0;
+        }
+
+        .theme-card {
+            padding: 40px 20px;
+            border-radius: 24px;
+            transition: all 0.4s;
+            cursor: help;
+        }
+
+        .theme-card:hover { transform: translateY(-10px); }
+
+        .oatmeal { background: var(--theme-oatmeal); color: #8C7851; }
+        .matcha { background: var(--theme-matcha); color: #4F6F52; }
+        .peach { background: var(--theme-peach); color: #D24545; }
+        .lavender { background: var(--theme-lavender); color: #5D3587; }
+        .midnight { background: var(--theme-midnight); color: #F8F0E5; }
+
+        .theme-card h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 10px; }
+        .theme-card p { font-size: 0.9rem; opacity: 0.8; }
 
         /* Features Section */
         .features {
@@ -133,14 +173,14 @@
 
         .section-title {
             font-family: 'Playfair Display', serif;
-            font-size: 3.2rem;
+            font-size: 3.5rem;
             margin-bottom: 80px;
             color: var(--text-white);
         }
 
         .feature-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 32px;
             max-width: 1200px;
             margin: 0 auto;
@@ -153,66 +193,68 @@
             transition: all 0.5s;
             border: 1px solid rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
+            text-align: left;
         }
 
         .feature-item:hover {
             transform: translateY(-12px);
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(201, 169, 110, 0.3);
+            border-color: var(--accent-gold);
         }
 
         .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 32px;
+            font-size: 2.8rem;
+            margin-bottom: 24px;
             display: block;
-            filter: drop-shadow(0 0 10px rgba(201, 169, 110, 0.3));
         }
 
         .feature-item h3 {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             margin-bottom: 16px;
             color: var(--accent-gold);
             font-family: 'Playfair Display', serif;
         }
 
-        .feature-item p {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 1rem;
-            font-weight: 300;
+        /* Recovery Section styling */
+        .recovery-archive {
+            background: #000;
+            padding: 100px 20px;
+        }
+
+        .archive-item {
+            border-left: 2px solid var(--accent-gold);
+            padding-left: 30px;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+        }
+
+        .archive-item h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 8px;
         }
 
         /* Footer */
         footer {
-            padding: 80px 20px;
+            padding: 60px 20px;
             text-align: center;
             color: rgba(255, 255, 255, 0.4);
             font-size: 0.9rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: #000;
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 768px) {
-            h1 {
-                font-size: 3.5rem;
-            }
-
-            .cta-group {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-            }
+            h1 { font-size: 3rem; }
+            .cta-group { flex-direction: column; }
+            .section-title { font-size: 2.5rem; }
         }
     </style>
 </head>
@@ -221,80 +263,94 @@
 
     <section class="hero">
         <div class="hero-content">
-            <div class="brand-label">Here With You</div>
-            <h1>Every Date, <br> <span>a Masterpiece.</span></h1>
-            <p class="subtitle">우리가 함께한 모든 찬란한 순간, <br> 프리미엄 다크 & 골드 테마로 품격 있게 기록하세요.</p>
+            <div class="brand-label">Manager Kodari's Masterpiece</div>
+            <h1>Every Memory, <br> <span>a Hand-Drawn Poem.</span></h1>
+            <p class="subtitle">우리가 사랑한 찬란한 순간, <br> 5대 마스터 테마와 신규 디지털 손편지(Artist Drawing)로 영원히 간직하세요.</p>
 
             <div class="cta-group">
-                <a href="NewDateMapDiary_v1_12_0_GhostCleaner.apk" class="btn btn-primary">v1.12.0 Ghost Cleaner 다운로드</a>
-                <a href="#recovery" class="btn btn-outline">복구 지점 확인</a>
+                <a href="NewDateMapDiary_v1.13.0_Final.apk" class="btn btn-primary">V1.13.0 그리기 에디션 다운로드</a>
+                <a href="#themes" class="btn btn-outline">5대 감성 테마 보기</a>
             </div>
         </div>
     </section>
 
-    <!-- Recovery Point Section -->
-    <section id="recovery" class="features" style="background: rgba(201, 169, 110, 0.05); padding: 80px 20px;">
-        <h2 class="section-title" style="font-size: 2.5rem; margin-bottom: 40px;">Recovery Archive</h2>
-        <div class="feature-grid" style="max-width: 800px;">
-            <!-- v1.12.0 -->
-            <div class="feature-item" style="padding: 30px; text-align: left; margin-bottom: 20px;">
-                <h4 style="color: var(--accent-gold); margin-bottom: 10px;">v1.12.0 - [Ghost Cleaner Edition]</h4>
-                <p style="font-size: 0.9rem; margin-bottom: 15px;">베이직 스티커 총 10개가 3D 프리미엄 라인에 새롭게 입고되었으며 400px 용량 최적화가 적용되었습니다. 갤러리 원본 삭제 시 DB와 지도의 마커를 완전 동기화하는 '고스트 청소기' 로직이 탑재된 버전입니다.</p>
-                <div style="display: flex; gap: 10px;">
-                    <a href="processed_stickers_v1.12.0/" style="color: var(--accent-gold); font-size: 0.8rem; text-decoration: underline;">에셋 백업 V12</a>
-                    <span style="color: rgba(255,255,255,0.3);">|</span>
-                    <a href="NewDateMapDiary_v1_12_0_GhostCleaner.apk" style="color: var(--accent-gold); font-size: 0.8rem; text-decoration: underline;">APK 다운로드</a>
-                </div>
+    <!-- Theme Gallery -->
+    <section id="themes" class="themes-section">
+        <h2 class="section-title">The Romantic Palette</h2>
+        <div class="themes-grid">
+            <div class="theme-card oatmeal">
+                <h3>Oatmeal Mood</h3>
+                <p>#F8F5F0 - 따뜻한 크림과 브라운의 조화. 포근한 일상 감성.</p>
             </div>
-
-            <!-- v11.0 -->
-            <div class="feature-item" style="padding: 30px; text-align: left; margin-bottom: 20px;">
-                <h4 style="color: var(--accent-gold); margin-bottom: 10px;">v1.11.0 - [Premium Sticker Complete Edition]</h4>
-                <p style="font-size: 0.9rem; margin-bottom: 15px;">29종의 고퀄리티 3D 프리미엄 스티커와 5종의 베이직 스티커가 완벽하게 통합된 최종 완결판입니다. 최적화된 앱 용량과 안정성을 제공합니다.</p>
-                <div style="display: flex; gap: 10px;">
-                    <a href="processed_stickers_v1.11.0/" style="color: var(--accent-gold); font-size: 0.8rem; text-decoration: underline;">스티커 에셋 백업</a>
-                    <span style="color: rgba(255,255,255,0.3);">|</span>
-                    <a href="NewDateMapDiary_v11_0_PremiumComplete.apk" style="color: var(--accent-gold); font-size: 0.8rem; text-decoration: underline;">APK 다운로드</a>
-                </div>
+            <div class="theme-card matcha">
+                <h3>Matcha Forest</h3>
+                <p>#F0F8F1 - 연한 민트와 딥그린. 싱그럽고 건강한 자연 감성.</p>
             </div>
-
-            <!-- v1.0.1 -->
-            <div class="feature-item" style="padding: 30px; text-align: left;">
-                <h4 style="color: var(--accent-gold); margin-bottom: 10px;">v1.10.1 - [Sticker Perfect Edition]</h4>
-                <p style="font-size: 0.9rem; margin-bottom: 15px;">코부장 & 영자의 정밀 누끼 로직이 적용된 초기 프리미엄 3D 스티커 세트가 포함된 복구 지점입니다.</p>
-                <div style="display: flex; gap: 10px;">
-                    <a href="processed_stickers_v1.0.1/" style="color: var(--accent-gold); font-size: 0.8rem; text-decoration: underline;">스티커 에셋 보기</a>
-                    <span style="color: rgba(255,255,255,0.3);">|</span>
-                    <a href="NewDateMapDiary_v10_1_StickerPerfect.apk" style="color: var(--accent-gold); font-size: 0.8rem; text-decoration: underline;">APK 다운로드</a>
-                </div>
+            <div class="theme-card peach">
+                <h3>Peach Blush</h3>
+                <p>#FFF0F0 - 사랑스러운 핑크와 로즈. 부드러운 봄의 감성.</p>
+            </div>
+            <div class="theme-card lavender">
+                <h3>Lavender Sunset</h3>
+                <p>#F5F0F8 - 연한 라벤더와 퍼플. 몽환적이고 감성적인 무드.</p>
+            </div>
+            <div class="theme-card midnight">
+                <h3>Midnight Charcoal</h3>
+                <p>#1A1D24 - 차가운 블랙과 얼음 화이트. 세련되고 시크한 다크 감성.</p>
             </div>
         </div>
     </section>
 
     <section id="features" class="features">
+        <h2 class="section-title">Artisan Features</h2>
         <div class="feature-grid">
             <div class="feature-item">
+                <span class="feature-icon">🖌️</span>
+                <h3>Artist Drawing</h3>
+                <p>6가지 감성 컬러 팔레트와 3단계 펜 굵기로 사진 위에 직접 손글씨를 남기세요. 당신만의 예술 작품이 완성됩니다.</p>
+            </div>
+            <div class="feature-item">
                 <span class="feature-icon">✨</span>
-                <h3>Premium Design</h3>
-                <p>영자 수석 디자이너의 손길로 탄생한 블랙 & 골드 테마. 모든 페이지가 예술이 됩니다.</p>
+                <h3>Premium Icons</h3>
+                <p>코부장이 직접 엄선한 50여종의 고퀄리티 3D 프리미엄 스티커와 베이직 팩이 완벽하게 지원됩니다.</p>
             </div>
             <div class="feature-item">
                 <span class="feature-icon">🚀</span>
-                <h3>Optimized Speed</h3>
-                <p>코부장의 퍼포먼스 튜닝으로 위치 수신부터 QR 생성까지 멈춤 없는 쾌적함을 선사합니다.</p>
+                <h3>Top-Speed Build</h3>
+                <p>데이터 유실 없는 안전한 저장과 위치 자동 보정 로직이 탑재되어 소중한 추억을 0.1초도 놓치지 않습니다.</p>
             </div>
             <div class="feature-item">
                 <span class="feature-icon">🗂️</span>
                 <h3>Memory Archive</h3>
-                <p>'메모리 카드 보관함'에서 소중한 추억들을 날짜별로 한눈에 모아보세요.</p>
+                <p>지하철역 부하 분산 기술이 적용된 로맨틱 지도 위에서 우리가 걸어온 자취를 한눈에 발견할 수 있습니다.</p>
             </div>
         </div>
     </section>
 
+    <section id="recovery" class="recovery-archive">
+        <h2 class="section-title" style="font-size: 2.8rem;">Recovery Archive</h2>
+        
+        <div class="archive-item">
+            <h4>v1.13.0 - [Artist Drawing & Masterpiece Bundle]</h4>
+            <p>오늘의 최종 본입니다. 캔버스 Z-index 터치 오류를 완벽 해결하고, 5대 테마가 통합된 최종 배포용 빌드입니다.</p>
+            <a href="NewDateMapDiary_v1.13.0_Final.apk" style="color: var(--accent-gold); text-decoration: underline;">Master APK 다운로드</a>
+        </div>
+
+        <div class="archive-item">
+            <h4>v1.12.0 - [Ghost Cleaner Edition]</h4>
+            <p>스티커 용량 최적화와 고스트 픽셀 제거 로직이 적용된 안정화 버전입니다.</p>
+            <a href="NewDateMapDiary_v1.12.0_GhostCleaner.apk" style="color: var(--accent-gold); text-decoration: underline;">Previous APK (v12)</a>
+        </div>
+
+        <div class="archive-item">
+            <h4>v1.11.0 - [Premium Sticker Showcase]</h4>
+            <p>초기 3D 스티커 팩이 처음으로 공식 공개되었던 기념비적 버전입니다.</p>
+        </div>
+    </section>
+
     <footer>
-        <p>&copy; 2026 HereWithYou. Crafted with Luxury for Lovers.</p>
+        <p>&copy; 2026 HereWithYou. Crafted by Manager Kodari & Creative Director Yeong-ja.</p>
     </footer>
 
 </body>
-
 </html>

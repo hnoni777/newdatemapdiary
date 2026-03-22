@@ -14,6 +14,8 @@ class IntroActivity : AppCompatActivity() {
     private lateinit var dot1: View
     private lateinit var dot2: View
     private lateinit var dot3: View
+    private lateinit var dot4: View
+    private lateinit var dot5: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,6 +25,8 @@ class IntroActivity : AppCompatActivity() {
         dot1 = findViewById(R.id.dot1)
         dot2 = findViewById(R.id.dot2)
         dot3 = findViewById(R.id.dot3)
+        dot4 = findViewById(R.id.dot4)
+        dot5 = findViewById(R.id.dot5)
 
         val pages = listOf(
             IntroPageItem(
@@ -36,6 +40,16 @@ class IntroActivity : AppCompatActivity() {
                 "예쁜 스티커로 카드를 꾸미고\n지도에 하트 핀을 꽂아 남겨보세요!"
             ),
             IntroPageItem(
+                R.drawable.intro_hero_flight_travel,
+                "추억의 노선을 비행기로 여행하기 ✈️",
+                "우리가 함께 거닐었던 소중한 길들을\n비행기를 타고 생생하게 돌아보세요!"
+            ),
+            IntroPageItem(
+                R.drawable.intro_hero_roadview_nav,
+                "생생한 로드뷰와 원터치 길찾기 🌇",
+                "그날의 공기까지 느껴지는 로드뷰와\n빠른 길 안내로 추억을 다시 방문해보세요!"
+            ),
+            IntroPageItem(
                 R.drawable.intro_hero_share,
                 "추억을 함께 나눠요",
                 "만들어진 예쁜 추억 카드들을\n연인과 친구들에게 편하게 공유해봐요!"
@@ -43,6 +57,9 @@ class IntroActivity : AppCompatActivity() {
         )
 
         viewPager.adapter = IntroPagerAdapter(pages)
+
+        // Initialize indicator for the first page
+        updateIndicator(0)
 
         val btnAction = findViewById<Button>(R.id.btn_take_photo)
         btnAction.text = "추억 남기기"
@@ -64,35 +81,24 @@ class IntroActivity : AppCompatActivity() {
     }
 
     private fun updateIndicator(position: Int) {
-        // 🎨 [영자 디자인] 활성화: 샴페인 골드 채워진 원 / 비활성화: 흰색 반투명 작은 원
+        val dots = listOf(dot1, dot2, dot3, dot4, dot5)
         val activeBg = R.drawable.bg_champagne_gold_button
         val inactiveColor = android.graphics.Color.parseColor("#2EFFFFFF")
 
-        // Dot 1
-        if (position == 0) {
-            dot1.setBackgroundResource(activeBg)
-            val lp = dot1.layoutParams; lp.width = 24; lp.height = 24; dot1.layoutParams = lp
-        } else {
-            dot1.setBackgroundColor(inactiveColor)
-            val lp = dot1.layoutParams; lp.width = 18; lp.height = 18; dot1.layoutParams = lp
-        }
-
-        // Dot 2
-        if (position == 1) {
-            dot2.setBackgroundResource(activeBg)
-            val lp = dot2.layoutParams; lp.width = 24; lp.height = 24; dot2.layoutParams = lp
-        } else {
-            dot2.setBackgroundColor(inactiveColor)
-            val lp = dot2.layoutParams; lp.width = 18; lp.height = 18; dot2.layoutParams = lp
-        }
-
-        // Dot 3
-        if (position == 2) {
-            dot3.setBackgroundResource(activeBg)
-            val lp = dot3.layoutParams; lp.width = 24; lp.height = 24; dot3.layoutParams = lp
-        } else {
-            dot3.setBackgroundColor(inactiveColor)
-            val lp = dot3.layoutParams; lp.width = 18; lp.height = 18; dot3.layoutParams = lp
+        dots.forEachIndexed { index, dot ->
+            if (index == position) {
+                dot.setBackgroundResource(activeBg)
+                val lp = dot.layoutParams
+                lp.width = (24 * resources.displayMetrics.density).toInt()
+                lp.height = (24 * resources.displayMetrics.density).toInt()
+                dot.layoutParams = lp
+            } else {
+                dot.setBackgroundColor(inactiveColor)
+                val lp = dot.layoutParams
+                lp.width = (18 * resources.displayMetrics.density).toInt()
+                lp.height = (18 * resources.displayMetrics.density).toInt()
+                dot.layoutParams = lp
+            }
         }
     }
 }
