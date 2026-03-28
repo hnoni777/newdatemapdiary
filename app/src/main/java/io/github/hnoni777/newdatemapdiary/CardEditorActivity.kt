@@ -65,18 +65,18 @@ class CardEditorActivity : AppCompatActivity() {
 
         setupButtons()
         setupPanels()
-        
+
         billingManager = BillingManager(this) { isPremium, isInitialCheck ->
             runOnUiThread {
                 // 🛠️ [코부장 임시 락 해제] 비공개 테스터를 위한 전체 개방 모드! (출시 전에는 제거 필수 🚨)
                 isPremiumPurchased = true
-                
+
                 if (isPremium && !isInitialCheck) {
                     Toast.makeText(this, "💎 프리미엄 혜택이 적용되었습니다. 감사합니다!", Toast.LENGTH_LONG).show()
                 }
             }
         }
-        
+
         isPremiumPurchased = true
         showCardPreview()
     }
@@ -84,7 +84,7 @@ class CardEditorActivity : AppCompatActivity() {
     private fun setupPanels() {
         val tray = findViewById<View>(R.id.floating_panel_tray)
         val dimOverlay = findViewById<View>(R.id.panel_dim_overlay)
-        
+
         val panelText = findViewById<View>(R.id.panel_text)
         val panelTheme = findViewById<View>(R.id.panel_theme)
         val panelSticker = findViewById<View>(R.id.panel_sticker)
@@ -104,7 +104,7 @@ class CardEditorActivity : AppCompatActivity() {
             panelTheme.visibility = View.GONE
             panelSticker.visibility = View.GONE
             panelDraw.visibility = View.GONE
-            
+
             // Show target panel
             panel.visibility = View.VISIBLE
 
@@ -117,13 +117,13 @@ class CardEditorActivity : AppCompatActivity() {
                     dv.bringToFront()
                 }
             }
-            
+
             // Show Tray & Overlay (Transparent)
             if (tray.visibility != View.VISIBLE) {
                 tray.visibility = View.VISIBLE
                 tray.translationY = 1000f // Start from below
                 tray.animate().translationY(0f).setDuration(300).setInterpolator(android.view.animation.DecelerateInterpolator()).start()
-                
+
                 dimOverlay.visibility = View.VISIBLE
             }
         }
@@ -134,7 +134,7 @@ class CardEditorActivity : AppCompatActivity() {
             tray.animate().translationY(1000f).setDuration(250)
                 .withEndAction { tray.visibility = View.GONE }
                 .start()
-            
+
             dimOverlay.visibility = View.GONE
         }
 
@@ -147,7 +147,7 @@ class CardEditorActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_done_theme).setOnClickListener { hidePanels() }
         findViewById<View>(R.id.btn_done_sticker).setOnClickListener { hidePanels() }
         findViewById<View>(R.id.btn_done_draw).setOnClickListener { hidePanels() }
-        
+
         // Close when clicking outside on overlay (now transparent)
         dimOverlay.setOnClickListener { hidePanels() }
     }
@@ -210,7 +210,7 @@ class CardEditorActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_draw_size_thin).setOnClickListener { getDrawingView()?.setStrokeWidth(5f) }
         findViewById<View>(R.id.btn_draw_size_med).setOnClickListener { getDrawingView()?.setStrokeWidth(12f) }
         findViewById<View>(R.id.btn_draw_size_thick).setOnClickListener { getDrawingView()?.setStrokeWidth(25f) }
-        
+
         findViewById<View>(R.id.btn_draw_clear).setOnClickListener { getDrawingView()?.clear() }
 
         // 🎀 Sticker Tab Selection
@@ -223,10 +223,10 @@ class CardEditorActivity : AppCompatActivity() {
             tabBasic.setBackgroundResource(R.drawable.bg_romantic_button)
             tabBasic.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#FF1493"))
             tabBasic.setTextColor(Color.WHITE)
-            
+
             tabPremium.setBackgroundResource(0)
             tabPremium.setTextColor(Color.parseColor("#80FFFFFF"))
-            
+
             scrollBasic.visibility = View.VISIBLE
             scrollPremium.visibility = View.GONE
         }
@@ -235,10 +235,10 @@ class CardEditorActivity : AppCompatActivity() {
             tabPremium.setBackgroundResource(R.drawable.bg_romantic_button)
             tabPremium.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#D4AF37")) // Gold
             tabPremium.setTextColor(Color.WHITE)
-            
+
             tabBasic.setBackgroundResource(0)
             tabBasic.setTextColor(Color.parseColor("#80FFFFFF"))
-            
+
             scrollBasic.visibility = View.GONE
             scrollPremium.visibility = View.VISIBLE
         }
@@ -268,28 +268,28 @@ class CardEditorActivity : AppCompatActivity() {
 
         val basicContainer = findViewById<FlowLayout>(R.id.container_basic_stickers)
         val premiumContainer = findViewById<FlowLayout>(R.id.container_premium_stickers)
-        
+
         basicContainer.removeAllViews()
         premiumContainer.removeAllViews()
-        
+
         // Basic Emojis 30
         val basicEmojis = listOf(
-            "🤍", "⭐", "🌙", "☀️", "☁️", "🌸", "🌻", "🍀", "🍁", "🐾", 
-            "🧸", "🎈", "🎁", "💌", "📍", "✂️", "📸", "☕", "🍰", "🍎", 
+            "🤍", "⭐", "🌙", "☀️", "☁️", "🌸", "🌻", "🍀", "🍁", "🐾",
+            "🧸", "🎈", "🎁", "💌", "📍", "✂️", "📸", "☕", "🍰", "🍎",
             "🍓", "🍒", "🍑", "🍄", "🌷", "🌹", "🦋", "🐝", "🐥", "🐶"
         )
-        
+
         // Premium Emojis 20 (Removed overlap with VVIP)
         val premiumEmojis = listOf(
-            "👑", "🎨", "🕊️", "🎶", "🎵", "🎸", "🎷", "🎺", "🎻", "🎧", 
+            "👑", "🎨", "🕊️", "🎶", "🎵", "🎸", "🎷", "🎺", "🎻", "🎧",
             "⛵", "🛳️", "🎭", "🎪", "🎡", "🚀", "🛸", "🎀", "🧸", "🎈"
         )
-        
+
         // Premium Lettering 6
         val premiumLetterings = listOf(
             "Our Memory", "Happy Anniversary", "Always With You", "My Love", "Special Day", "Forever"
         )
-        
+
         // VVIP Premium Packs
         val vvipLetterings = listOf(
             "With My Love", "You & Me", "Perfect Day", "Destiny", "XOXO"
@@ -312,18 +312,18 @@ class CardEditorActivity : AppCompatActivity() {
                     (5 * resources.displayMetrics.density).toInt()
                 )
                 layoutParams = params
-                
+
                 val outValue = android.util.TypedValue()
                 theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
                 foreground = getDrawable(outValue.resourceId)
-                
-                setOnClickListener { 
+
+                setOnClickListener {
                     Log.d("STICKER_CLICK", "Drawable clicked. isPremium: $isPremium, purchased: $isPremiumPurchased")
                     if (isPremium && !isPremiumPurchased) {
                         showPremiumBillingDialog()
                     } else {
-                        addOrToggleSticker("icon", resId, 0)
-                    }
+                        addOrToggleSticker("icon", resId, 0, isPremium)
+                    }                                                                                                                   
                 }
             }
             val img = ImageView(this).apply {
@@ -338,39 +338,68 @@ class CardEditorActivity : AppCompatActivity() {
         fun createEmojiIcon(emoji: String, isPremium: Boolean): View {
             val frame = FrameLayout(this).apply {
                 val params = android.view.ViewGroup.MarginLayoutParams(
-                    (40 * resources.displayMetrics.density).toInt(),
-                    (40 * resources.displayMetrics.density).toInt()
+                    (42 * resources.displayMetrics.density).toInt(),
+                    (42 * resources.displayMetrics.density).toInt()
                 )
                 params.setMargins(
-                    (5 * resources.displayMetrics.density).toInt(),
-                    (5 * resources.displayMetrics.density).toInt(),
-                    (5 * resources.displayMetrics.density).toInt(),
-                    (5 * resources.displayMetrics.density).toInt()
+                    (4 * resources.displayMetrics.density).toInt(),
+                    (4 * resources.displayMetrics.density).toInt(),
+                    (4 * resources.displayMetrics.density).toInt(),
+                    (4 * resources.displayMetrics.density).toInt()
                 )
                 layoutParams = params
-                
+
+                // 🎨 드로어 배경 다시 제거 (이모지 자체의 시안성 확보)
+                background = null
+
                 val outValue = android.util.TypedValue()
                 theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
                 foreground = getDrawable(outValue.resourceId)
-                
-                setOnClickListener { 
+
+                setOnClickListener {
                     Log.d("STICKER_CLICK", "Emoji clicked: $emoji. isPremium: $isPremium, purchased: $isPremiumPurchased")
                     if (isPremium && !isPremiumPurchased) {
                         showPremiumBillingDialog()
                     } else {
-                        addEmojiSticker(emoji)
+                        addEmojiSticker(emoji, isPremium)
+                        // ✅ [에러 수정] 정의되지 않은 v_vibrate 대신 표준 하이브틱 피드백 사용
+                        performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
                     }
                 }
             }
             val tv = TextView(this).apply {
                 text = emoji
-                textSize = 24f
+                textSize = 22f
                 gravity = android.view.Gravity.CENTER
                 layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
             }
             frame.addView(tv)
             return frame
         }
+
+        // 🔄 [코부장 스티커 정렬 최적화]
+        // 비슷한 것끼리 묶어서 사용자가 찾기 쉽게 테마별 카테고리 정렬을 수행합니다.
+
+        // 1. 하트 & 사랑 (Love & Emotion)
+        val sortedLove = vvipHeartEmojis + listOf("🤍", "💌", "💝")
+
+        // 2. 별, 달 & 날씨 (Celestial & Nature)
+        val sortedNature = vvipNeonEmojis + listOf("☀️", "🌙", "⭐", "☁️", "⚡", "🌈")
+
+        // 3. 꽃 & 식물 (Flowers & Plants)
+        val sortedFlora = listOf("🌸", "💮", "🌻", "🌷", "🌹", "🍀", "🌵", "🌲", "🍁", "🍄")
+
+        // 4. 동물 & 귀여움 (Animals & Cute)
+        val sortedAnimals = listOf("🐾", "🐱", "🐶", "🐥", "🐝", "🦋", "🦢", "🧸", "🐰", "🐣")
+
+        // 5. 음식 & 디저트 (Food & Cafe)
+        val sortedFood = vvipWatercolorEmojis + listOf("☕", "🍰", "🧁", "🍎", "🍓", "🍒", "🍇", "🍷", "🥂", "🎂")
+
+        // 6. 여행 & 오브제 (Travel & Objects)
+        val sortedObjects = listOf("✈️", "🚀", "📷", "🎈", "🎁", "🎀", "📍", "✂️", "🎨", "🎭", "🎪", "🎡")
+
+        // 정렬된 리스트를 하나로 합침 (중복 제거 포함)
+        val consolidatedBasic = (sortedLove + sortedNature + sortedFlora + sortedAnimals + sortedFood + sortedObjects).distinct()
 
         // Helper to add lettering sticker
         fun createLetteringIcon(textStr: String, isPremium: Boolean): View {
@@ -386,17 +415,18 @@ class CardEditorActivity : AppCompatActivity() {
                     (5 * resources.displayMetrics.density).toInt()
                 )
                 layoutParams = params
-                
+
                 val outValue = android.util.TypedValue()
                 theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
                 foreground = getDrawable(outValue.resourceId)
-                
-                setOnClickListener { 
+
+                setOnClickListener {
                     Log.d("STICKER_CLICK", "Lettering clicked: $textStr. isPremium: $isPremium, purchased: $isPremiumPurchased")
                     if (isPremium && !isPremiumPurchased) {
                         showPremiumBillingDialog()
                     } else {
-                        addLetteringSticker(textStr)
+                        addLetteringSticker(textStr, isPremium)
+                        try { performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY) } catch(e: Exception){}
                     }
                 }
             }
@@ -416,72 +446,82 @@ class CardEditorActivity : AppCompatActivity() {
         }
 
         // --- [Basic Stickers Section] ---
-        // 1. Initial Tape & Basic Emojis
+        // 1. Initial Tape & Sorted Emojis
         basicContainer.addView(createDrawableIcon(R.drawable.ic_sticker_tape, 60, false))
-        basicEmojis.forEach { basicContainer.addView(createEmojiIcon(it, false)) }
-        
-        // 2. Transferred content from Premium (Now Basic/Free as requested)
-        premiumEmojis.forEach { basicContainer.addView(createEmojiIcon(it, false)) }
-        premiumLetterings.forEach { basicContainer.addView(createLetteringIcon(it, false)) }
-        vvipHeartEmojis.forEach { basicContainer.addView(createEmojiIcon(it, false)) }
-        vvipWatercolorEmojis.forEach { basicContainer.addView(createEmojiIcon(it, false)) }
-        vvipNeonEmojis.forEach { basicContainer.addView(createEmojiIcon(it, false)) }
-        vvipLetterings.forEach { basicContainer.addView(createLetteringIcon(it, false)) }
+        consolidatedBasic.forEach { basicContainer.addView(createEmojiIcon(it, false)) }
+
+        // 2. Text Letterings (Keep sorted by length)
+        (premiumLetterings + vvipLetterings).sortedBy { it.length }.forEach {
+            basicContainer.addView(createLetteringIcon(it, false))
+        }
 
         // --- [Premium Stickers Section] ---
         // 👑 NEW: High-Quality 3D Opaque Stickers
+        // 👑 NEW: High-Quality 3D Premium Stickers (Sorted by Theme)
         val premium3DStickers = listOf(
+            // 🚀 탈것 & 우주 (Vehicles & Space) - 최상단 배치
+            //R.drawable.img_premium_ufo,
+            //R.drawable.img_premium_henry,
+            //R.drawable.img_premium_jet,
+            //R.drawable.stk_premium_airplane,
+           // R.drawable.img_premium_rocket,
+           // R.drawable.img_premium_balloon,
+
+            // 🐶 동물 & 캐릭터 (Animals & Creatures)
             R.drawable.stk_premium_puppy,
-            R.drawable.koala,
             R.drawable.cat,
+            R.drawable.koala,
             R.drawable.rabbit,
             R.drawable.poo,
+            R.drawable.img_premium_sudal,
+            R.drawable.img_premium_siba,
+            R.drawable.img_premium_fox,
+            R.drawable.img_premium_pender,
+            R.drawable.img_premium_hamster,
+            //R.drawable.stk_premium_bear,
             R.drawable.stk_premium_penguin,
-            R.drawable.stk_premium_heart_red,
-            R.drawable.stk_premium_cat_paw,
-            R.drawable.stk_premium_rainbow,
-            R.drawable.stk_premium_camera,
-            R.drawable.stk_premium_champagne,
-            R.drawable.stk_premium_diamond,
-            R.drawable.stk_premium_cherry,
-            R.drawable.stk_premium_rose,
-            R.drawable.stk_premium_teddy,
-            R.drawable.stk_premium_coffee,
-            R.drawable.stk_premium_cake,
-            R.drawable.stk_premium_airplane,
-            R.drawable.stk_premium_gift,
-            R.drawable.stk_premium_sun,
-            R.drawable.stk_premium_moon,
-            R.drawable.stk_premium_cloud,
-            R.drawable.stk_premium_star,
-            R.drawable.stk_premium_sakura,
-            R.drawable.stk_premium_clover,
-            R.drawable.stk_premium_balloon,
-            R.drawable.stk_premium_letter,
-            R.drawable.stk_premium_butterfly,
-            R.drawable.stk_premium_crown,
-            R.drawable.stk_premium_wine,
-            R.drawable.stk_premium_sunflower,
-            R.drawable.stk_premium_strawberry,
-            R.drawable.stk_premium_rocket,
-            R.drawable.stk_premium_ribbon,
-            R.drawable.stk_premium_palette,
-            R.drawable.stk_premium_ring,
-            R.drawable.stk_premium_bee,
-            R.drawable.stk_premium_music,
-            R.drawable.stk_premium_violin,
             R.drawable.stk_premium_swan,
             R.drawable.stk_premium_chick,
-            R.drawable.stk_premium_sparkle,
-            R.drawable.stk_premium_magic,
-            R.drawable.stk_premium_apple,
-            R.drawable.stk_premium_mushroom,
+            R.drawable.stk_premium_cat_paw,
+            R.drawable.stk_premium_bee,
+            R.drawable.stk_premium_butterfly,
+
+
+            // 💎 감성 소품 (Romantic Objects)
+            R.drawable.stk_premium_heart_red,
             R.drawable.stk_premium_white_heart,
+            R.drawable.stk_premium_camera,
+            R.drawable.stk_premium_diamond,
+            R.drawable.stk_premium_crown,
+            R.drawable.stk_premium_ring,
+            R.drawable.stk_premium_champagne,
+            R.drawable.stk_premium_wine,
+            R.drawable.stk_premium_music,
+            R.drawable.stk_premium_violin,
+            R.drawable.stk_premium_palette,
+            R.drawable.stk_premium_cake,
+            R.drawable.stk_premium_coffee,
+            R.drawable.stk_premium_strawberry,
+            R.drawable.stk_premium_cherry,
+            R.drawable.stk_premium_apple,
+            R.drawable.stk_premium_rose,
+            R.drawable.stk_premium_sakura,
+            R.drawable.stk_premium_sunflower,
+            R.drawable.stk_premium_clover,
             R.drawable.stk_premium_maple_leaf,
+            R.drawable.stk_premium_rainbow,
+            R.drawable.stk_premium_cloud,
+            R.drawable.stk_premium_sun,
+            R.drawable.stk_premium_moon,
+            R.drawable.stk_premium_star,
+            R.drawable.stk_premium_letter,
+            R.drawable.stk_premium_gift,
+            R.drawable.stk_premium_ribbon,
+            R.drawable.stk_premium_magic,
+            R.drawable.stk_premium_sparkle,
             R.drawable.stk_premium_map_pin,
-            R.drawable.stk_premium_scissors,
+            R.drawable.stk_premium_scissors
         )
-        
         premium3DStickers.forEach { resId ->
             premiumContainer.addView(createDrawableIcon(resId, 44, true))
         }
@@ -490,20 +530,20 @@ class CardEditorActivity : AppCompatActivity() {
     private fun showPremiumBillingDialog() {
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this, android.R.style.Theme_Translucent_NoTitleBar)
             .create()
-        
+
         val dialogView = layoutInflater.inflate(R.layout.dialog_premium_billing, null)
         dialog.setView(dialogView)
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        
+
         dialogView.findViewById<Button>(R.id.btn_purchase_premium).setOnClickListener {
             billingManager.launchPurchaseFlow()
             dialog.dismiss()
         }
-        
+
         dialogView.findViewById<View>(R.id.btn_close_billing).setOnClickListener {
             dialog.dismiss()
         }
-        
+
         dialog.show()
     }
 
@@ -521,23 +561,23 @@ class CardEditorActivity : AppCompatActivity() {
         cardView.findViewById<TextView>(R.id.card_address).text = address
         cardView.findViewById<TextView>(R.id.card_date).text =
             SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(Date())
-            
+
         // Capture the beautiful Kyobo hand font securely from the XML inflated view
         if (calligraphyFont == null) {
             calligraphyFont = cardView.findViewById<TextView>(R.id.card_message).typeface
         }
-            
+
         // RESET default fonts to non-italic calligraphy (the one loaded from XML)
         val defaultTypeface = calligraphyFont
         cardView.findViewById<TextView>(R.id.card_message).typeface = defaultTypeface
         cardView.findViewById<TextView>(R.id.card_address).typeface = defaultTypeface
         cardView.findViewById<TextView>(R.id.card_date).typeface = defaultTypeface
         cardView.findViewById<TextView>(R.id.card_watermark)?.typeface = defaultTypeface
-            
+
         container.addView(cardView)
         updateCardMessageText()
         showQRCodeOnStickerLayer(cardView)
-        
+
         // ⭐ 감성 별점 (Rating) 로직
         val star1 = cardView.findViewById<ImageView>(R.id.star_1)
         val star2 = cardView.findViewById<ImageView>(R.id.star_2)
@@ -546,13 +586,13 @@ class CardEditorActivity : AppCompatActivity() {
         fun updateStars() {
             val emptyRes = R.drawable.ic_star_rate_empty
             val filledRes = R.drawable.ic_star_rate_filled
-            
+
             star1.setImageResource(if (currentRating >= 1) filledRes else emptyRes)
             star2.setImageResource(if (currentRating >= 2) filledRes else emptyRes)
             star3.setImageResource(if (currentRating >= 3) filledRes else emptyRes)
-            
+
             val goldColor = Color.parseColor("#D4AF37") // 🏆 샴페인 골드로 대통합!
-            
+
             star1.colorFilter = null
             star2.colorFilter = null
             star3.colorFilter = null
@@ -565,24 +605,24 @@ class CardEditorActivity : AppCompatActivity() {
         star1?.setOnClickListener { currentRating = if (currentRating == 1) 0 else 1; updateStars() }
         star2?.setOnClickListener { currentRating = 2; updateStars() }
         star3?.setOnClickListener { currentRating = 3; updateStars() }
-        
+
         updateStars() // 초기 렌더링
-        
+
         // --- 📏 PERFECT FIT SCALING ---
         // Automatically scale the card to fill the workspace perfectly without clipping.
         val workspace = findViewById<View>(R.id.card_workspace)
         workspace.post {
             val cardW = cardView.width.toFloat()
             val cardH = cardView.height.toFloat()
-            
+
             val wsW = (workspace.width - workspace.paddingLeft - workspace.paddingRight).toFloat()
             val wsH = (workspace.height - workspace.paddingTop - workspace.paddingBottom).toFloat()
-            
+
             if (cardW > 0 && cardH > 0 && wsW > 0 && wsH > 0) {
                 val scaleW = wsW / cardW
                 val scaleH = wsH / cardH
                 val targetScale = minOf(scaleW, scaleH) * 0.96f // 4% safety margin
-                
+
                 container.scaleX = targetScale
                 container.scaleY = targetScale
                 container.pivotX = cardW / 2f
@@ -599,19 +639,19 @@ class CardEditorActivity : AppCompatActivity() {
                 return true
             }
         })
-        
+
         stickerLayer?.setOnTouchListener { _, event ->
             // 🚀 [코부장 정밀 타격] 터치 지점이 '설렘지수' 영역 안인지 체크합니다.
             if (ratingContainer != null && event.action == android.view.MotionEvent.ACTION_DOWN) {
                 val location = IntArray(2)
                 ratingContainer.getLocationOnScreen(location)
                 val rect = android.graphics.Rect(
-                    location[0], 
-                    location[1], 
-                    location[0] + ratingContainer.width, 
+                    location[0],
+                    location[1],
+                    location[0] + ratingContainer.width,
                     location[1] + ratingContainer.height
                 )
-                
+
                 if (rect.contains(event.rawX.toInt(), event.rawY.toInt())) {
                     // 별점 영역이면 터치를 가로채지 않고 아래(별점 컨테이너)로 흘려보냅니다!
                     return@setOnTouchListener false
@@ -625,14 +665,14 @@ class CardEditorActivity : AppCompatActivity() {
 
     private fun showQRCodeOnStickerLayer(cardView: View) {
         val qrView = cardView.findViewById<ImageView>(R.id.card_qr_code) ?: return
-        
+
         // 💡 [코부장 최적화] 메인 화면과 동일하게 비동기 스레드에서 생성합니다.
         kotlin.concurrent.thread {
             try {
                 // 💡 [코부장 배포 최적화] 새로운 블랙&골드 랜딩 페이지로 연결합니다.
                 val link = "https://hnoni777.github.io/newdatemapdiary/"
                 val qrBitmap = generateQRCode(link)
-                
+
                 runOnUiThread {
                     if (qrBitmap != null) {
                         qrView.setImageBitmap(qrBitmap)
@@ -647,7 +687,7 @@ class CardEditorActivity : AppCompatActivity() {
             }
         }
     }
-    
+
     private fun updateCardMessageText() {
         val container = findViewById<FrameLayout>(R.id.card_preview_container)
         if (container.childCount > 0) {
@@ -684,26 +724,26 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#999999"))
                 cardWatermark?.setTextColor(Color.parseColor("#D4AF37"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#1A221018")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "basic"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
-                contentLayout.setBackgroundColor(Color.WHITE) 
+                contentLayout.setBackgroundColor(Color.WHITE)
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
-                
+
                 val premiumBg = cardView.findViewById<ImageView>(R.id.card_premium_bg)
                 premiumBg?.setImageResource(android.R.color.transparent)
-                
+
                 val premiumBorder = cardView.findViewById<View>(R.id.card_premium_border)
                 premiumBorder?.visibility = View.GONE
                 premiumBorder?.setBackgroundResource(0)
-                
+
                 cardView.setCardBackgroundColor(Color.WHITE)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
-                
+
                 // Remove BW filter
                 cardImage.colorFilter = null
-                
+
                 // Reset to default premium font (non-italic calligraphy)
                 val dtFont = calligraphyFont
                 if (dtFont != null) {
@@ -715,7 +755,7 @@ class CardEditorActivity : AppCompatActivity() {
                 } else {
                     cardMessage.typeface = android.graphics.Typeface.DEFAULT
                 }
-                
+
                 stopSakuraEffect()
             }
             "oatmeal" -> {
@@ -804,23 +844,23 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#999999"))
                 cardWatermark?.setTextColor(Color.parseColor("#D4AF37"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#1A221018")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "vip"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
-                
+
                 // 💎 Apply High-End Texture from AI generation
                 contentLayout.setBackgroundColor(Color.TRANSPARENT)
                 val premiumBg = cardView.findViewById<ImageView>(R.id.card_premium_bg)
                 premiumBg?.setImageResource(R.drawable.bg_vip_texture)
-                
+
                 // ✨ Apply Scalable Gold Border Overlay
                 val premiumBorder = cardView.findViewById<View>(R.id.card_premium_border)
                 premiumBorder?.visibility = View.VISIBLE
                 premiumBorder?.setBackgroundResource(R.drawable.bg_vip_border)
-                
+
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
-                
+
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
             }
@@ -830,7 +870,7 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#CCCCCC"))
                 cardWatermark?.setTextColor(Color.parseColor("#E8D19F"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#33FFFFFF")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "burgundy"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
@@ -851,7 +891,7 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#CCCCCC"))
                 cardWatermark?.setTextColor(Color.parseColor("#E8D19F"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#33FFFFFF")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "navy"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
@@ -872,7 +912,7 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#999999"))
                 cardWatermark?.setTextColor(Color.parseColor("#D4AF37"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#1A221018")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "cream"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
@@ -893,7 +933,7 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#CCCCCC"))
                 cardWatermark?.setTextColor(Color.parseColor("#E8D19F"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#33FFFFFF")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "emerald"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
@@ -914,7 +954,7 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#8A9CAE"))
                 cardWatermark?.setTextColor(Color.parseColor("#9BA7B5"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#1A2C3A47")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "pearl"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
@@ -935,7 +975,7 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#A87E82"))
                 cardWatermark?.setTextColor(Color.parseColor("#B76E79"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#1A5F3A3E")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "rosegold"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
@@ -956,7 +996,7 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#888888"))
                 cardWatermark?.setTextColor(Color.parseColor("#E5E4E2"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#4DEEFFFF")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "midnight"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
@@ -978,7 +1018,7 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#CCCCCC"))
                 cardWatermark?.setTextColor(Color.parseColor("#D4AF37"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#33FFFFFF")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "purple"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
@@ -999,7 +1039,7 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#9999AA"))
                 cardWatermark?.setTextColor(Color.parseColor("#8E8EAA"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#1A4A4A68")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "dreamy"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
@@ -1020,7 +1060,7 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#555555"))
                 cardWatermark?.setTextColor(Color.parseColor("#1A1A1A"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#1A1A1A1A")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "brutalism"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
@@ -1041,7 +1081,7 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#8D6E63"))
                 cardWatermark?.setTextColor(Color.parseColor("#A1887F"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#1A5D4037")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "ticket"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
@@ -1062,7 +1102,7 @@ class CardEditorActivity : AppCompatActivity() {
                 cardDate.setTextColor(Color.parseColor("#CCCCCC"))
                 cardWatermark?.setTextColor(Color.parseColor("#00FFFF"))
                 try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#4DFF00FF")) } catch(e: Exception){}
-                
+
                 contentLayout.tag = "cyber"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
@@ -1087,19 +1127,19 @@ class CardEditorActivity : AppCompatActivity() {
                 contentLayout.tag = "letter"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
-                
+
                 // 📜 Apply Vintage Letter Texture
                 contentLayout.setBackgroundColor(Color.TRANSPARENT)
                 val premiumBg = cardView.findViewById<ImageView>(R.id.card_premium_bg)
                 premiumBg?.setImageResource(R.drawable.bg_letter_texture)
-                
+
                 // 🖋️ Apply Classic Letter Border Overlay
                 val premiumBorder = cardView.findViewById<View>(R.id.card_premium_border)
                 premiumBorder?.visibility = View.VISIBLE
                 premiumBorder?.setBackgroundResource(R.drawable.bg_letter_border)
-                
+
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
-                
+
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
             }
@@ -1113,16 +1153,16 @@ class CardEditorActivity : AppCompatActivity() {
                 contentLayout.tag = "cute"
                 val defaultPadding = (24 * resources.displayMetrics.density).toInt()
                 contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
-                
+
                 // 🌸 Apply Cute Floral Texture
                 contentLayout.setBackgroundColor(Color.TRANSPARENT)
                 val premiumBg = cardView.findViewById<ImageView>(R.id.card_premium_bg)
                 premiumBg?.setImageResource(R.drawable.bg_cute_floral)
-                
+
                 // No sharp gold border for cute theme, maybe a soft glow or nothing
                 val premiumBorder = cardView.findViewById<View>(R.id.card_premium_border)
                 premiumBorder?.visibility = View.GONE
-                
+
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
@@ -1215,7 +1255,7 @@ class CardEditorActivity : AppCompatActivity() {
                 }
             }
         }
-        
+
         contentLayout.requestLayout()
         cardView.requestLayout()
         contentLayout.invalidate()
@@ -1226,24 +1266,24 @@ class CardEditorActivity : AppCompatActivity() {
         val container = findViewById<FrameLayout>(R.id.card_preview_container)
         val cardView = container.getChildAt(0) as? androidx.cardview.widget.CardView ?: return
         val stickerLayer = cardView.findViewById<ViewGroup>(R.id.sticker_container) ?: return
-        
+
         // Remove existing first to avoid duplication
         stopSakuraEffect()
-        
+
         stickerLayer.post {
             val w = if (stickerLayer.width > 0) stickerLayer.width.toFloat() else (resources.displayMetrics.widthPixels).toFloat()
             val h = if (stickerLayer.height > 0) stickerLayer.height.toFloat() else 1400f
-            
+
             // Fixed aesthetic positions for 8 beautiful sakura elements
             val positions = listOf(
                 Pair(0.05f, 0.05f), Pair(0.85f, 0.08f), Pair(0.9f, 0.4f),
                 Pair(0.06f, 0.5f), Pair(0.83f, 0.8f), Pair(0.1f, 0.88f),
                 Pair(0.45f, 0.94f), Pair(0.55f, 0.02f)
             )
-            
+
             val sizes = listOf(36f, 30f, 26f, 22f, 40f, 32f, 24f, 28f)
             val rotations = listOf(15f, -20f, 45f, -10f, 30f, -45f, 10f, 60f)
-            
+
             for (i in positions.indices) {
                 val petal = TextView(this).apply {
                     text = "🌸"
@@ -1255,13 +1295,13 @@ class CardEditorActivity : AppCompatActivity() {
                     isFocusable = false
                     layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
                 }
-                
+
                 petal.x = (w * positions[i].first)
                 petal.y = (h * positions[i].second)
-                
+
                 stickerLayer.addView(petal)
             }
-            
+
             // Dummy runnable so the system knows the effect is "on"
             sakuraRunnable = Runnable { }
         }
@@ -1272,7 +1312,7 @@ class CardEditorActivity : AppCompatActivity() {
         if (container.childCount == 0) return
         val cardView = container.getChildAt(0) as? androidx.cardview.widget.CardView ?: return
         val stickerLayer = cardView.findViewById<ViewGroup>(R.id.sticker_container) ?: return
-        
+
         val toRemove = mutableListOf<View>()
         for (i in 0 until stickerLayer.childCount) {
             val v = stickerLayer.getChildAt(i)
@@ -1283,7 +1323,7 @@ class CardEditorActivity : AppCompatActivity() {
         for (v in toRemove) {
             stickerLayer.removeView(v)
         }
-        
+
         sakuraRunnable?.let { sakuraHandler.removeCallbacks(it) }
         sakuraRunnable = null
     }
@@ -1293,7 +1333,7 @@ class CardEditorActivity : AppCompatActivity() {
         val container = findViewById<FrameLayout>(R.id.card_preview_container)
         val cardView = container.getChildAt(0) as? androidx.cardview.widget.CardView
         val stickerLayer = cardView?.findViewById<ViewGroup>(R.id.sticker_container) ?: return
-        
+
         for (i in 0 until stickerLayer.childCount) {
             val wrapper = stickerLayer.getChildAt(i) as? ViewGroup
             if (wrapper != null) {
@@ -1314,7 +1354,7 @@ class CardEditorActivity : AppCompatActivity() {
         val container = findViewById<FrameLayout>(R.id.card_preview_container)
         val cardView = container.getChildAt(0) as? androidx.cardview.widget.CardView
         val stickerLayer = cardView?.findViewById<ViewGroup>(R.id.sticker_container) ?: return
-        
+
         for (i in 0 until stickerLayer.childCount) {
             val wrapper = stickerLayer.getChildAt(i) as? ViewGroup
             if (wrapper != null) {
@@ -1371,13 +1411,13 @@ class CardEditorActivity : AppCompatActivity() {
         return super.dispatchTouchEvent(event)
     }
 
-    private fun addOrToggleSticker(tag: String, resId: Int, color: Int) {
+    private fun addOrToggleSticker(tag: String, resId: Int, color: Int, isPremium: Boolean = false) {
         try {
             val container = findViewById<FrameLayout>(R.id.card_preview_container)
             if (container.childCount > 0) {
                 val cardView = container.getChildAt(0) as? androidx.cardview.widget.CardView
                 val stickerLayer = cardView?.findViewById<ViewGroup>(R.id.sticker_container) ?: return
-                
+
                 val stickerWrapper = FrameLayout(this).apply {
                     layoutParams = FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -1389,7 +1429,8 @@ class CardEditorActivity : AppCompatActivity() {
 
                 val stickerImage = ImageView(this).apply {
                     setImageResource(resId)
-                    layoutParams = FrameLayout.LayoutParams(160, 160).apply {
+                    val iconSize = if (isPremium) 160 else 100
+                    layoutParams = FrameLayout.LayoutParams(iconSize, iconSize).apply {
                         setMargins(30, 30, 30, 30)
                     }
                     if (color != 0) setColorFilter(color)
@@ -1439,7 +1480,7 @@ class CardEditorActivity : AppCompatActivity() {
                     }
                     true
                 }
-                
+
                 stickerLayer.addView(stickerWrapper)
                 selectSticker(stickerWrapper)
             }
@@ -1448,13 +1489,13 @@ class CardEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun addEmojiSticker(emoji: String) {
+    private fun addEmojiSticker(emoji: String, isPremium: Boolean = false) {
         try {
             val container = findViewById<FrameLayout>(R.id.card_preview_container)
             if (container.childCount > 0) {
                 val cardView = container.getChildAt(0) as? androidx.cardview.widget.CardView
                 val stickerLayer = cardView?.findViewById<ViewGroup>(R.id.sticker_container) ?: return
-                
+
                 val stickerWrapper = FrameLayout(this).apply {
                     layoutParams = FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -1464,14 +1505,23 @@ class CardEditorActivity : AppCompatActivity() {
                     }
                 }
 
-                val stickerView = TextView(this).apply {
-                    text = emoji
-                    textSize = 60f
-                    gravity = android.view.Gravity.CENTER
-                    layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
-                        setMargins(40, 40, 40, 40)
+                //  emojiStackContainer를 만들어 3중 중첩 적용 (Index 0)
+                val emojiStackContainer = FrameLayout(this).apply {
+                    layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+                    for (i in 0 until 3) {
+                        val layer = TextView(this@CardEditorActivity).apply {
+                            text = emoji
+                            textSize = if (isPremium) 62f else 40f
+                            gravity = android.view.Gravity.CENTER
+                            paint.isFakeBoldText = true
+                            if (i == 0) {
+                                setShadowLayer(8f, 0f, 0f, Color.parseColor("#CC000000"))
+                            }
+                            val pad = (8 * resources.displayMetrics.density).toInt()
+                            setPadding(pad, pad, pad, pad)
+                        }
+                        addView(layer)
                     }
-                    setShadowLayer(8f, 0f, 4f, Color.parseColor("#40000000"))
                 }
 
                 val closeButton = ImageView(this).apply {
@@ -1491,8 +1541,8 @@ class CardEditorActivity : AppCompatActivity() {
                     }
                 }
 
-                stickerWrapper.addView(stickerView)
-                stickerWrapper.addView(closeButton)
+                stickerWrapper.addView(emojiStackContainer) // Index 0
+                stickerWrapper.addView(closeButton)        // Index 1
 
                 var dX = 0f
                 var dY = 0f
@@ -1518,7 +1568,7 @@ class CardEditorActivity : AppCompatActivity() {
                     }
                     true
                 }
-                
+
                 stickerLayer.addView(stickerWrapper)
                 selectSticker(stickerWrapper)
             }
@@ -1527,46 +1577,55 @@ class CardEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun addLetteringSticker(textStr: String) {
+    private fun addLetteringSticker(textStr: String, isPremium: Boolean = false) {
         try {
             val container = findViewById<FrameLayout>(R.id.card_preview_container)
             if (container.childCount > 0) {
                 val cardView = container.getChildAt(0) as? androidx.cardview.widget.CardView
                 val stickerLayer = cardView?.findViewById<ViewGroup>(R.id.sticker_container) ?: return
-                
+
                 val stickerWrapper = FrameLayout(this).apply {
                     layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
                         setMargins(150, 450, 0, 0)
                     }
                 }
 
-                val stickerView = TextView(this).apply {
-                    text = textStr
-                    textSize = 45f 
-                    typeface = android.graphics.Typeface.create("serif", android.graphics.Typeface.BOLD_ITALIC)
-                    gravity = android.view.Gravity.CENTER
-                    layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
-                        setMargins(30, 30, 30, 30) // padding for close button
-                    }
-                    paint.isFakeBoldText = true
-                    paint.isAntiAlias = true
-                    paint.isSubpixelText = true
-                    setShadowLayer(8f, 2f, 2f, Color.parseColor("#99000000"))
-                }
+                // 🚀 [레터링 불투명화: 3중 중첩 적용]
+                val letteringStackContainer = FrameLayout(this).apply {
+                    layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+                    for (i in 0 until 3) {
+                        val layer = TextView(this@CardEditorActivity).apply {
+                            text = textStr
+                            textSize = if (isPremium) 45f else 30f
+                            typeface = android.graphics.Typeface.create("serif", android.graphics.Typeface.BOLD_ITALIC)
+                            gravity = android.view.Gravity.CENTER
+                            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
+                                setMargins(30, 30, 30, 30)
+                            }
+                            paint.isFakeBoldText = true
+                            paint.isAntiAlias = true
+                            paint.isSubpixelText = true
+                            if (i == 0) {
+                                setShadowLayer(8f, 2f, 2f, Color.parseColor("#99000000"))
+                            }
+                        }
+                        addView(layer)
 
-                // Apply shiny gold gradient to the text after it measures
-                stickerView.viewTreeObserver.addOnGlobalLayoutListener(object : android.view.ViewTreeObserver.OnGlobalLayoutListener {
-                    override fun onGlobalLayout() {
-                        stickerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        val shader = android.graphics.LinearGradient(
-                            0f, 0f, 0f, stickerView.height.toFloat(),
-                            intArrayOf(Color.parseColor("#FFF5C3"), Color.parseColor("#D4AF37"), Color.parseColor("#AA7A00")),
-                            floatArrayOf(0f, 0.5f, 1f),
-                            android.graphics.Shader.TileMode.CLAMP
-                        )
-                        stickerView.paint.shader = shader
+                        // Apply shiny gold gradient to each layer after it measures
+                        layer.viewTreeObserver.addOnGlobalLayoutListener(object : android.view.ViewTreeObserver.OnGlobalLayoutListener {
+                            override fun onGlobalLayout() {
+                                layer.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                                val shader = android.graphics.LinearGradient(
+                                    0f, 0f, 0f, layer.height.toFloat(),
+                                    intArrayOf(Color.parseColor("#FFF5C3"), Color.parseColor("#D4AF37"), Color.parseColor("#AA7A00")),
+                                    floatArrayOf(0f, 0.5f, 1f),
+                                    android.graphics.Shader.TileMode.CLAMP
+                                )
+                                layer.paint.shader = shader
+                            }
+                        })
                     }
-                })
+                }
 
                 val closeButton = ImageView(this).apply {
                     setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
@@ -1585,8 +1644,8 @@ class CardEditorActivity : AppCompatActivity() {
                     }
                 }
 
-                stickerWrapper.addView(stickerView)
-                stickerWrapper.addView(closeButton)
+                stickerWrapper.addView(letteringStackContainer) // Index 0
+                stickerWrapper.addView(closeButton)           // Index 1
 
                 var dX = 0f
                 var dY = 0f
@@ -1612,7 +1671,7 @@ class CardEditorActivity : AppCompatActivity() {
                     }
                     true
                 }
-                
+
                 stickerLayer.addView(stickerWrapper)
                 selectSticker(stickerWrapper)
             }
@@ -1623,26 +1682,26 @@ class CardEditorActivity : AppCompatActivity() {
 
     private fun takeScreenshot(shareAfter: Boolean) {
         clearStickerSelection()
-        
+
         val container = findViewById<FrameLayout>(R.id.card_preview_container)
         if (container.childCount == 0) return
         val cardView = container.getChildAt(0) as? androidx.cardview.widget.CardView ?: return
 
         // --- 🚀 ULTRA-HIGH RESOLUTION CAPTURE 🚀 ---
         // 뭉개짐(Mangling) 해결을 위해 화면 해상도보다 훨씬 높은 해상도로 렌더링합니다.
-        val qualityScale = 2.5f 
+        val qualityScale = 2.5f
         val exportWidth = (cardView.width * qualityScale).toInt()
         val exportHeight = (cardView.height * qualityScale).toInt()
-        
+
         if (exportWidth <= 0 || exportHeight <= 0) return
 
         val bitmap = Bitmap.createBitmap(exportWidth, exportHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        
+
         // Settings for high quality
         canvas.drawColor(android.graphics.Color.WHITE)
         canvas.scale(qualityScale, qualityScale)
-        
+
         // 🔲 사장님 요청: 외각은 곡선(라운딩) 없이 직각으로 깔끔하게 출력!
         cardView.draw(canvas)
         val savedUri = saveBitmapToGallery(bitmap, lat, lng, address)
@@ -1720,7 +1779,7 @@ class CardEditorActivity : AppCompatActivity() {
             val hints = mapOf(
                 com.google.zxing.EncodeHintType.MARGIN to 1,
                 com.google.zxing.EncodeHintType.CHARACTER_SET to "UTF-8"
-            ) 
+            )
             // 💡 [코부장 최적화] 256x256 크기로 줄이고, setPixels로 속도를 대폭 향상
             val bitMatrix = writer.encode(
                 url,
@@ -1765,8 +1824,8 @@ class CardEditorActivity : AppCompatActivity() {
 }
 
 class FlowLayout @JvmOverloads constructor(
-    context: android.content.Context, 
-    attrs: android.util.AttributeSet? = null, 
+    context: android.content.Context,
+    attrs: android.util.AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : android.view.ViewGroup(context, attrs, defStyleAttr) {
 

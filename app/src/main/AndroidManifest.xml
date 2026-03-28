@@ -11,6 +11,11 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
 
+    <!-- 🔍 Android 11+ 앱 설치 여부 확인을 위한 패키지 투명성 선언 (카카오맵) -->
+    <queries>
+        <package android:name="net.daum.android.map" />
+    </queries>
+
     <application
         android:allowBackup="false"
         android:fullBackupContent="false"

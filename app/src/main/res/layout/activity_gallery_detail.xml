@@ -72,22 +72,22 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- 📤 Branded Bottom Bar (Clean Status) -->
+    <!-- 📤 Branded Bottom Bar (Modern Action Center) -->
     <LinearLayout
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingHorizontal="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="32dp"
+        android:paddingHorizontal="12dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="24dp"
         android:background="#1A1A1A"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <!-- Bottom Actions layout: Share + Copy Address -->
+        <!-- 3-Button Action Layout -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="56dp"
             android:orientation="horizontal">
 
             <!-- 📤 Share Action -->
@@ -96,74 +96,105 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="4dp"
                 app:cardBackgroundColor="@android:color/transparent"
                 app:cardElevation="0dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_glass_card_premium"
+                    android:backgroundTint="#2D2D2D"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_modern_share"
+                        app:tint="#FFFFFF" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="공유하기"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11sp"
+                        android:layout_marginTop="2dp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
+            <!-- 🚗 Navigation Action (Directions) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btn_directions"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.2"
+                android:layout_marginEnd="4dp"
+                android:layout_marginStart="4dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardElevation="0dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/bg_gold_pill_button"
                     android:gravity="center"
-                    android:orientation="horizontal">
-
+                    android:orientation="vertical">
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:layout_marginEnd="8dp"
-                        android:src="@drawable/ic_modern_share"
+                        android:src="@drawable/ic_modern_navigation"
                         app:tint="#221018" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="공유하기"
+                        android:text="길찾기"
                         android:textColor="#221018"
-                        android:textSize="16sp"
+                        android:textSize="13sp"
+                        android:layout_marginTop="2dp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- 📋 Copy Address -->
+            <!-- 🏙️ Road View Action -->
             <androidx.cardview.widget.CardView
-                android:id="@+id/btn_copy_address"
+                android:id="@+id/btn_roadview"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="4dp"
                 app:cardBackgroundColor="@android:color/transparent"
                 app:cardElevation="0dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/bg_glass_card_premium"
-                    android:backgroundTint="#2D1B25"
+                    android:backgroundTint="#334455"
                     android:gravity="center"
-                    android:orientation="horizontal">
-
+                    android:orientation="vertical">
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginEnd="8dp"
-                        android:src="@drawable/ic_modern_download"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_modern_roadview"
                         app:tint="@color/white" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="주소 복사"
+                        android:text="로드뷰"
                         android:textColor="@color/white"
-                        android:textSize="16sp"
+                        android:textSize="11sp"
+                        android:layout_marginTop="2dp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
         </LinearLayout>
     </LinearLayout>
 

@@ -12,6 +12,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import io.github.hnoni777.newdatemapdiary.databinding.ActivityGalleryDetailBinding
+import org.json.JSONObject
+import androidx.exifinterface.media.ExifInterface
+import android.widget.Toast
 
 class GalleryDetailActivity : AppCompatActivity() {
 
@@ -37,10 +40,10 @@ class GalleryDetailActivity : AppCompatActivity() {
             if (result.resultCode == Activity.RESULT_OK) {
                 // 사용자가 시스템 삭제 다이얼로그에서 "삭제" 승인
                 pendingDeleteUriString?.let { dbHelper.deleteMemoryByUri(it) }
-                android.widget.Toast.makeText(this, "추억이 삭제되었습니다.", android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "추억이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                 finish()
             } else {
-                android.widget.Toast.makeText(this, "삭제가 취소되었습니다.", android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "삭제가 취소되었습니다.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -48,14 +51,50 @@ class GalleryDetailActivity : AppCompatActivity() {
 
         if (imageUriString != null) {
             val uri = Uri.parse(imageUriString)
-
+            
             // 📸 Glide 이미지 로드
             Glide.with(this)
                 .load(uri)
                 .into(binding.ivDetailImage)
 
-            binding.btnCopyAddress.setOnClickListener {
-                copyToClipboard("전설의 사랑 장소 ❤️")
+            // 🛰️ DB 또는 Exif에서 위치 정보 가져오기
+            val memory = dbHelper.getMemoryByUri(imageUriString.trim())
+            var lat = memory?.lat ?: 0.0
+            var lng = memory?.lng ?: 0.0
+
+            // DB에 정보가 없을 경우 Exif에서 JSON 메타데이터 파싱 시도 (백업 플랜)
+            if (lat == 0.0 || lng == 0.0) {
+                try {
+                    contentResolver.openInputStream(uri)?.use { input ->
+                        val exif = ExifInterface(input)
+                        val description = exif.getAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION)
+                        if (description != null) {
+                            val json = JSONObject(description)
+                            lat = json.optDouble("lat", 0.0)
+                            lng = json.optDouble("lng", 0.0)
+                        }
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("EXIF_PARSE", "Failed to parse location from Exif", e)
+                }
+            }
+
+            // 🚗 길찾기 버튼
+            binding.btnDirections.setOnClickListener {
+                if (lat != 0.0 && lng != 0.0) {
+                    openKakaoMapDirections(lat, lng, memory?.address ?: "추억의 장소")
+                } else {
+                    Toast.makeText(this, "위치 정보가 없는 카드입니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            // 🏙️ 로드뷰 버튼
+            binding.btnRoadview.setOnClickListener {
+                if (lat != 0.0 && lng != 0.0) {
+                    openKakaoMapRoadView(lat, lng)
+                } else {
+                    Toast.makeText(this, "위치 정보가 없는 카드입니다.", Toast.LENGTH_SHORT).show()
+                }
             }
 
             binding.btnShareImage.setOnClickListener {
@@ -79,6 +118,52 @@ class GalleryDetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun openKakaoMapDirections(lat: Double, lng: Double, name: String) {
+        // 🚗 [친절 가이드] 카카오맵 설치 여부를 미리 확인하여 사용자에게 안내
+        if (!isKakaoMapInstalled()) {
+            Toast.makeText(this, "카카오맵 앱이 설치되어 있지 않아 설치 페이지로 이동합니다.", Toast.LENGTH_LONG).show()
+        }
+
+        // 프리미엄 경험을 위해 전용 길찾기 액티비티(DirectionsActivity)로 연결
+        val intent = Intent(this, DirectionsActivity::class.java).apply {
+            putExtra("lat", lat)
+            putExtra("lng", lng)
+            putExtra("address", name)
+        }
+        startActivity(intent)
+    }
+
+    private fun isKakaoMapInstalled(): Boolean {
+        return try {
+            packageManager.getPackageInfo("net.daum.android.map", 0)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun openKakaoMapRoadView(lat: Double, lng: Double) {
+        // 🏙️ [정밀 교정] 좌표 소수점 자릿수를 6자리로 제한하여 카카오맵 앱 호환성 극대화
+        val formattedLat = String.format(java.util.Locale.US, "%.6f", lat)
+        val formattedLng = String.format(java.util.Locale.US, "%.6f", lng)
+        
+        val url = "kakaomap://roadview?p=$formattedLat,$formattedLng"
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        try {
+            startActivity(intent)
+        } catch (e: Exception) {
+            // 앱이 없을 경우 웹 또는 마켓으로 안내 (내추억지도 스타일)
+            Toast.makeText(this, "카카오맵 앱이 설치되어 있지 않아 설치 페이지로 이동합니다.", Toast.LENGTH_LONG).show()
+            val marketUrl = "market://details?id=net.daum.android.map"
+            val webUrl = "https://map.kakao.com/link/roadview/$formattedLat,$formattedLng"
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(marketUrl)))
+            } catch (e2: Exception) {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(webUrl)))
+            }
+        }
+    }
+
     /**
      * 📸 이미지 삭제 메인 로직
      * - Android 10 미만: contentResolver.delete() 직접 호출
@@ -98,7 +183,7 @@ class GalleryDetailActivity : AppCompatActivity() {
                 deleteRequestLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
             } catch (e: Exception) {
                 android.util.Log.e("GalleryDetail", "createDeleteRequest 실패: ${e.message}")
-                android.widget.Toast.makeText(this, "삭제 요청 중 오류가 발생했습니다.", android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "삭제 요청 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
             }
         } else {
             // Android 9 이하: 직접 삭제
@@ -106,23 +191,16 @@ class GalleryDetailActivity : AppCompatActivity() {
                 val deletedRows = contentResolver.delete(uri, null, null)
                 dbHelper.deleteMemoryByUri(uriString)
                 if (deletedRows > 0) {
-                    android.widget.Toast.makeText(this, "추억이 삭제되었습니다.", android.widget.Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "추억이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                     finish()
                 } else {
-                    android.widget.Toast.makeText(this, "사진 삭제에 실패했습니다.", android.widget.Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "사진 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 android.util.Log.e("GalleryDetail", "삭제 실패: ${e.message}")
-                android.widget.Toast.makeText(this, "사진 삭제 권한이 없거나 오류가 발생했습니다.", android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "사진 삭제 권한이 없거나 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    private fun copyToClipboard(text: String) {
-        val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        val clip = android.content.ClipData.newPlainText("HereWithYou_Location", text)
-        clipboard.setPrimaryClip(clip)
-        android.widget.Toast.makeText(this, "소중한 장소의 주소가 복사되었습니다! 📋", android.widget.Toast.LENGTH_SHORT).show()
     }
 
     private fun shareImage(uri: Uri) {
@@ -135,7 +213,7 @@ class GalleryDetailActivity : AppCompatActivity() {
             startActivity(Intent.createChooser(shareIntent, "HereWithYou 추억 공유하기"))
         } catch (e: Exception) {
             android.util.Log.e("ShareError", "공유 중 에러 발생: ${e.message}")
-            android.widget.Toast.makeText(this, "공유를 실패했습니다.", android.widget.Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "공유를 실패했습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 }

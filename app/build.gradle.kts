@@ -11,8 +11,8 @@ android {
         applicationId = "io.github.hnoni777.newdatemapdiary"
         minSdk = 26
         targetSdk = 35
-        versionCode = 165
-        versionName = "1.13.0"
+        versionCode = 166
+        versionName = "1.14.0"
     }
 
     buildTypes {

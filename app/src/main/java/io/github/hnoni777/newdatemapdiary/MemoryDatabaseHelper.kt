@@ -101,4 +101,35 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
         val db = this.writableDatabase
         return db.delete(TABLE_MEMORIES, "$COLUMN_PHOTO_URI = ?", arrayOf(uriStr)) > 0
     }
+
+    fun getMemoryByUri(uriStr: String): Memory? {
+        val db = this.readableDatabase
+        val cursor = db.query(
+            TABLE_MEMORIES,
+            null,
+            "$COLUMN_PHOTO_URI = ?",
+            arrayOf(uriStr),
+            null,
+            null,
+            null
+        )
+
+        var memory: Memory? = null
+        if (cursor.moveToFirst()) {
+            val ratingIndex = cursor.getColumnIndex(COLUMN_RATING)
+            val rating = if (ratingIndex != -1) cursor.getInt(ratingIndex) else 0
+
+            memory = Memory(
+                id = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                photoUri = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PHOTO_URI)),
+                address = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ADDRESS)),
+                lat = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LAT)),
+                lng = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LNG)),
+                date = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_DATE)),
+                rating = rating
+            )
+        }
+        cursor.close()
+        return memory
+    }
 }

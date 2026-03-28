@@ -51,6 +51,13 @@ class MemoryMapActivity : AppCompatActivity() {
     private var currentRouteLine: RouteLine? = null
     private var isRouteReady = false
     private var cachedAirplaneBitmap: Bitmap? = null
+    private val markerBitmapCache = mutableMapOf<String, Bitmap>() // 📸 [최적화] 핀 비트맵 캐시
+
+    // 💎 [프리미엄 설정 키]
+    private val PREFS_NAME = "MapPremiumPrefs"
+    private val KEY_VEHICLE = "map_vehicle"
+    private val KEY_COLOR = "map_color"
+    private val KEY_PHOTO_PINS = "map_photo_pins"
 
     // 🕊️ 안드로이드 10/11+ 갤러리 삭제 승인을 위한 런처
     private val deleteLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult()) { result ->
@@ -83,6 +90,10 @@ class MemoryMapActivity : AppCompatActivity() {
             startPathAnimation()
         }
 
+        findViewById<View>(R.id.btn_map_settings).setOnClickListener {
+            showMapSettingsDialog()
+        }
+
         mapView.start(object : MapLifeCycleCallback() {
             override fun onMapDestroy() {}
             override fun onMapError(error: Exception) {
@@ -106,7 +117,7 @@ class MemoryMapActivity : AppCompatActivity() {
 
                 // 🎬 [애니메이션 리스너]
                 map.setOnCameraMoveEndListener { _, _, gestureType ->
-                    if (isPathPlaying && gestureType == GestureType.Unknown) {
+                    if (isPathPlaying && (gestureType == GestureType.Unknown || gestureType == GestureType.OneFingerDoubleTap)) {
                         // fitMapPoints 등이 끝났을 때 첫 시작
                         if (currentPathIndex == 0 && !isMovingToPoint) {
                             mapView.postDelayed({
@@ -145,23 +156,41 @@ class MemoryMapActivity : AppCompatActivity() {
         // normalizeAddress를 통해 공백/특수문자를 무시하고 글자만 같으면 그룹화합니다.
         val groups = memories.groupBy { normalizeAddress(it.address) }
 
+        // 💎 프리미엄 설정 로드
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val showPhotoPins = prefs.getBoolean(KEY_PHOTO_PINS, false)
+
         groups.forEach { (normAddr, group) ->
             // 그룹 중 가장 최근 데이터의 좌표에 핀 하나만 꽂음
             val rep = group.first()
-            
-            // ⭐ [코부장 정밀 세팅] 핀 위에 별 갯수 배지를 입힙니다.
-            // 📍 [대표님 지시] 가장 최근 카드(Latest)의 별점을 표시합니다.
             val latestRating = rep.rating
-            val baseMarkerRes = R.drawable.ic_red_heart_marker // 기본 핀은 정통 하트로 통일!
             
-            val finalMarkerBitmap = if (latestRating > 0) {
-                drawRatingStarsToBitmap(baseMarkerRes, latestRating)
+            val finalMarkerBitmap = if (showPhotoPins) {
+                // 📸 [프리미엄] 실제 사진 핀 생성 (기본 핀보다 우선순위 높음)
+                val cacheKey = "photo_${rep.photoUri}_${latestRating}"
+                markerBitmapCache[cacheKey] ?: run {
+                    val miniPhoto = createMiniPhotoMarker(rep.photoUri)
+                    val result = if (miniPhoto != null) {
+                        if (latestRating > 0) drawRatingStarsToBitmap(miniPhoto, latestRating) else miniPhoto
+                    } else {
+                        val baseMarkerRes = R.drawable.ic_red_heart_marker
+                        if (latestRating > 0) drawRatingStarsToBitmap(vectorToBitmap(baseMarkerRes), latestRating) else vectorToBitmap(baseMarkerRes)
+                    }
+                    markerBitmapCache[cacheKey] = result
+                    result
+                }
             } else {
-                vectorToBitmap(baseMarkerRes)
+                // 기본 핀
+                val cacheKey = "default_${latestRating}"
+                markerBitmapCache[cacheKey] ?: run {
+                    val baseMarkerRes = R.drawable.ic_red_heart_marker 
+                    val result = if (latestRating > 0) drawRatingStarsToBitmap(vectorToBitmap(baseMarkerRes), latestRating) else vectorToBitmap(baseMarkerRes)
+                    markerBitmapCache[cacheKey] = result
+                    result
+                }
             }
             
             val styles = LabelStyles.from(LabelStyle.from(finalMarkerBitmap).setAnchorPoint(0.5f, 1.0f))
-            
             val pos = LatLng.from(rep.lat, rep.lng)
 
             layer?.addLabel(
@@ -179,8 +208,7 @@ class MemoryMapActivity : AppCompatActivity() {
     }
 
     // 🎨 [코부장 전용 도구] 핀 위에 앙증맞은 골드 별 배지를 그립니다.
-    private fun drawRatingStarsToBitmap(markerRes: Int, rating: Int): Bitmap {
-        val baseBitmap = vectorToBitmap(markerRes)
+    private fun drawRatingStarsToBitmap(baseBitmap: Bitmap, rating: Int): Bitmap {
         val mutableBitmap = baseBitmap.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(mutableBitmap)
         
@@ -249,6 +277,7 @@ class MemoryMapActivity : AppCompatActivity() {
         val pager = view.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.dialog_card_pager)
         val indicator = view.findViewById<TextView>(R.id.text_page_indicator)
         val btnDelete = view.findViewById<TextView>(R.id.btn_delete_memory)
+        val btnShare = view.findViewById<View>(R.id.btn_share_image)
         val btnGetDirections = view.findViewById<View>(R.id.btn_get_directions)
         val btnOpenRoadview = view.findViewById<View>(R.id.btn_open_roadview)
         var currentPosition = 0
@@ -257,6 +286,12 @@ class MemoryMapActivity : AppCompatActivity() {
         val mutableGroup = groupItems.toMutableList()
         val adapter = MemoryPagerAdapter(mutableGroup)
         pager.adapter = adapter
+
+        btnShare.setOnClickListener {
+            if (currentPosition < 0 || currentPosition >= mutableGroup.size) return@setOnClickListener
+            val target = mutableGroup[currentPosition]
+            shareImage(Uri.parse(target.photoUri))
+        }
 
         btnGetDirections.setOnClickListener {
             if (currentPosition < 0 || currentPosition >= mutableGroup.size) return@setOnClickListener
@@ -282,9 +317,13 @@ class MemoryMapActivity : AppCompatActivity() {
             val target = mutableGroup[currentPosition]
             
             if (target.lat != 0.0 && target.lng != 0.0) {
-                val appUrl = "kakaomap://roadview?p=${target.lat},${target.lng}"
+                // 🏙️ [정밀 교정] 좌표 소수점 자릿수를 6자리로 제한하여 카카오맵 앱 호환성 극대화
+                val formattedLat = String.format(java.util.Locale.US, "%.6f", target.lat)
+                val formattedLng = String.format(java.util.Locale.US, "%.6f", target.lng)
+                
+                val appUrl = "kakaomap://roadview?p=$formattedLat,$formattedLng"
                 val marketUrl = "market://details?id=net.daum.android.map"
-                val webMarketUrl = "https://play.google.com/store/apps/details?id=net.daum.android.map"
+                val webMarketUrl = "https://map.kakao.com/link/roadview/$formattedLat,$formattedLng"
 
                 try {
                     // 🚀 1순위: 카카오맵 앱으로 로드뷰 실행
@@ -691,26 +730,32 @@ class MemoryMapActivity : AppCompatActivity() {
         currentRouteLine = null
         isRouteReady = false
 
-        // 🎨 [비행기 아이콘 준비]
-        val original = vectorToBitmap(R.drawable.ic_airplane_cute_v2)
-        val scaled = Bitmap.createScaledBitmap(original, 100, 100, true)
-        
-        val width = scaled.width
-        val height = scaled.height
-        val pixels = IntArray(width * height)
-        scaled.getPixels(pixels, 0, width, 0, 0, width, height)
-        for (i in pixels.indices) {
-            val c = pixels[i]
-            val r = (c shr 16) and 0xFF
-            val g = (c shr 8) and 0xFF
-            val b = c and 0xFF
-            if (r > 245 && g > 245 && b > 245) pixels[i] = 0x00FFFFFF
+        // 💎 프리미엄 설정 로드
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val vehicleType = prefs.getString(KEY_VEHICLE, "jet")
+        val vehicleRes = when(vehicleType) {
+            "balloon" -> R.drawable.img_premium_balloon
+            "rocket" -> R.drawable.img_premium_rocket
+            "ufo" -> R.drawable.img_premium_ufo
+            "henry" -> R.drawable.img_premium_henry
+            "paper_airplane" -> R.drawable.img_premium_paperairplane
+            "paper_hak" -> R.drawable.img_premium_paperhak
+            else -> R.drawable.img_premium_jet
         }
-        val transparentBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        transparentBitmap.setPixels(pixels, 0, width, 0, 0, width, height)
-        cachedAirplaneBitmap = transparentBitmap
 
-        cachedAirplaneBitmap = transparentBitmap
+        // 🎨 [탈것 아이콘 준비] 사장님이 준비해주신 프리미엄 이미지(img_premium_*)는 이미 완벽한 누끼 상태이므로, 비율을 유지하며 고해상도로 로드합니다.
+        val options = android.graphics.BitmapFactory.Options().apply { inScaled = false }
+        val original = android.graphics.BitmapFactory.decodeResource(resources, vehicleRes, options) ?: vectorToBitmap(vehicleRes)
+        
+        // 📏 [비율 유지 리사이징] 뚱뚱해지지 않도록 원본 비율을 철저히 사수합니다.
+        val maxSize = 110
+        val ratio = original.width.toFloat() / original.height.toFloat()
+        val (finalW, finalH) = if (ratio > 1f) {
+            maxSize to (maxSize / ratio).toInt()
+        } else {
+            (maxSize * ratio).toInt() to maxSize
+        }
+        cachedAirplaneBitmap = Bitmap.createScaledBitmap(original, Math.max(1, finalW), Math.max(1, finalH), true)
 
         // 🚀 [추억 여행의 시작] 첫 번째 사진을 먼저 보여줍니다. (클래식 모드 복구)
         showPhotoPopup() 
@@ -846,6 +891,10 @@ class MemoryMapActivity : AppCompatActivity() {
             Toast.makeText(this, "우리의 모든 추억 조각을 찾아보았습니다! ✨", Toast.LENGTH_LONG).show()
             return
         }
+        // 🎨 [프리미엄 세팅] 저장된 선 색상 테마 로드
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val pathColorHex = prefs.getString(KEY_COLOR, "#4D7CFF") ?: "#4D7CFF"
+        val pathColor = Color.parseColor(pathColorHex)
 
         val startIndex = if (currentPathIndex < memoryStopIndexes.size) memoryStopIndexes[currentPathIndex] else 0
         val endIndex = if (currentPathIndex + 1 < memoryStopIndexes.size) memoryStopIndexes[currentPathIndex + 1] else fullJourneyPoints.size - 1
@@ -944,8 +993,8 @@ class MemoryMapActivity : AppCompatActivity() {
                     val tailPoints = segmentVertexes.subList(0, idx + 1).toMutableList()
                     tailPoints.add(currentPos)
                     
-                    val blueStyle = RouteLineStyle.from(7f, Color.parseColor("#4D7CFF"), 2f, Color.WHITE)
-                    val newLine = routeLineManager.layer.addRouteLine(RouteLineOptions.from(RouteLineSegment.from(tailPoints, RouteLineStyles.from(blueStyle))))
+                    val pathStyle = RouteLineStyle.from(7f, pathColor, 2f, Color.WHITE)
+                    val newLine = routeLineManager.layer.addRouteLine(RouteLineOptions.from(RouteLineSegment.from(tailPoints, RouteLineStyles.from(pathStyle))))
                     
                     currentRouteLine?.remove()
                     currentRouteLine = newLine
@@ -978,9 +1027,9 @@ class MemoryMapActivity : AppCompatActivity() {
                     if (isPathPlaying) {
                         isMovingToPoint = false
                         
-                        // 현재 비행 구간을 고정 레이어에 확정 (파란색 세련된 선)
-                        val blueStyle = RouteLineStyle.from(7f, Color.parseColor("#4D7CFF"), 2f, Color.WHITE)
-                        routeLineManager.layer.addRouteLine(RouteLineOptions.from(RouteLineSegment.from(segmentVertexes, RouteLineStyles.from(blueStyle))))
+                        // 현재 비행 구간을 고정 레이어에 확정 (사용자 테마 색상 적용)
+                        val pathStyle = RouteLineStyle.from(7f, pathColor, 2f, Color.WHITE)
+                        routeLineManager.layer.addRouteLine(RouteLineOptions.from(RouteLineSegment.from(segmentVertexes, RouteLineStyles.from(pathStyle))))
                         currentRouteLine?.remove()
                         currentRouteLine = null
 
@@ -1096,6 +1145,200 @@ class MemoryMapActivity : AppCompatActivity() {
         } catch (e: Exception) {
             null
         }
+    }
+
+    private fun shareImage(uri: Uri) {
+        try {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "image/*"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            // 🖼️ [프리미엄 한 마디] 갤러리 상세 화면과 공유 문구 및 경험 통일
+            startActivity(Intent.createChooser(shareIntent, "HereWithYou 추억 공유하기"))
+        } catch (e: Exception) {
+            android.util.Log.e("ShareError", "공유 중 에러 발생: ${e.message}")
+            Toast.makeText(this, "공유를 실패했습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showMapSettingsDialog() {
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.dialog_map_premium_settings, null)
+        
+        // 🛠️ [코부장 정밀 점검] 라디오 버튼들을 수동 관리하여 단일 선택 보장
+        val rbJet = view.findViewById<android.widget.RadioButton>(R.id.rb_jet)
+        val rbBalloon = view.findViewById<android.widget.RadioButton>(R.id.rb_balloon)
+        val rbRocket = view.findViewById<android.widget.RadioButton>(R.id.rb_rocket)
+        val rbUfo = view.findViewById<android.widget.RadioButton>(R.id.rb_ufo)
+        val rbHenry = view.findViewById<android.widget.RadioButton>(R.id.rb_henry)
+        val rbPaperAirplane = view.findViewById<android.widget.RadioButton>(R.id.rb_paper_airplane)
+        val rbPaperHak = view.findViewById<android.widget.RadioButton>(R.id.rb_paper_hak)
+        val vehicles = listOf(rbJet, rbBalloon, rbRocket, rbUfo, rbHenry, rbPaperAirplane, rbPaperHak)
+
+        val rbGray = view.findViewById<android.widget.RadioButton>(R.id.rb_color_gray)
+        val rbGold = view.findViewById<android.widget.RadioButton>(R.id.rb_color_gold)
+        val rbPink = view.findViewById<android.widget.RadioButton>(R.id.rb_color_pink)
+        val rbBlue = view.findViewById<android.widget.RadioButton>(R.id.rb_color_blue)
+        val colors = listOf(rbGray, rbGold, rbPink, rbBlue)
+
+        // 차량 선택 리스너 (이미지 영역 포함 클릭)
+        view.findViewById<View>(R.id.container_jet).setOnClickListener { vehicles.forEach { it.isChecked = (it == rbJet) } }
+        view.findViewById<View>(R.id.container_balloon).setOnClickListener { vehicles.forEach { it.isChecked = (it == rbBalloon) } }
+        view.findViewById<View>(R.id.container_rocket).setOnClickListener { vehicles.forEach { it.isChecked = (it == rbRocket) } }
+        view.findViewById<View>(R.id.container_ufo).setOnClickListener { vehicles.forEach { it.isChecked = (it == rbUfo) } }
+        view.findViewById<View>(R.id.container_henry).setOnClickListener { vehicles.forEach { it.isChecked = (it == rbHenry) } }
+        view.findViewById<View>(R.id.container_paper_airplane).setOnClickListener { vehicles.forEach { it.isChecked = (it == rbPaperAirplane) } }
+        view.findViewById<View>(R.id.container_paper_hak).setOnClickListener { vehicles.forEach { it.isChecked = (it == rbPaperHak) } }
+
+        // 색상 선택 리스너 (순수 라디오 처리)
+        colors.forEach { targetRb ->
+            targetRb.setOnClickListener {
+                colors.forEach { it.isChecked = (it == targetRb) }
+            }
+        }
+
+        val swPhotoPins = view.findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switch_photo_markers)
+        val btnSave = view.findViewById<android.widget.Button>(R.id.btn_save_settings)
+        
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        
+        // 기존 값 세팅
+        when(prefs.getString(KEY_VEHICLE, "jet")) {
+            "balloon" -> rbBalloon.isChecked = true
+            "rocket" -> rbRocket.isChecked = true
+            "ufo" -> rbUfo.isChecked = true
+            "henry" -> rbHenry.isChecked = true
+            "paper_airplane" -> rbPaperAirplane.isChecked = true
+            "paper_hak" -> rbPaperHak.isChecked = true
+            else -> rbJet.isChecked = true
+        }
+        
+        when(prefs.getString(KEY_COLOR, "#E0E0E0")) {
+            "#FFD700" -> rbGold.isChecked = true
+            "#FF9999" -> rbPink.isChecked = true
+            "#87CEEB" -> rbBlue.isChecked = true
+            else -> rbGray.isChecked = true
+        }
+        
+        swPhotoPins.isChecked = prefs.getBoolean(KEY_PHOTO_PINS, false)
+        
+        btnSave.setOnClickListener {
+            val editor = prefs.edit()
+            
+            val vehicle = when {
+                rbBalloon.isChecked -> "balloon"
+                rbRocket.isChecked -> "rocket"
+                rbUfo.isChecked -> "ufo"
+                rbHenry.isChecked -> "henry"
+                rbPaperAirplane.isChecked -> "paper_airplane"
+                rbPaperHak.isChecked -> "paper_hak"
+                else -> "jet"
+            }
+            editor.putString(KEY_VEHICLE, vehicle)
+            
+            val color = when {
+                rbGold.isChecked -> "#FFD700"
+                rbPink.isChecked -> "#FF9999"
+                rbBlue.isChecked -> "#87CEEB"
+                else -> "#E0E0E0"
+            }
+            editor.putString(KEY_COLOR, color)
+            editor.putBoolean(KEY_PHOTO_PINS, swPhotoPins.isChecked)
+            
+            editor.apply()
+            Toast.makeText(this, "프리미엄 지도가 성공적으로 저장되었습니다! ✨", Toast.LENGTH_SHORT).show()
+            
+            markerBitmapCache.clear() // 🧹 설정 변경 시 캐시 초기화
+            showMemoriesOnMap() // 즉시 핀 반영
+            dialog.dismiss()
+        }
+        
+        dialog.setContentView(view)
+        dialog.show()
+    }
+
+    private fun createMiniPhotoMarker(uriString: String): Bitmap? {
+        // ✨ [대표님 긴급 처방] 로딩 속도 개선을 위해 원본 전체가 아닌 사진 일부(중앙)를 원형으로 크게(85px) 잘라 가져옵니다.
+        return try {
+            val uri = Uri.parse(uriString)
+            val options = android.graphics.BitmapFactory.Options()
+            
+            // 1. 메모리 절약을 위해 먼저 사이즈만 체크
+            options.inJustDecodeBounds = true
+            contentResolver.openInputStream(uri)?.use { 
+                android.graphics.BitmapFactory.decodeStream(it, null, options) 
+            }
+            
+            // 2. 핀 크기에 맞춰 대폭 축소하여 디코딩 (전체 사진을 다 읽지 않음)
+            val targetSize = 100
+            options.inSampleSize = calculateInSampleSize(options, targetSize, targetSize)
+            options.inJustDecodeBounds = false
+            
+            val original = contentResolver.openInputStream(uri)?.use { 
+                android.graphics.BitmapFactory.decodeStream(it, null, options) 
+            } ?: return null
+
+            // 3. 중앙 영역을 정사각형으로 크롭
+            val rawSize = Math.min(original.width, original.height)
+            val x = (original.width - rawSize) / 2
+            val y = (original.height - rawSize) / 2
+            val cropped = Bitmap.createBitmap(original, x, y, rawSize, rawSize)
+            val scaled = Bitmap.createScaledBitmap(cropped, targetSize, targetSize, true)
+
+            // 4. 원형으로 마스킹 (사장님 지시: 사각형이 아닌 둥근 형태)
+            val circleBitmap = Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
+            val canvasCircle = Canvas(circleBitmap)
+            val paintCircle = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+            canvasCircle.drawCircle(targetSize / 2f, targetSize / 2f, targetSize / 2f, paintCircle)
+            paintCircle.xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN)
+            canvasCircle.drawBitmap(scaled, 0f, 0f, paintCircle)
+
+            // 5. 프레임 비트맵 생성 (둥근 테두리 및 핀 꼬리)
+            val output = Bitmap.createBitmap(targetSize + 20, targetSize + 40, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(output)
+            val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+
+            // 원형 화이트 보더
+            paint.color = Color.WHITE
+            paint.style = android.graphics.Paint.Style.STROKE
+            paint.strokeWidth = 7f
+            canvas.drawCircle((targetSize + 20) / 2f, (targetSize + 20) / 2f, targetSize / 2f + 2f, paint)
+
+            // 꼬리 삼각형 (원형 핀 끝부분 하단 중앙)
+            paint.style = android.graphics.Paint.Style.FILL
+            val path = android.graphics.Path()
+            path.moveTo((targetSize + 20) / 2f - 14f, (targetSize + 20).toFloat() - 5f)
+            path.lineTo((targetSize + 20) / 2f + 14f, (targetSize + 20).toFloat() - 5f)
+            path.lineTo((targetSize + 20) / 2f, (targetSize + 36).toFloat())
+            path.close()
+            canvas.drawPath(path, paint)
+
+            // 사진 그리기
+            canvas.drawBitmap(circleBitmap, 10f, 10f, null)
+            
+            // 메모리 해제
+            if (original != cropped) original.recycle()
+            cropped.recycle()
+            circleBitmap.recycle()
+            
+            output
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun calculateInSampleSize(options: android.graphics.BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+        val (height: Int, width: Int) = options.outHeight to options.outWidth
+        var inSampleSize = 1
+        if (height > reqHeight || width > reqWidth) {
+            val halfHeight: Int = height / 2
+            val halfWidth: Int = width / 2
+            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+        return inSampleSize
     }
 
     override fun onDestroy() {
