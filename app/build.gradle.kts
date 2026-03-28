@@ -19,7 +19,7 @@ android {
         create("release") {
             storeFile = file("C:/Users/user/Documents/herewithyou.jks")
             storePassword = "godqhr3216!"
-            keyAlias = "herewithyou"
+            keyAlias = "key0"
             keyPassword = "godqhr3216!"
         }
     }
