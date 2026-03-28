@@ -18,7 +18,7 @@
     - Fixed Android resource naming issues (lowercase renaming).
 
 ### 📦 Artifacts
-- **Latest Master APK**: `NewDateMapDiary_v1.14.0_SkyJourney.apk`
+- **Latest Master APK**: `NewDateMapDiary_v1_14_0_SkyView_Real_Final.apk`
 - **Archived Assets**: `processed_stickers_v1.14.0/`
 - **Landing Page**: Renewed `index.html` with Sky Journey theme.
 
