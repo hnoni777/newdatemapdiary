@@ -58,6 +58,7 @@ class MemoryMapActivity : AppCompatActivity() {
     private val KEY_VEHICLE = "map_vehicle"
     private val KEY_COLOR = "map_color"
     private val KEY_PHOTO_PINS = "map_photo_pins"
+    private val KEY_MAP_STYLE = "map_style"
 
     // 🕊️ 안드로이드 10/11+ 갤러리 삭제 승인을 위한 런처
     private val deleteLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult()) { result ->
@@ -94,6 +95,22 @@ class MemoryMapActivity : AppCompatActivity() {
             showMapSettingsDialog()
         }
 
+        // 🗺️ 개별 뷰 전환 버튼 리스너 (부장님 커스텀 배치)
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+
+        findViewById<View>(R.id.btn_view_normal).setOnClickListener {
+            prefs.edit().putString(KEY_MAP_STYLE, "normal").apply()
+            kakaoMap?.let { applyMapStyle(it, true) }
+            Toast.makeText(this, "2D", Toast.LENGTH_SHORT).show()
+        }
+
+        findViewById<View>(R.id.btn_view_skyview).setOnClickListener {
+            prefs.edit().putString(KEY_MAP_STYLE, "satellite").apply()
+            kakaoMap?.let { applyMapStyle(it, true) }
+            Toast.makeText(this, "sky", Toast.LENGTH_SHORT).show()
+        }
+
+
         mapView.start(object : MapLifeCycleCallback() {
             override fun onMapDestroy() {}
             override fun onMapError(error: Exception) {
@@ -102,6 +119,10 @@ class MemoryMapActivity : AppCompatActivity() {
         }, object : KakaoMapReadyCallback() {
             override fun onMapReady(map: KakaoMap) {
                 kakaoMap = map
+                
+                // 💎 [초기 설정] 타입만 바꾸고 카메라는 유지! (줌 꼬임 방지)
+                applyMapStyle(map, false)
+                
                 showMemoriesOnMap()
 
                 map.setOnLabelClickListener { _, _, label ->
@@ -203,7 +224,7 @@ class MemoryMapActivity : AppCompatActivity() {
         // 카메라 이동 (가장 최근 촬영지)
         if (memories.isNotEmpty()) {
             val lastPos = LatLng.from(memories[0].lat, memories[0].lng)
-            map.moveCamera(CameraUpdateFactory.newCenterPosition(lastPos, 12))
+            map.moveCamera(CameraUpdateFactory.newCenterPosition(lastPos, 13))
         }
     }
 
@@ -1165,6 +1186,7 @@ class MemoryMapActivity : AppCompatActivity() {
     private fun showMapSettingsDialog() {
         val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.dialog_map_premium_settings, null)
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         
         // 🛠️ [코부장 정밀 점검] 라디오 버튼들을 수동 관리하여 단일 선택 보장
         val rbJet = view.findViewById<android.widget.RadioButton>(R.id.rb_jet)
@@ -1182,6 +1204,7 @@ class MemoryMapActivity : AppCompatActivity() {
         val rbBlue = view.findViewById<android.widget.RadioButton>(R.id.rb_color_blue)
         val colors = listOf(rbGray, rbGold, rbPink, rbBlue)
 
+
         // 차량 선택 리스너 (이미지 영역 포함 클릭)
         view.findViewById<View>(R.id.container_jet).setOnClickListener { vehicles.forEach { it.isChecked = (it == rbJet) } }
         view.findViewById<View>(R.id.container_balloon).setOnClickListener { vehicles.forEach { it.isChecked = (it == rbBalloon) } }
@@ -1190,6 +1213,7 @@ class MemoryMapActivity : AppCompatActivity() {
         view.findViewById<View>(R.id.container_henry).setOnClickListener { vehicles.forEach { it.isChecked = (it == rbHenry) } }
         view.findViewById<View>(R.id.container_paper_airplane).setOnClickListener { vehicles.forEach { it.isChecked = (it == rbPaperAirplane) } }
         view.findViewById<View>(R.id.container_paper_hak).setOnClickListener { vehicles.forEach { it.isChecked = (it == rbPaperHak) } }
+
 
         // 색상 선택 리스너 (순수 라디오 처리)
         colors.forEach { targetRb ->
@@ -1200,8 +1224,6 @@ class MemoryMapActivity : AppCompatActivity() {
 
         val swPhotoPins = view.findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switch_photo_markers)
         val btnSave = view.findViewById<android.widget.Button>(R.id.btn_save_settings)
-        
-        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         
         // 기존 값 세팅
         when(prefs.getString(KEY_VEHICLE, "jet")) {
@@ -1223,6 +1245,7 @@ class MemoryMapActivity : AppCompatActivity() {
         
         swPhotoPins.isChecked = prefs.getBoolean(KEY_PHOTO_PINS, false)
         
+
         btnSave.setOnClickListener {
             val editor = prefs.edit()
             
@@ -1246,16 +1269,49 @@ class MemoryMapActivity : AppCompatActivity() {
             editor.putString(KEY_COLOR, color)
             editor.putBoolean(KEY_PHOTO_PINS, swPhotoPins.isChecked)
             
+
             editor.apply()
             Toast.makeText(this, "프리미엄 지도가 성공적으로 저장되었습니다! ✨", Toast.LENGTH_SHORT).show()
             
             markerBitmapCache.clear() // 🧹 설정 변경 시 캐시 초기화
+            kakaoMap?.let { applyMapStyle(it) } // 지도 스타일 즉시 적용
             showMemoriesOnMap() // 즉시 핀 반영
             dialog.dismiss()
         }
         
         dialog.setContentView(view)
         dialog.show()
+    }
+
+    private fun applyMapStyle(map: KakaoMap, shouldMoveCamera: Boolean = true) {
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val style = prefs.getString(KEY_MAP_STYLE, "satellite")
+        val camPos = map.cameraPosition ?: return
+        val pos = camPos.position
+        val currentZoom = camPos.zoomLevel
+        
+        when(style) {
+            "satellite" -> {
+                map.changeMapType(MapType.SKYVIEW)
+                // 💎 [줌 고정] 항공뷰 변환 시 지도의 현재 줌과 각도를 최대한 보존 (이동 최소화)
+                if (shouldMoveCamera && camPos.tiltAngle != 0.0) {
+                    val cameraUpdate = CameraUpdateFactory.newCameraPosition(
+                        CameraPosition.from(pos.latitude, pos.longitude, currentZoom, 0.0, 0.0, 0.0)
+                    )
+                    map.moveCamera(cameraUpdate, CameraAnimation.from(500))
+                }
+            }
+            else -> {
+                map.changeMapType(MapType.NORMAL)
+                // 💎 [줌 고정] 일반지도로 돌아올 때도 틸트만 펴주고 줌은 그대로!
+                if (shouldMoveCamera && camPos.tiltAngle != 0.0) {
+                    val cameraUpdate = CameraUpdateFactory.newCameraPosition(
+                        CameraPosition.from(pos.latitude, pos.longitude, currentZoom, 0.0, 0.0, 0.0)
+                    )
+                    map.moveCamera(cameraUpdate, CameraAnimation.from(500))
+                }
+            }
+        }
     }
 
     private fun createMiniPhotoMarker(uriString: String): Bitmap? {

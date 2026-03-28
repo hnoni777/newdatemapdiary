@@ -66,7 +66,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="12dp" />
 
-    <!-- ⚙️ 지도 설정 버튼 -->
+    <!-- 🎨 지도 꾸미기 버튼 (좌측 하단 복구) -->
     <Button
         android:id="@+id/btn_map_settings"
         android:layout_width="wrap_content"
@@ -86,7 +86,73 @@
         android:paddingHorizontal="16dp"
         android:paddingVertical="10dp"/>
 
-    <!-- ▶️ 추억 재생 버튼 (Path Animation) -->
+    <!-- 🗺️ 지도 뷰 전환 패널 (우측 중앙 신규) -->
+    <LinearLayout
+        android:id="@+id/ll_view_modes"
+        android:layout_width="36dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_white_pill_translucent"
+        android:paddingStart="1dp"
+        android:paddingEnd="1dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="8dp"
+        android:elevation="12dp"
+        android:gravity="center">
+
+        <!-- 2D 버튼 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btn_view_normal"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_view_normal"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="2D"
+                android:scaleType="centerInside"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2D"
+                android:textColor="#333333"
+                android:textSize="9sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <!-- sky 버튼 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginTop="14dp">
+            <ImageButton
+                android:id="@+id/btn_view_skyview"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_view_skyview"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="sky"
+                android:scaleType="centerInside"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="sky"
+                android:textColor="#333333"
+                android:textSize="9sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ▶️ 추억 재생 버튼 (우측 하단 원상복구) -->
     <Button
         android:id="@+id/btn_play_path"
         android:layout_width="wrap_content"
