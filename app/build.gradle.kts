@@ -18,9 +18,9 @@ android {
     signingConfigs {
         create("release") {
             storeFile = file("C:/Users/user/Documents/herewithyou.jks")
-            storePassword = "123456"
+            storePassword = "godqhr3216!"
             keyAlias = "herewithyou"
-            keyPassword = "123456"
+            keyPassword = "godqhr3216!"
         }
     }
 
