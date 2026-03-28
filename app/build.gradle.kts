@@ -15,8 +15,18 @@ android {
         versionName = "1.14.0 SkyView Elite"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("C:/Users/user/Documents/herewithyou.jks")
+            storePassword = "123456"
+            keyAlias = "herewithyou"
+            keyPassword = "123456"
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -26,6 +36,7 @@ android {
         }
         debug {
             // ✅ 배포용 디버그 빌드에서도 용량 최적화를 위해 활성화합니다.
+            signingConfig = signingConfigs.getByName("release")
             isDebuggable = false
             isMinifyEnabled = true
             isShrinkResources = true
