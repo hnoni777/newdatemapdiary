@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 🔥 [코부장 긴급 조치] 브라우저가 예전 화면을 기억하지 못하도록 강력하게 캐시를 차단합니다! -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <!-- 🕒 [Last Build]: 2026-03-28 09:30 PM - Sky Journey & Cute Zoo Edition -->
+    <!-- 🕒 [Cache Breaker ID]: 8829472 - Sky Journey & Cute Zoo FINAL DEPLOY -->
+    <title>HereWithYou - 1.14.0 Sky Journey Edition</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0D0D0D;
+            --accent-gold: #C9A96E;
+            --text-white: #FFFFFF;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --theme-oatmeal: #F8F5F0;
+            --theme-matcha: #F0F8F1;
+            --theme-peach: #FFF0F0;
+            --theme-lavender: #F5F0F8;
+            --theme-midnight: #1A1D24;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Hero Section with Custom Image */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 20px;
+            background: linear-gradient(rgba(13, 13, 13, 0.6), rgba(13, 13, 13, 0.9)), 
+                        url('hero_masterpiece_preview_1774150315656.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero-content {
+            z-index: 10;
+            max-width: 900px;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .brand-label {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            letter-spacing: 8px;
+            color: var(--accent-gold);
+            font-weight: 700;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(201, 169, 110, 0.5);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 5rem;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            color: var(--text-white);
+            letter-spacing: -2px;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        h1 span {
+            color: #FFF;
+            text-shadow: 0 0 15px rgba(255,255,255,0.4), 0 0 30px var(--accent-gold);
+            font-style: italic;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 48px;
+            font-weight: 300;
+            max-width: 750px;
+            margin-left: auto;
+            margin-right: auto;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.9);
+            line-height: 1.8;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 18px 45px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-gold);
+            color: #1A1A1A;
+            box-shadow: 0 10px 40px rgba(201, 169, 110, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px) scale(1.05);
+            background-color: #d4bc8d;
+        }
+
+        .btn-outline {
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        /* Theme Gallery Section */
+        .themes-section {
+            padding: 120px 20px;
+            background: #111;
+            text-align: center;
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 60px auto 0;
+        }
+
+        .theme-card {
+            padding: 40px 20px;
+            border-radius: 24px;
+            transition: all 0.4s;
+            cursor: help;
+        }
+
+        .theme-card:hover { transform: translateY(-10px); }
+
+        .oatmeal { background: var(--theme-oatmeal); color: #8C7851; }
+        .matcha { background: var(--theme-matcha); color: #4F6F52; }
+        .peach { background: var(--theme-peach); color: #D24545; }
+        .lavender { background: var(--theme-lavender); color: #5D3587; }
+        .midnight { background: var(--theme-midnight); color: #F8F0E5; }
+
+        .theme-card h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 10px; }
+        .theme-card p { font-size: 0.9rem; opacity: 0.8; }
+
+        /* Features Section */
+        .features {
+            padding: 140px 20px;
+            text-align: center;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            margin-bottom: 40px;
+            color: var(--text-white);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            background: var(--glass-bg);
+            padding: 64px 40px;
+            border-radius: 32px;
+            transition: all 0.5s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            text-align: left;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-12px);
+            border-color: var(--accent-gold);
+        }
+
+        .feature-icon {
+            font-size: 2.8rem;
+            margin-bottom: 24px;
+            display: block;
+        }
+
+        .feature-item h3 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+            color: var(--accent-gold);
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Recovery Section styling */
+        .recovery-archive {
+            background: #000;
+            padding: 100px 20px;
+        }
+
+        .archive-item {
+            border-left: 2px solid var(--accent-gold);
+            padding-left: 30px;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+        }
+
+        .archive-item h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 8px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+            background: #000;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 3rem; }
+            .cta-group { flex-direction: column; }
+            .section-title { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="brand-label">HereWithYou - Sky Journey Edition</div>
+            <h1>Beyond the Map, <br> <span>Into the Blue Sky.</span></h1>
+            <p class="subtitle">UFO에서 종이비행기까지, 새롭게 추가된 7종의 프리미엄 탈것(Sky Journey)과 <br> 10종의 귀여운 3D 동물 스티커(Cute Zoo)로 당신의 여행을 더 찬란하게 기록하세요.</p>
+
+            <div class="cta-group">
+                <a href="NewDateMapDiary_v1.14.0_SkyJourney.apk" class="btn btn-primary">V1.14.0 스카이 저니 다운로드</a>
+                <a href="#features" class="btn btn-outline">새로운 기능 보기</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Theme Gallery -->
+    <section id="themes" class="themes-section">
+        <h2 class="section-title">The Romantic Palette</h2>
+        <div class="themes-grid">
+            <div class="theme-card oatmeal">
+                <h3>Oatmeal Mood</h3>
+                <p>#F8F5F0 - 따뜻한 크림과 브라운의 조화. 포근한 일상 감성.</p>
+            </div>
+            <div class="theme-card matcha">
+                <h3>Matcha Forest</h3>
+                <p>#F0F8F1 - 연한 민트와 딥그린. 싱그럽고 건강한 자연 감성.</p>
+            </div>
+            <div class="theme-card peach">
+                <h3>Peach Blush</h3>
+                <p>#FFF0F0 - 사랑스러운 핑크와 로즈. 부드러운 봄의 감성.</p>
+            </div>
+            <div class="theme-card lavender">
+                <h3>Lavender Sunset</h3>
+                <p>#F5F0F8 - 연한 라벤더와 퍼플. 몽환적이고 감성적인 무드.</p>
+            </div>
+            <div class="theme-card midnight">
+                <h3>Midnight Charcoal</h3>
+                <p>#1A1D24 - 차가운 블랙과 얼음 화이트. 세련되고 시크한 다크 감성.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <h2 class="section-title" style="margin-bottom: 80px;">Artisan Features</h2>
+        <div class="feature-grid">
+            <div class="feature-item">
+                <span class="feature-icon">🖌️</span>
+                <h3>Artist Drawing</h3>
+                <p>6가지 감성 컬러 팔레트와 3단계 펜 굵기로 사진 위에 직접 손글씨를 남기세요. 당신만의 예술 작품이 완성됩니다.</p>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✨</span>
+                <h3>Premium Icons</h3>
+                <p>코부장이 직접 엄선한 50여종의 고퀄리티 3D 프리미엄 스티커와 베이직 팩이 완벽하게 지원됩니다.</p>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🚀</span>
+                <h3>Top-Speed Build</h3>
+                <p>데이터 유실 없는 안전한 저장과 위치 자동 보정 로직이 탑재되어 소중한 추억을 0.1초도 놓치지 않습니다.</p>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🗂️</span>
+                <h3>Memory Archive</h3>
+                <p>지하철역 부하 분산 기술이 적용된 로맨틱 지도 위에서 우리가 걸어온 자취를 한눈에 발견할 수 있습니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="recovery" class="recovery-archive">
+        <h2 class="section-title" style="font-size: 2.8rem; margin-bottom: 80px;">Recovery Archive</h2>
+        
+        <div class="archive-item">
+            <h4>v1.14.0 - [Sky Journey & Cute Zoo Edition]</h4>
+            <p>오늘의 역작입니다. 7종의 비행 애니메이션 탈것과 10종의 프리미엄 동물 스티커가 공식 합류한 최신 빌드입니다.</p>
+            <a href="NewDateMapDiary_v1.14.0_SkyJourney.apk" style="color: var(--accent-gold); text-decoration: underline;">Latest Master APK 다운로드</a>
+        </div>
+
+        <div class="archive-item">
+            <h4>v1.13.0 - [Artist Drawing Masterpiece]</h4>
+            <p>디지털 손편지(직접 그리기) 기능과 5대 테마가 완벽 통합된 배포 빌드입니다.</p>
+            <a href="NewDateMapDiary_v1.13.0_Final.apk" style="color: var(--accent-gold); text-decoration: underline;">Previous APK (v13)</a>
+        </div>
+
+        <div class="archive-item">
+            <h4>v1.12.0 - [Ghost Cleaner Edition]</h4>
+            <p>스티커 용량 최적화와 고스트 픽셀 제거 로직이 적용된 버전입니다.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 HereWithYou. Crafted by Manager Kodari & Creative Director Yeong-ja.</p>
+    </footer>
+
+</body>
+</html>
