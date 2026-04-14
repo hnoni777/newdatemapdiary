@@ -96,7 +96,7 @@
             android:orientation="horizontal"
             android:paddingHorizontal="24dp"
             android:paddingBottom="20dp"
-            android:weightSum="4">
+            android:weightSum="5">
             
             <LinearLayout
                 android:id="@+id/btn_category_text"
@@ -149,9 +149,23 @@
                 android:gravity="center"
                 android:background="@drawable/bg_glass_card_premium"
                 android:paddingVertical="10dp"
-                android:layout_marginStart="3dp">
+                android:layout_marginHorizontal="3dp">
                 <TextView android:layout_width="20dp" android:layout_height="20dp" android:text="✏️" android:gravity="center" android:textSize="14sp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="그리기" android:textColor="@color/white" android:textSize="10sp" android:layout_marginTop="3dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_category_marker"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_glass_card_premium"
+                android:paddingVertical="10dp"
+                android:layout_marginStart="3dp">
+                <TextView android:layout_width="20dp" android:layout_height="20dp" android:text="📍" android:gravity="center" android:textSize="14sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="지도 핀" android:textColor="@color/white" android:textSize="10sp" android:layout_marginTop="3dp"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -301,17 +315,30 @@
                         android:layout_centerVertical="true"/>
                 </RelativeLayout>
 
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:scrollbars="none">
-                    <LinearLayout
+                    <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:background="@drawable/bg_glass_card_premium"
-                        android:paddingHorizontal="16dp">
+                        android:layout_height="wrap_content"
+                        android:text="어떤 분위기로 기록할까요?"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginStart="4dp"/>
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:scrollbars="none">
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_glass_card_premium"
+                            android:paddingHorizontal="16dp">
+                        <TextView android:id="@+id/btn_effect_premium_leather" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="💍 화이트 레더" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="#2C2C2C" android:textColor="#FFD700" android:textStyle="bold" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_premium_glass" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🧊 프로스트 글래스" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="#2C2C2C" android:textColor="#FFD700" android:textStyle="bold" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                        <TextView android:id="@+id/btn_effect_premium_film" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🎞️ 빈티지 필름 골드" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="#2C2C2C" android:textColor="#FFD700" android:textStyle="bold" android:textSize="12sp" android:layout_marginEnd="8dp"/>
                         <TextView android:id="@+id/btn_effect_oatmeal" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🌾 오트밀 무드" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
                         <TextView android:id="@+id/btn_effect_matcha" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🍵 말차 포레스트" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
                         <TextView android:id="@+id/btn_effect_peach" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🍑 피치 블러쉬" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="@color/glass_white_10" android:textColor="@color/white" android:textSize="12sp" android:layout_marginEnd="8dp"/>
@@ -341,6 +368,33 @@
                     </LinearLayout>
                 </HorizontalScrollView>
 
+                <!-- Premium Theme Category -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✨ 프리미엄 테마 (한정판)"
+                    android:textColor="#FFD700"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginStart="4dp"/>
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:scrollbars="none">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_glass_card_premium"
+                        android:paddingHorizontal="16dp">
+                        <TextView android:id="@+id/btn_effect_premium_coming_soon" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center" android:paddingHorizontal="14dp" android:text="🔥 진짜를 기대하세요 (Coming Soon)" android:background="@drawable/bg_glass_card_premium" android:backgroundTint="#1A1A1A" android:textColor="#888888" android:textStyle="italic" android:textSize="12sp" android:layout_marginEnd="8dp"/>
+                    </LinearLayout>
+                </HorizontalScrollView>
+
 
                 <Button
                     android:id="@+id/btn_done_theme"
@@ -360,6 +414,38 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/btn_create_face_sticker"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:background="@drawable/bg_glass_card_premium"
+                    android:layout_marginBottom="16dp"
+                    android:paddingHorizontal="20dp"
+                    android:elevation="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📸 나만의 얼굴 스티커 만들기"
+                        android:textColor="@color/champagne_gold"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.02"/>
+                    <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="NEW"
+                        android:textColor="#FF5252"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:background="@drawable/bg_white_pill_translucent"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="2dp"
+                        android:layout_marginStart="8dp"/>
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -432,6 +518,50 @@
                     android:textStyle="bold"
                     android:backgroundTint="@color/glass_white_20"
                     android:layout_marginTop="20dp"/>
+            </LinearLayout>
+
+            <!-- 📍 [Map Pin Panel] 사장님 요청 개별 핀 선택 기능 -->
+            <LinearLayout
+                android:id="@+id/panel_marker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+                
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📍 이 장소의 지도 핀 선택"
+                    android:textColor="@color/champagne_gold"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="내 추억지도에 표시될 핀을 골라보세요. (다른 핀에는 영향을 주지 않아요!)"
+                    android:textColor="#B0B0B0"
+                    android:textSize="10sp"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/kyobo_hand_family" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_editor_profile_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp" />
+
+                <Button
+                    android:id="@+id/btn_done_marker"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:text="완료"
+                    android:textColor="#1A1A1A"
+                    android:textStyle="bold"
+                    android:backgroundTint="@color/champagne_gold"
+                    android:layout_marginTop="8dp"/>
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>

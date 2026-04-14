@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>광명시 대형 스텐실 (15cm - 글자별 분리 버전)</title>
+    <style>
+        /* A4 가로 인쇄 설정 */
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: #222;
+        }
+
+        /* 각 페이지는 A4 가로 사이즈 (297x210) */
+        .stencil-page {
+            width: 297mm;
+            height: 210mm;
+            background: white;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            page-break-after: always;
+            overflow: hidden;
+        }
+
+        /* SVG로 글자 렌더링 - 정밀도 극대화 */
+        .letter-svg {
+            width: 250mm; /* 충분한 폭 확보 */
+            height: 150mm; /* 요청하신 15cm 높이 */
+        }
+
+        .btn-print {
+            position: fixed; top: 20px; right: 20px; padding: 15px 40px;
+            background: #2980b9; color: white; border: none; border-radius: 8px;
+            font-weight: bold; font-size: 1.2em; cursor: pointer; z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        }
+
+        /* 인쇄 시 스타일 */
+        @media print {
+            body { background: white; }
+            .stencil-page { margin: 0; box-shadow: none; border: none; }
+            .btn-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <button class="btn-print" onclick="window.print()">🖨️ 3페이지 모두 인쇄하기 (PDF)</button>
+
+    <!-- Page 1: 광 -->
+    <div class="stencil-page">
+        <svg class="letter-svg" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <mask id="mask-gwang">
+                    <rect width="100%" height="100%" fill="white" />
+                    <!-- ㅇ 부분 수직 관통 브릿지 (중앙 정렬) -->
+                    <rect x="98.5" y="0" width="3" height="150" fill="black" />
+                </mask>
+            </defs>
+            <text x="100" y="130" font-family="'Arial Black', 'Apple SD Gothic Neo', sans-serif" font-weight="900" font-size="140" text-anchor="middle" fill="black" mask="url(#mask-gwang)">광</text>
+        </svg>
+    </div>
+
+    <!-- Page 2: 명 -->
+    <div class="stencil-page">
+        <svg class="letter-svg" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <mask id="mask-myeong">
+                    <rect width="100%" height="100%" fill="white" />
+                    <!-- ㅁ과 ㅇ 부분 수직 관통 브릿지 -->
+                    <!-- 명에서 ㅁ은 중심이 왼쪽(72), ㅇ은 중심이 오른쪽(128) 근처에 위치함 -->
+                    <rect x="70.5" y="0" width="3.5" height="150" fill="black" /> 
+                    <rect x="127.5" y="0" width="3.5" height="150" fill="black" />
+                </mask>
+            </defs>
+            <text x="100" y="130" font-family="'Arial Black', 'Apple SD Gothic Neo', sans-serif" font-weight="900" font-size="140" text-anchor="middle" fill="black" mask="url(#mask-myeong)">명</text>
+        </svg>
+    </div>
+
+    <!-- Page 3: 시 -->
+    <div class="stencil-page">
+        <svg class="letter-svg" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+            <text x="100" y="130" font-family="'Arial Black', 'Apple SD Gothic Neo', sans-serif" font-weight="900" font-size="140" text-anchor="middle" fill="black">시</text>
+        </svg>
+    </div>
+
+</body>
+</html>

@@ -2,8 +2,10 @@ package io.github.hnoni777.newdatemapdiary
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -53,11 +55,22 @@ class MemoryMapActivity : AppCompatActivity() {
     private var cachedAirplaneBitmap: Bitmap? = null
     private val markerBitmapCache = mutableMapOf<String, Bitmap>() // 📸 [최적화] 핀 비트맵 캐시
 
+    // 🎨 [NEW] 지도 화면에서도 프로필 스티커 생성 가능하도록 선택기 추가
+    private val pickProfileImage = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { processProfileSticker(it) }
+    }
+
     // 💎 [프리미엄 설정 키]
     private val PREFS_NAME = "MapPremiumPrefs"
     private val KEY_VEHICLE = "map_vehicle"
     private val KEY_COLOR = "map_color"
     private val KEY_PHOTO_PINS = "map_photo_pins"
+    
+    // 🔄 [최적화] 열려있는 프로필 관리 다이얼로그 참조
+    private var activeProfileDialog: com.google.android.material.bottomsheet.BottomSheetDialog? = null
+    private var activeProfileAdapter: androidx.recyclerview.widget.RecyclerView.Adapter<*>? = null
+    private var activeProfileList: MutableList<java.io.File>? = null
+    private val KEY_MARKER_MODE = "map_marker_mode"
     private val KEY_MAP_STYLE = "map_style"
 
     // 🕊️ 안드로이드 10/11+ 갤러리 삭제 승인을 위한 런처
@@ -72,6 +85,13 @@ class MemoryMapActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_memory_map)
+
+        // 🛡️ [비공개 테스트 모드] 지도 화면 강제 진입 차단
+        if (AppConfig.IS_TEST_MODE) {
+            Toast.makeText(this, "준비 중인 기능입니다.", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
         dbHelper = MemoryDatabaseHelper(this)
         memories = dbHelper.getAllMemories()
@@ -115,6 +135,7 @@ class MemoryMapActivity : AppCompatActivity() {
             override fun onMapDestroy() {}
             override fun onMapError(error: Exception) {
                 Log.e("MEMORY_MAP", error.toString())
+                Toast.makeText(this@MemoryMapActivity, "지도 로딩 오류: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         }, object : KakaoMapReadyCallback() {
             override fun onMapReady(map: KakaoMap) {
@@ -124,6 +145,7 @@ class MemoryMapActivity : AppCompatActivity() {
                 applyMapStyle(map, false)
                 
                 showMemoriesOnMap()
+                handleIncomingLink(intent)
 
                 map.setOnLabelClickListener { _, _, label ->
                     val tagAddr = label.tag as? String ?: ""
@@ -163,8 +185,10 @@ class MemoryMapActivity : AppCompatActivity() {
         val layerId = "memories_layer"
         
         // 1️⃣ 기존 핀 완전 박멸 (유령 핀 방지)
-        // 레이어를 가져와서 모든 라벨을 지웁니다.
-        val layer = labelManager.getLayer(layerId) ?: labelManager.addLayer(LabelLayerOptions.from(layerId))
+        // 🚀 [핀 우선순위 상향] 지명(POI)이나 노선보다 항상 위에 보이도록 2,000점 부여
+        val layer = labelManager.getLayer(layerId) ?: labelManager.addLayer(
+            LabelLayerOptions.from(layerId).setZOrder(2000)
+        )
         layer?.removeAll() 
 
         if (memories.isEmpty()) {
@@ -179,35 +203,97 @@ class MemoryMapActivity : AppCompatActivity() {
 
         // 💎 프리미엄 설정 로드
         val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val showPhotoPins = prefs.getBoolean(KEY_PHOTO_PINS, false)
+        val markerMode = prefs.getString(KEY_MARKER_MODE, "default")
 
         groups.forEach { (normAddr, group) ->
             // 그룹 중 가장 최근 데이터의 좌표에 핀 하나만 꽂음
             val rep = group.first()
             val latestRating = rep.rating
             
-            val finalMarkerBitmap = if (showPhotoPins) {
-                // 📸 [프리미엄] 실제 사진 핀 생성 (기본 핀보다 우선순위 높음)
-                val cacheKey = "photo_${rep.photoUri}_${latestRating}"
-                markerBitmapCache[cacheKey] ?: run {
-                    val miniPhoto = createMiniPhotoMarker(rep.photoUri)
-                    val result = if (miniPhoto != null) {
-                        if (latestRating > 0) drawRatingStarsToBitmap(miniPhoto, latestRating) else miniPhoto
-                    } else {
-                        val baseMarkerRes = R.drawable.ic_red_heart_marker
-                        if (latestRating > 0) drawRatingStarsToBitmap(vectorToBitmap(baseMarkerRes), latestRating) else vectorToBitmap(baseMarkerRes)
-                    }
-                    markerBitmapCache[cacheKey] = result
-                    result
-                }
+            // 📍 [대표님 지시] 우선순위 조정: 전체 설정(기본핀/사진핀)이 우선하되, 
+            // 프로필 모드일 때만 개별 설정된 프로필 스티커를 보여줍니다.
+            val memoryProfileSticker = rep.profileSticker
+            val effectiveMode = if (markerMode == "profile" && !memoryProfileSticker.isNullOrEmpty()) {
+                "individual_profile"
             } else {
-                // 기본 핀
-                val cacheKey = "default_${latestRating}"
-                markerBitmapCache[cacheKey] ?: run {
-                    val baseMarkerRes = R.drawable.ic_red_heart_marker 
-                    val result = if (latestRating > 0) drawRatingStarsToBitmap(vectorToBitmap(baseMarkerRes), latestRating) else vectorToBitmap(baseMarkerRes)
-                    markerBitmapCache[cacheKey] = result
-                    result
+                markerMode
+            }
+
+            val finalMarkerBitmap = when (effectiveMode) {
+                "individual_profile" -> {
+                    // 이 추억에 개별 설정된 프로필 핀
+                    val profileDir = java.io.File(filesDir, "profile_stickers")
+                    val profileFile = java.io.File(profileDir, memoryProfileSticker!!)
+                    if (profileFile.exists()) {
+                        val cacheKey = "iprofile_${memoryProfileSticker}_${latestRating}"
+                        markerBitmapCache[cacheKey] ?: run {
+                            val miniProfile = createMiniProfileMarker(profileFile.absolutePath)
+                            val result = if (miniProfile != null) {
+                                if (latestRating > 0) drawRatingStarsToBitmap(miniProfile, latestRating) else miniProfile
+                            } else {
+                                val baseMarkerRes = R.drawable.ic_red_heart_marker
+                                if (latestRating > 0) drawRatingStarsToBitmap(vectorToBitmap(baseMarkerRes), latestRating) else vectorToBitmap(baseMarkerRes)
+                            }
+                            markerBitmapCache[cacheKey] = result
+                            result
+                        }
+                    } else {
+                        val cacheKey = "default_${latestRating}"
+                        markerBitmapCache[cacheKey] ?: run {
+                            val baseMarkerRes = R.drawable.ic_red_heart_marker
+                            val result = if (latestRating > 0) drawRatingStarsToBitmap(vectorToBitmap(baseMarkerRes), latestRating) else vectorToBitmap(baseMarkerRes)
+                            markerBitmapCache[cacheKey] = result
+                            result
+                        }
+                    }
+                }
+                "photo" -> {
+                    val cacheKey = "photo_${rep.photoUri}_${latestRating}"
+                    markerBitmapCache[cacheKey] ?: run {
+                        val miniPhoto = createMiniPhotoMarker(rep.photoUri)
+                        val result = if (miniPhoto != null) {
+                            if (latestRating > 0) drawRatingStarsToBitmap(miniPhoto, latestRating) else miniPhoto
+                        } else {
+                            val baseMarkerRes = R.drawable.ic_red_heart_marker
+                            if (latestRating > 0) drawRatingStarsToBitmap(vectorToBitmap(baseMarkerRes), latestRating) else vectorToBitmap(baseMarkerRes)
+                        }
+                        markerBitmapCache[cacheKey] = result
+                        result
+                    }
+                }
+                "profile" -> {
+                    val profileFile = ProfileStickerManager.getSelectedProfileFile(this)
+                    if (profileFile != null && profileFile.exists()) {
+                        val cacheKey = "profile_${profileFile.name}_${latestRating}"
+                        markerBitmapCache[cacheKey] ?: run {
+                            val miniProfile = createMiniProfileMarker(profileFile.absolutePath)
+                            val result = if (miniProfile != null) {
+                                if (latestRating > 0) drawRatingStarsToBitmap(miniProfile, latestRating) else miniProfile
+                            } else {
+                                val baseMarkerRes = R.drawable.ic_red_heart_marker
+                                if (latestRating > 0) drawRatingStarsToBitmap(vectorToBitmap(baseMarkerRes), latestRating) else vectorToBitmap(baseMarkerRes)
+                            }
+                            markerBitmapCache[cacheKey] = result
+                            result
+                        }
+                    } else {
+                        val cacheKey = "default_${latestRating}"
+                        markerBitmapCache[cacheKey] ?: run {
+                            val baseMarkerRes = R.drawable.ic_red_heart_marker
+                            val result = if (latestRating > 0) drawRatingStarsToBitmap(vectorToBitmap(baseMarkerRes), latestRating) else vectorToBitmap(baseMarkerRes)
+                            markerBitmapCache[cacheKey] = result
+                            result
+                        }
+                    }
+                }
+                else -> {
+                    val cacheKey = "default_${latestRating}"
+                    markerBitmapCache[cacheKey] ?: run {
+                        val baseMarkerRes = R.drawable.ic_red_heart_marker
+                        val result = if (latestRating > 0) drawRatingStarsToBitmap(vectorToBitmap(baseMarkerRes), latestRating) else vectorToBitmap(baseMarkerRes)
+                        markerBitmapCache[cacheKey] = result
+                        result
+                    }
                 }
             }
             
@@ -311,7 +397,24 @@ class MemoryMapActivity : AppCompatActivity() {
         btnShare.setOnClickListener {
             if (currentPosition < 0 || currentPosition >= mutableGroup.size) return@setOnClickListener
             val target = mutableGroup[currentPosition]
-            shareImage(Uri.parse(target.photoUri))
+            val shareDialog = com.google.android.material.bottomsheet.BottomSheetDialog(this@MemoryMapActivity, R.style.TransparentBottomSheetDialog)
+            val shareView = layoutInflater.inflate(R.layout.dialog_share_selection, null)
+            shareView.findViewById<View>(R.id.btn_share_card_direct).setOnClickListener {
+                shareImage(Uri.parse(target.photoUri))
+                shareDialog.dismiss()
+            }
+            // 🛡️ [비공개 테스트 모드] 상대방 지도에 흔적 남기기(카카오 공유) 숨기기
+            if (AppConfig.IS_TEST_MODE) {
+                shareView.findViewById<View>(R.id.btn_share_pin_direct)?.visibility = View.GONE
+            } else {
+                shareView.findViewById<View>(R.id.btn_share_pin_direct).setOnClickListener {
+                    shareToLoverViaKakao(target)
+                    shareDialog.dismiss()
+                    dialog.dismiss()
+                }
+            }
+            shareDialog.setContentView(shareView)
+            shareDialog.show()
         }
 
         btnGetDirections.setOnClickListener {
@@ -556,19 +659,21 @@ class MemoryMapActivity : AppCompatActivity() {
     }
 
     private fun syncMemoriesFromGallery() {
-        // 1️⃣ 현재 DB 상태 파악
+        // 1️⃣ [불사조 프로필] 프로필 사진 백업본이 있다면 먼저 복구 시도
+        ProfileStickerManager.restoreProfileFromGallery(this)
+
         val currentDbList = dbHelper.getAllMemories()
-        
-        // 🛡️ [지문 1] 고유 URI 리스트
         val existingUris = currentDbList.map { it.photoUri }.toMutableSet()
 
         var restoredCount = 0
+        var profileNamesRestored = false
         val projection = arrayOf(
             MediaStore.Images.Media._ID, 
             MediaStore.Images.Media.DATE_ADDED
         )
-        val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?"
-        val selectionArgs = arrayOf("%NewDateMapDiary%")
+        // 📁 [브랜드 폴더 이름 반영] HereWithYou 폴더 스캔
+        val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ? AND ${MediaStore.Images.Media.DISPLAY_NAME} LIKE ?"
+        val selectionArgs = arrayOf("%HereWithYou%", "DateMapDiary_Card_%")
 
         try {
             contentResolver.query(
@@ -587,9 +692,6 @@ class MemoryMapActivity : AppCompatActivity() {
                     val contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
                     val uriString = contentUri.toString()
 
-                    // [체크 A] URI가 이미 있으면 패스
-                    if (existingUris.contains(uriString)) continue
-
                     try {
                         contentResolver.openInputStream(contentUri)?.use { input ->
                             val exif = androidx.exifinterface.media.ExifInterface(input)
@@ -597,6 +699,20 @@ class MemoryMapActivity : AppCompatActivity() {
 
                             if (!jsonMeta.isNullOrEmpty()) {
                                 val jsonObj = JSONObject(jsonMeta)
+                                
+                                // 🛡️ [불사조 이름 복구] 사진 EXIF에서 닉네임 정보를 긁어옴
+                                if (!profileNamesRestored) {
+                                    val sender = jsonObj.optString("sender", "")
+                                    val receiver = jsonObj.optString("receiver", "")
+                                    if (sender.isNotEmpty() && receiver.isNotEmpty()) {
+                                        ProfileStickerManager.setMyName(this, sender)
+                                        ProfileStickerManager.setPartnerName(this, receiver)
+                                        profileNamesRestored = true
+                                    }
+                                }
+
+                                if (existingUris.contains(uriString)) return@use // 이미 있는 카드는 정보 습득 후 패스
+
                                 val lat = jsonObj.optDouble("lat", 0.0)
                                 val lng = jsonObj.optDouble("lng", 0.0)
                                 val rawAddr = jsonObj.optString("addr", "")
@@ -610,9 +726,7 @@ class MemoryMapActivity : AppCompatActivity() {
                                     lng = lng,
                                     date = dateMillis
                                 )
-                                // 📍 [핵심] DB에 즉시 영구 저장. 중복 핀 로직은 지도 표출단에서 주소(normalizeAddress) 기준으로만 하나로 묶임
                                 dbHelper.insertMemory(newMemory)
-                                
                                 existingUris.add(uriString)
                                 restoredCount++
                             }
@@ -626,10 +740,13 @@ class MemoryMapActivity : AppCompatActivity() {
             Log.e("SYNC", "Query error", e)
         }
 
-        // 3️⃣ 갱신 결과 반영
-        if (restoredCount > 0) {
-            Toast.makeText(this, "${restoredCount}개의 추억이 종갓집 DB에 합병되었습니다!", Toast.LENGTH_LONG).show()
-            // 무조건 최신 DB에서 다시 불러오기
+        if (restoredCount > 0 || profileNamesRestored) {
+            val msg = if (profileNamesRestored) {
+                "${restoredCount}개의 추억과 우리의 프로필 정보가 복구되었습니다! ✨"
+            } else {
+                "${restoredCount}개의 추억이 복구되었습니다!"
+            }
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
             memories = dbHelper.getAllMemories()
             showMemoriesOnMap()
         } else {
@@ -702,6 +819,7 @@ class MemoryMapActivity : AppCompatActivity() {
         super.onPause()
         mapView.pause()
     }
+
 
     private fun startPathAnimation() {
         val map = kakaoMap ?: return
@@ -1102,7 +1220,10 @@ class MemoryMapActivity : AppCompatActivity() {
 
                 runOnUiThread {
                     val labelManager = map.labelManager ?: return@runOnUiThread
-                    val layer = labelManager.getLayer("popup_layer") ?: labelManager.addLayer(LabelLayerOptions.from("popup_layer"))
+                    // 🚀 [카드 최우선순위] 핀(2000점)보다 항상 위에 보이도록 5,000점 부여
+                    val layer = labelManager.getLayer("popup_layer") ?: labelManager.addLayer(
+                        LabelLayerOptions.from("popup_layer").setZOrder(5000)
+                    )
                     
                     val styles = LabelStyles.from(LabelStyle.from(photoBitmap).setAnchorPoint(0.5f, 1.1f))
                     layer?.addLabel(LabelOptions.from(pos).setStyles(styles))
@@ -1222,8 +1343,13 @@ class MemoryMapActivity : AppCompatActivity() {
             }
         }
 
-        val swPhotoPins = view.findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switch_photo_markers)
+        val rgMarkerMode = view.findViewById<android.widget.RadioGroup>(R.id.rg_marker_mode)
         val btnSave = view.findViewById<android.widget.Button>(R.id.btn_save_settings)
+        
+        view.findViewById<View>(R.id.btn_open_profile_manager)?.setOnClickListener {
+            dialog.dismiss()
+            showProfileManagerDialog()
+        }
         
         // 기존 값 세팅
         when(prefs.getString(KEY_VEHICLE, "jet")) {
@@ -1243,7 +1369,11 @@ class MemoryMapActivity : AppCompatActivity() {
             else -> rbGray.isChecked = true
         }
         
-        swPhotoPins.isChecked = prefs.getBoolean(KEY_PHOTO_PINS, false)
+        when (prefs.getString(KEY_MARKER_MODE, "default")) {
+            "photo" -> rgMarkerMode.check(R.id.rb_marker_photo)
+            "profile" -> rgMarkerMode.check(R.id.rb_marker_profile)
+            else -> rgMarkerMode.check(R.id.rb_marker_default)
+        }
         
 
         btnSave.setOnClickListener {
@@ -1267,7 +1397,12 @@ class MemoryMapActivity : AppCompatActivity() {
                 else -> "#E0E0E0"
             }
             editor.putString(KEY_COLOR, color)
-            editor.putBoolean(KEY_PHOTO_PINS, swPhotoPins.isChecked)
+            val markerMode = when (rgMarkerMode.checkedRadioButtonId) {
+                R.id.rb_marker_photo -> "photo"
+                R.id.rb_marker_profile -> "profile"
+                else -> "default"
+            }
+            editor.putString(KEY_MARKER_MODE, markerMode)
             
 
             editor.apply()
@@ -1280,6 +1415,7 @@ class MemoryMapActivity : AppCompatActivity() {
         }
         
         dialog.setContentView(view)
+        (view.parent as? View)?.setBackgroundColor(Color.TRANSPARENT)
         dialog.show()
     }
 
@@ -1351,33 +1487,96 @@ class MemoryMapActivity : AppCompatActivity() {
             canvasCircle.drawBitmap(scaled, 0f, 0f, paintCircle)
 
             // 5. 프레임 비트맵 생성 (둥근 테두리 및 핀 꼬리)
-            val output = Bitmap.createBitmap(targetSize + 20, targetSize + 40, Bitmap.Config.ARGB_8888)
+            val output = Bitmap.createBitmap(targetSize + 24, targetSize + 46, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(output)
             val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
 
-            // 원형 화이트 보더
-            paint.color = Color.WHITE
+            // 🏆 [코부장 튜닝] 시그니처 골드 보더 적용
+            paint.color = Color.parseColor("#D4AF37")
             paint.style = android.graphics.Paint.Style.STROKE
-            paint.strokeWidth = 7f
-            canvas.drawCircle((targetSize + 20) / 2f, (targetSize + 20) / 2f, targetSize / 2f + 2f, paint)
+            paint.strokeWidth = 9f // 테두리를 조금 더 묵직하게
+            canvas.drawCircle((targetSize + 24) / 2f, (targetSize + 24) / 2f, targetSize / 2f + 4f, paint)
 
-            // 꼬리 삼각형 (원형 핀 끝부분 하단 중앙)
+            // 🏆 골드 꼬리 삼각형
             paint.style = android.graphics.Paint.Style.FILL
             val path = android.graphics.Path()
-            path.moveTo((targetSize + 20) / 2f - 14f, (targetSize + 20).toFloat() - 5f)
-            path.lineTo((targetSize + 20) / 2f + 14f, (targetSize + 20).toFloat() - 5f)
-            path.lineTo((targetSize + 20) / 2f, (targetSize + 36).toFloat())
+            path.moveTo((targetSize + 24) / 2f - 16f, (targetSize + 24).toFloat() - 4f)
+            path.lineTo((targetSize + 24) / 2f + 16f, (targetSize + 24).toFloat() - 4f)
+            path.lineTo((targetSize + 24) / 2f, (targetSize + 42).toFloat())
             path.close()
             canvas.drawPath(path, paint)
 
             // 사진 그리기
-            canvas.drawBitmap(circleBitmap, 10f, 10f, null)
+            canvas.drawBitmap(circleBitmap, 12f, 12f, null)
             
             // 메모리 해제
             if (original != cropped) original.recycle()
             cropped.recycle()
             circleBitmap.recycle()
             
+            output
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun createMiniProfileMarker(filePath: String): Bitmap? {
+        return try {
+            val targetSize = 124
+
+            // 1. 메모리 절약: 먼저 사이즈만 체크
+            val options = android.graphics.BitmapFactory.Options()
+            options.inJustDecodeBounds = true
+            android.graphics.BitmapFactory.decodeFile(filePath, options)
+
+            // 2. 고품질 다운샘플링
+            options.inSampleSize = calculateInSampleSize(options, targetSize, targetSize)
+            options.inJustDecodeBounds = false
+            val original = android.graphics.BitmapFactory.decodeFile(filePath, options) ?: return null
+
+            // 3. 중앙 정사각형 크롭
+            val rawSize = Math.min(original.width, original.height)
+            val x = (original.width - rawSize) / 2
+            val y = (original.height - rawSize) / 2
+            val cropped = Bitmap.createBitmap(original, x, y, rawSize, rawSize)
+            val scaled = Bitmap.createScaledBitmap(cropped, targetSize, targetSize, true)
+
+            // 4. 원형 마스킹
+            val circleBitmap = Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
+            val canvasCircle = Canvas(circleBitmap)
+            val paintCircle = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+            paintCircle.isFilterBitmap = true
+            canvasCircle.drawCircle(targetSize / 2f, targetSize / 2f, targetSize / 2f, paintCircle)
+            paintCircle.xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN)
+            canvasCircle.drawBitmap(scaled, 0f, 0f, paintCircle)
+
+            // 5. 프레임 + 꼬리
+            val borderWidth = 8
+            val frameSize = targetSize + borderWidth * 2
+            val output = Bitmap.createBitmap(frameSize, frameSize + 24, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(output)
+            val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+
+            // 🏆 시그니처 골드 배경
+            paint.color = Color.parseColor("#D4AF37")
+            paint.style = android.graphics.Paint.Style.FILL
+            canvas.drawCircle(frameSize / 2f, frameSize / 2f, frameSize / 2f, paint)
+
+            // 🏆 골드 꼬리 삼각형
+            val path = android.graphics.Path()
+            path.moveTo(frameSize / 2f - 18f, frameSize.toFloat() - 4f)
+            path.lineTo(frameSize / 2f + 18f, frameSize.toFloat() - 4f)
+            path.lineTo(frameSize / 2f, (frameSize + 22).toFloat())
+            path.close()
+            canvas.drawPath(path, paint)
+
+            // 사진을 테두리 안쪽에 꽉 차게 배치 (공백 없음)
+            canvas.drawBitmap(circleBitmap, borderWidth.toFloat(), borderWidth.toFloat(), null)
+
+            if (original != cropped) original.recycle()
+            cropped.recycle()
+            circleBitmap.recycle()
+
             output
         } catch (e: Exception) {
             null
@@ -1398,10 +1597,362 @@ class MemoryMapActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         flightAnimator?.cancel()
         cachedAirplaneBitmap?.recycle()
         cachedAirplaneBitmap = null
         mapView.finish()
+        super.onDestroy()
+    }
+
+    private fun shareToLoverViaKakao(target: Memory) {
+        val shareDialog = com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.TransparentBottomSheetDialog)
+        val shareView = layoutInflater.inflate(R.layout.dialog_share_names, null)
+        val etSender = shareView.findViewById<android.widget.EditText>(R.id.et_share_sender)
+        val etReceiver = shareView.findViewById<android.widget.EditText>(R.id.et_share_receiver)
+        val btnConfirm = shareView.findViewById<android.widget.Button>(R.id.btn_confirm_share)
+        
+        // 💡 특정 이름을 강제로 채우지 않고 '입력하세요' 힌트가 보이도록 함
+        
+        btnConfirm.setOnClickListener {
+            val senderName = etSender.text.toString().trim()
+            val receiverName = etReceiver.text.toString().trim()
+            if (senderName.isNotEmpty() && receiverName.isNotEmpty()) {
+                ProfileStickerManager.setMyName(this, senderName)
+                ProfileStickerManager.setPartnerName(this, receiverName)
+                shareDialog.dismiss()
+                proceedToShare(target, senderName, receiverName)
+            }
+        }
+        shareDialog.setContentView(shareView)
+        shareDialog.show()
+    }
+
+    private fun createShareCoverGraphic(senderName: String, receiverName: String): Bitmap {
+        val size = 1000
+        val result = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(result)
+        val bgPaint = android.graphics.Paint().apply {
+            shader = android.graphics.LinearGradient(0f, 0f, 0f, size.toFloat(),
+                intArrayOf(Color.parseColor("#1A1A1A"), Color.parseColor("#000000")),
+                null, android.graphics.Shader.TileMode.CLAMP)
+        }
+        canvas.drawRect(0f, 0f, size.toFloat(), size.toFloat(), bgPaint)
+        val logoPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#BBFFFFFF")
+            textSize = 34f
+            letterSpacing = 0.4f
+            textAlign = android.graphics.Paint.Align.CENTER
+            try { typeface = android.graphics.Typeface.create("serif", android.graphics.Typeface.BOLD) } catch (e: Exception) {}
+        }
+        canvas.drawText("H E R E   W I T H   Y O U", size / 2f, 100f, logoPaint)
+        val textPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            textAlign = android.graphics.Paint.Align.CENTER
+            try { typeface = androidx.core.content.res.ResourcesCompat.getFont(this@MemoryMapActivity, R.font.kyobo_hand_family) } catch (e: Exception) {}
+        }
+        textPaint.textSize = 62f
+        canvas.drawText("${senderName}님이", size / 2f, size / 2f - 60f, textPaint)
+        textPaint.apply { textSize = 68f; color = Color.parseColor("#FFD700") }
+        canvas.drawText("${receiverName}님에게", size / 2f, size / 2f + 20f, textPaint)
+        textPaint.apply { textSize = 54f; color = Color.WHITE }
+        canvas.drawText("소중한 추억의 장소를 공유합니다 📍", size / 2f, size / 2f + 110f, textPaint)
+        return result
+    }
+
+    private fun proceedToShare(target: Memory, senderName: String, receiverName: String) {
+        Toast.makeText(this, "우리만의 소중한 장소 공유를 준비합니다 ✨", Toast.LENGTH_SHORT).show()
+        kotlin.concurrent.thread {
+            try {
+                val uri = Uri.parse(target.photoUri)
+                val originalBitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+                
+                // 📍 [대표님 지시] 이 추억핀에 개별 설정된 프로필이 있다면 그걸 보냄! (없으면 전역 설정)
+                val myProfileBitmap = if (!target.profileSticker.isNullOrEmpty()) {
+                    ProfileStickerManager.getProfileBitmap(this@MemoryMapActivity, target.profileSticker!!)
+                } else {
+                    ProfileStickerManager.getSelectedProfileBitmap(this@MemoryMapActivity)
+                }
+                val coverBitmap = createShareCoverGraphic(senderName, receiverName)
+                
+                val coverFile = java.io.File(cacheDir, "share_cover.jpg")
+                coverFile.outputStream().use { coverBitmap.compress(Bitmap.CompressFormat.JPEG, 90, it) }
+                val originalFile = java.io.File(cacheDir, "share_original.jpg")
+                originalFile.outputStream().use { originalBitmap.compress(Bitmap.CompressFormat.JPEG, 85, it) }
+                val profileFile = if (myProfileBitmap != null) {
+                    val f = java.io.File(cacheDir, "sh_prof.png")
+                    f.outputStream().use { myProfileBitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                    f
+                } else null
+                runOnUiThread { uploadAndShareTriple(coverFile, originalFile, profileFile, target) }
+            } catch (e: Exception) { e.printStackTrace() }
+        }
+    }
+
+    private fun uploadAndShareTriple(coverFile: java.io.File, originalFile: java.io.File, profileFile: java.io.File?, target: Memory) {
+        com.kakao.sdk.share.ShareClient.instance.uploadImage(originalFile) { oResult, oError ->
+            if (oError != null || oResult == null) {
+                runOnUiThread { Toast.makeText(this@MemoryMapActivity, "이미지 업로드에 실패했습니다. 네트워크를 확인해주세요! 😢", Toast.LENGTH_SHORT).show() }
+                return@uploadImage
+            }
+            val oUrl = oResult.infos.original.url
+            
+            if (profileFile != null) {
+                com.kakao.sdk.share.ShareClient.instance.uploadImage(profileFile) { pResult, pError ->
+                    if (pError != null || pResult == null) {
+                        // 프로필 업로드 실패 시 메인 이미지만이라도 보냄
+                        com.kakao.sdk.share.ShareClient.instance.uploadImage(coverFile) { cResult, cError ->
+                            val cUrl = cResult?.infos?.original?.url ?: ""
+                            sendKakaoLinkWithProfile(cUrl, oUrl, "", target)
+                        }
+                    } else {
+                        val pUrl = pResult.infos.original.url
+                        com.kakao.sdk.share.ShareClient.instance.uploadImage(coverFile) { cResult, cError ->
+                            val cUrl = cResult?.infos?.original?.url ?: ""
+                            sendKakaoLinkWithProfile(cUrl, oUrl, pUrl, target)
+                        }
+                    }
+                }
+            } else {
+                com.kakao.sdk.share.ShareClient.instance.uploadImage(coverFile) { cResult, cError ->
+                    val cUrl = cResult?.infos?.original?.url ?: ""
+                    sendKakaoLinkWithProfile(cUrl, oUrl, "", target)
+                }
+            }
+        }
+    }
+
+    private fun sendKakaoLinkWithProfile(coverUrl: String, originalUrl: String, profileUrl: String, target: Memory) {
+        val executionParams = mutableMapOf(
+            "lat" to target.lat.toString(),
+            "lng" to target.lng.toString(),
+            "addr" to (target.address ?: ""),
+            "img" to originalUrl
+        )
+        if (profileUrl.isNotEmpty()) {
+            executionParams["profile"] = profileUrl
+        }
+        val feedTemplate = com.kakao.sdk.template.model.FeedTemplate(
+            content = com.kakao.sdk.template.model.Content(
+                title = "소중한 추억 ✨", description = "지도로 우리만의 비밀 장소를 확인해보세요!",
+                imageUrl = coverUrl, link = com.kakao.sdk.template.model.Link(androidExecutionParams = executionParams)
+            ),
+            buttons = listOf(com.kakao.sdk.template.model.Button("추억 확인하기", com.kakao.sdk.template.model.Link(androidExecutionParams = executionParams)))
+        )
+        com.kakao.sdk.share.ShareClient.instance.shareDefault(this, feedTemplate) { result, error ->
+            if (error == null && result != null) startActivity(result.intent)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIncomingLink(intent)
+    }
+
+    private fun handleIncomingLink(intent: Intent?) {
+        // 🛡️ [비공개 테스트 모드] 흔적 남기기 초대 수신 차단
+        if (AppConfig.IS_TEST_MODE) return
+
+        val uri = intent?.data ?: return
+        val lat = uri.getQueryParameter("lat")?.toDoubleOrNull()
+        val lng = uri.getQueryParameter("lng")?.toDoubleOrNull()
+        val addr = uri.getQueryParameter("addr")
+        val profileUrl = uri.getQueryParameter("profile")
+        if (lat != null && lng != null) {
+            kakaoMap?.let { map ->
+                val pos = LatLng.from(lat, lng)
+                if (!profileUrl.isNullOrEmpty()) {
+                    kotlin.concurrent.thread {
+                        val bitmap = downloadBitmapFromUrl(profileUrl)
+                        if (bitmap != null) {
+                            runOnUiThread {
+                                val framed = wrapProfileBitmapWithPremiumFrame(Bitmap.createScaledBitmap(bitmap, 130, 130, true), 130)
+                                val styles = LabelStyles.from(LabelStyle.from(framed).setAnchorPoint(0.5f, 1.0f))
+                                val layer = map.labelManager?.getLayer("shared") ?: map.labelManager?.addLayer(LabelLayerOptions.from("shared"))
+                                layer?.removeAll()
+                                layer?.addLabel(LabelOptions.from(pos).setStyles(styles).setTag(addr))
+                                map.moveCamera(CameraUpdateFactory.newCenterPosition(pos, 15), CameraAnimation.from(1000))
+                            }
+                        }
+                    }
+                } else {
+                    map.moveCamera(CameraUpdateFactory.newCenterPosition(pos, 15), CameraAnimation.from(1000))
+                }
+            }
+        }
+    }
+
+    private fun downloadBitmapFromUrl(u: String): Bitmap? = try {
+        val conn = java.net.URL(u).openConnection() as java.net.HttpURLConnection
+        conn.doInput = true; conn.connect()
+        android.graphics.BitmapFactory.decodeStream(conn.inputStream)
+    } catch (e: Exception) { null }
+
+    private fun wrapProfileBitmapWithPremiumFrame(src: Bitmap, size: Int): Bitmap {
+        val frameSize = size + 24 // 테두리를 조금 더 도톰하게
+        val tailHeight = 18f
+        val result = Bitmap.createBitmap(frameSize, (frameSize + tailHeight).toInt(), Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(result)
+        val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+
+        // 🏆 [App Signature Gold Color: #D4AF37]
+        val signatureGold = Color.parseColor("#D4AF37")
+        
+        // 1. 메인 골드 프레임 및 꼬리 그리기
+        paint.color = signatureGold
+        val path = android.graphics.Path().apply {
+            // 둥근 사각형 프레임
+            addRoundRect(0f, 0f, frameSize.toFloat(), frameSize.toFloat(), 25f, 25f, android.graphics.Path.Direction.CW)
+            // 하단 꼬리 (말풍선 형태)
+            moveTo(frameSize / 2f - 20f, frameSize.toFloat() - 2f)
+            lineTo(frameSize / 2f + 20f, frameSize.toFloat() - 2f)
+            lineTo(frameSize / 2f, frameSize.toFloat() + tailHeight)
+            close()
+        }
+        canvas.drawPath(path, paint)
+
+        // 2. 내부 다크 배경 (프로필이 돋보이도록)
+        paint.color = Color.parseColor("#1A1A1A")
+        canvas.drawRoundRect(6f, 6f, frameSize - 6f, frameSize - 6f, 20f, 20f, paint)
+
+        // 3. 프로필 비트맵 클리핑 및 드로잉
+        val clipPath = android.graphics.Path().apply {
+            addRoundRect(10f, 10f, frameSize - 10f, frameSize - 10f, 18f, 18f, android.graphics.Path.Direction.CW)
+        }
+        canvas.save()
+        canvas.clipPath(clipPath)
+        canvas.drawBitmap(src, null, android.graphics.RectF(10f, 10f, frameSize - 10f, frameSize - 10f), null)
+        canvas.restore()
+
+        return result
+    }
+
+    private fun processProfileSticker(uri: Uri) {
+        // 🔥 [최적화] 비트맵 디코딩 및 변환 작업을 백그라운드에서 실행
+        kotlin.concurrent.thread {
+            try {
+                runOnUiThread {
+                    Toast.makeText(this, "💑 프로필 스티커 생성 중...", Toast.LENGTH_SHORT).show()
+                }
+
+                val inputStream = contentResolver.openInputStream(uri)
+                val original = BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
+
+                // 🔄 [회전 보정] 사진 똑바로 세우기
+                val rotationInputStream = contentResolver.openInputStream(uri)
+                val exif = rotationInputStream?.let { androidx.exifinterface.media.ExifInterface(it) }
+                val orientation = exif?.getAttributeInt(androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION, androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL)
+                rotationInputStream?.close()
+
+                val matrix = Matrix()
+                when (orientation) {
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                }
+                val rotated = if (orientation != androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL) {
+                    Bitmap.createBitmap(original, 0, 0, original.width, original.height, matrix, true)
+                } else original
+
+                // 🎨 스티커 생성 (가장 최신 튜닝 버전: 풍성한 머리카락 + 프로필 스타일)
+                FaceStickerUtil.createFaceSticker(rotated) { sticker ->
+                    runOnUiThread {
+                        if (sticker != null) {
+                            ProfileStickerManager.saveProfileSticker(this, sticker)
+                            Toast.makeText(this, "새 프로필이 등록되었습니다! ✨", Toast.LENGTH_SHORT).show()
+                            
+                            // 🔄 [자동 새로고침] 다이얼로그가 열려있다면 즉시 반영
+                            activeProfileList?.let { list ->
+                                list.clear()
+                                list.addAll(ProfileStickerManager.getProfileStickers(this))
+                                activeProfileAdapter?.notifyDataSetChanged()
+                            }
+                        } else {
+                            Toast.makeText(this, "얼굴을 찾을 수 없습니다. 정면 사진을 사용해 주세요.", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("PROFILE_ERROR", e.message ?: "")
+            }
+        }
+    }
+
+    private fun showProfileManagerDialog() {
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.TransparentBottomSheetDialog)
+        activeProfileDialog = dialog
+        val view = layoutInflater.inflate(R.layout.dialog_profile_manager, null)
+
+        val rvList = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rv_profile_list)
+        val btnAdd = view.findViewById<View>(R.id.btn_add_profile)
+        val btnApply = view.findViewById<View>(R.id.btn_apply_profile)
+
+        val profiles = ProfileStickerManager.getProfileStickers(this).toMutableList()
+        activeProfileList = profiles
+
+        rvList.layoutManager = androidx.recyclerview.widget.GridLayoutManager(this, 3)
+        val adapter = object : androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
+            inner class ProfileViewHolder(v: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(v) {
+                val img = v.findViewById<ImageView>(R.id.img_profile_sticker)
+                val indicator = v.findViewById<View>(R.id.bg_selected_indicator)
+                val btnDelete = v.findViewById<View>(R.id.btn_delete_profile)
+            }
+            override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
+                return ProfileViewHolder(layoutInflater.inflate(R.layout.item_profile_sticker, parent, false))
+            }
+            override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
+                val h = holder as ProfileViewHolder
+                val file = profiles[position]
+                val selected = ProfileStickerManager.getSelectedProfileFilename(this@MemoryMapActivity)
+                com.bumptech.glide.Glide.with(this@MemoryMapActivity).load(file).into(h.img)
+                h.indicator.visibility = if (file.name == selected) View.VISIBLE else View.INVISIBLE
+                h.itemView.setOnClickListener {
+                    ProfileStickerManager.setSelectedProfile(this@MemoryMapActivity, file.name)
+                    notifyDataSetChanged()
+                }
+                h.btnDelete.setOnClickListener {
+                    androidx.appcompat.app.AlertDialog.Builder(this@MemoryMapActivity)
+                        .setTitle("프로필 삭제")
+                        .setMessage("이 프로필을 삭제할까요?")
+                        .setPositiveButton("삭제") { _, _ ->
+                            ProfileStickerManager.deleteProfileSticker(this@MemoryMapActivity, file.name)
+                            profiles.clear()
+                            profiles.addAll(ProfileStickerManager.getProfileStickers(this@MemoryMapActivity))
+                            notifyDataSetChanged()
+                        }
+                        .setNegativeButton("취소", null)
+                        .show()
+                }
+            }
+            override fun getItemCount() = profiles.size
+        }
+        activeProfileAdapter = adapter
+        rvList.adapter = adapter
+
+        btnAdd.setOnClickListener {
+            // 🔥 [개선] 다이얼로그를 닫지 않고 바로 선택기 실행!
+            pickProfileImage.launch("image/*")
+        }
+
+        btnApply.setOnClickListener {
+            val currentSelected = ProfileStickerManager.getSelectedProfileFilename(this)
+            if (currentSelected.isNullOrEmpty()) {
+                Toast.makeText(this, "먼저 적용할 프로필을 선택해 주세요!", Toast.LENGTH_SHORT).show()
+            } else {
+                markerBitmapCache.clear()
+                showMemoriesOnMap()
+                Toast.makeText(this, "프로필 핀이 지도에 적용되었습니다! ✨", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+        }
+
+        dialog.setContentView(view)
+        dialog.setOnDismissListener {
+            activeProfileDialog = null
+            activeProfileAdapter = null
+            activeProfileList = null
+        }
+        dialog.show()
     }
 }

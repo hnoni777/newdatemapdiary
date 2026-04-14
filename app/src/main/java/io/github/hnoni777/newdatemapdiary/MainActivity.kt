@@ -6,12 +6,15 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Base64
 import android.util.Log
+import java.security.MessageDigest
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -45,6 +48,12 @@ class MainActivity : AppCompatActivity() {
     private val KAKAO_REST_KEY = "83aa83329de094b2cf52a2e8a34206fa"
 
     private lateinit var cameraUri: Uri
+    
+    // 📍 [NEW] 프로필 스티커용 이미지 선택기
+    private val pickProfileImage = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { processProfileSticker(it) }
+    }
+
     private val cameraLauncher =
         registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.TakePicture()) { success ->
             if (success) {
@@ -63,11 +72,21 @@ class MainActivity : AppCompatActivity() {
     private var isFromDeepLink: Boolean = false
     private var deepLinkAddress: String = ""
 
+    // 📩 초대장 수신용 프리미엄 다이얼로그 관리
+    private var invitationDialog: android.app.Dialog? = null
+    private var statusDotsTimer: java.util.Timer? = null
+    
+    // 🔄 [최적화] 열려있는 프로필 관리 다이얼로그 참조
+    private var activeProfileDialog: com.google.android.material.bottomsheet.BottomSheetDialog? = null
+    private var activeProfileAdapter: androidx.recyclerview.widget.RecyclerView.Adapter<*>? = null
+    private var activeProfileList: MutableList<java.io.File>? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        KakaoMapSdk.init(this, "6cc7070982d3684fcac142f3f8f4a691")
         setContentView(R.layout.activity_main)
+
+        // 🗺️ 카카오 지도 인증 실패 해결을 위한 실제 해시 키 출력 (Logcat에서 KAKAO_HASH_KEY 로 검색)
+        printHashKey()
 
         addressText = findViewById(R.id.text_address)
 
@@ -84,11 +103,40 @@ class MainActivity : AppCompatActivity() {
         setupButtons()
         
         if (isFromDeepLink) {
-            startMap()
-            addressText.text = deepLinkAddress
-            showDeepLinkInvitationCard()
+            // 🛡️ [비공개 테스트 모드] 딥링크(흔적 남기기) 수신 차단
+            if (AppConfig.IS_TEST_MODE) {
+                addressText.text = "새로운 추억을 기록해보세요!"
+                requestLocationPermission()
+            } else {
+                startMap()
+                addressText.text = deepLinkAddress
+                showDeepLinkInvitationCard()
+            }
         } else {
             requestLocationPermission()
+        }
+
+        // ✨ [NEW] 대시보드 초기화 및 자동 갱신
+        refreshDashboard()
+
+        // 🛡️ [비공개 테스트 모드] 메인 진입로 은닉
+        if (AppConfig.IS_TEST_MODE) {
+            findViewById<View>(R.id.btn_memory_map)?.visibility = View.GONE
+            findViewById<View>(R.id.btn_profile_settings)?.visibility = View.GONE
+        }
+    }
+
+    private fun printHashKey() {
+        try {
+            val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+            info.signatures?.forEach { signature ->
+                val md = MessageDigest.getInstance("SHA")
+                md.update(signature.toByteArray())
+                val key = Base64.encodeToString(md.digest(), Base64.DEFAULT)
+                Log.d("KAKAO_HASH_KEY", "Key: $key")
+            }
+        } catch (e: Exception) {
+            Log.e("KAKAO_HASH_KEY", "Error getting hash key: ${e.message}")
         }
     }
 
@@ -116,15 +164,190 @@ class MainActivity : AppCompatActivity() {
             val latStr = data.getQueryParameter("lat")
             val lngStr = data.getQueryParameter("lng")
             val addrStr = data.getQueryParameter("addr")
+            val imgUrl = data.getQueryParameter("img")
+            val profUrl = data.getQueryParameter("profile")
             
             if (latStr != null && lngStr != null) {
                 currentLat = latStr.toDoubleOrNull() ?: 0.0
                 currentLng = lngStr.toDoubleOrNull() ?: 0.0
                 deepLinkAddress = addrStr ?: ""
                 isFromDeepLink = true
+                
+                // 🌉 [추가] 이미지가 있다면 다운로드 시도
+                if (!imgUrl.isNullOrEmpty()) {
+                    downloadDeepLinkImage(imgUrl, profUrl)
+                }
             }
         }
     }
+
+    private fun downloadDeepLinkImage(url: String, profUrl: String?) {
+        // 1️⃣ [초기화] 이전 다이얼로그나 타이머 정리
+        statusDotsTimer?.cancel()
+        runOnUiThread { invitationDialog?.dismiss() }
+
+        // 2️⃣ [다이얼로그 준비] 프리미엄 초대장 먼저 띄움
+        val dialog = android.app.Dialog(this)
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
+        val v = layoutInflater.inflate(R.layout.dialog_invitation_card, null)
+        dialog.setContentView(v)
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        dialog.setCancelable(false) // 다운로드 중 실수로 닫기 방지
+
+        val ivPreview = v.findViewById<ImageView>(R.id.iv_invitation_preview)
+        val tvStatus = v.findViewById<TextView>(R.id.tv_invitation_status)
+        val tvDots = v.findViewById<TextView>(R.id.tv_invitation_dots)
+        val pbLoading = v.findViewById<ProgressBar>(R.id.pb_invitation_loading)
+        val btnAccept = v.findViewById<Button>(R.id.btn_invitation_accept)
+        val btnCancel = v.findViewById<View>(R.id.btn_invitation_cancel)
+
+        // 🔘 취소 버튼 (나중에)
+        btnCancel.setOnClickListener {
+            statusDotsTimer?.cancel()
+            dialog.dismiss()
+        }
+
+        // ⏳ 점 애니메이션 시작
+        var dotCount = 0
+        statusDotsTimer = java.util.Timer().apply {
+            scheduleAtFixedRate(object : java.util.TimerTask() {
+                override fun run() {
+                    runOnUiThread {
+                        dotCount = (dotCount + 1) % 4
+                        tvDots.text = ".".repeat(dotCount)
+                    }
+                }
+            }, 0, 500)
+        }
+
+        invitationDialog = dialog
+        dialog.show()
+
+        // 3️⃣ [네트워크 작업] 백그라운드 스레드 시작
+        thread {
+            try {
+                if (url.isEmpty()) {
+                    runOnUiThread { 
+                        Toast.makeText(this@MainActivity, "공유 정보가 비어있습니다. 😢", Toast.LENGTH_SHORT).show() 
+                        dialog.dismiss()
+                    }
+                    return@thread
+                }
+
+                // 📸 1. 메인 이미지 다운로드
+                val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+                connection.doInput = true
+                connection.connect()
+                val bitmap = BitmapFactory.decodeStream(connection.inputStream)
+                
+                val file = java.io.File(cacheDir, "deeplink_shared_photo.jpg")
+                java.io.FileOutputStream(file).use { out -> bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out) }
+                photoUri = Uri.fromFile(file)
+
+                // 메인 사진 로딩 완료 시 미리보기 갱신
+                runOnUiThread {
+                    ivPreview.setImageBitmap(bitmap)
+                    tvStatus.text = "핀 정보를 확인하는 중"
+                }
+
+                // 👤 2. 프로필 핀 다운로드 (있을 경우)
+                var senderProfileFilename: String? = null
+                if (!profUrl.isNullOrEmpty()) {
+                    try {
+                        val pConn = java.net.URL(profUrl).openConnection() as java.net.HttpURLConnection
+                        pConn.doInput = true
+                        pConn.connect()
+                        val pBitmap = BitmapFactory.decodeStream(pConn.inputStream)
+                        if (pBitmap != null) {
+                            senderProfileFilename = ProfileStickerManager.saveProfileSticker(this@MainActivity, pBitmap)
+                        }
+                    } catch (pe: Exception) {
+                        Log.e("DEEPLINK_PROF", "Profile download failed", pe)
+                    }
+                }
+
+                // 🏁 3. 최종 완료 처리
+                runOnUiThread {
+                    statusDotsTimer?.cancel()
+                    tvDots.text = "!"
+                    tvStatus.text = "수신 완료 ✨"
+                    tvStatus.setTextColor(Color.WHITE)
+                    pbLoading.visibility = View.GONE
+                    
+                    // 수락 버튼 활성화
+                    btnAccept.alpha = 1.0f
+                    btnAccept.isEnabled = true
+                    btnAccept.setOnClickListener {
+                        saveDeepLinkMemoryImmediately(bitmap, senderProfileFilename)
+                        dialog.dismiss()
+                    }
+                    
+                    // 메인 화면 미리보기도 갱신
+                    showCardPreview()
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                runOnUiThread {
+                    statusDotsTimer?.cancel()
+                    Toast.makeText(this@MainActivity, "추억을 불러오는 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                }
+            }
+        }
+    }
+
+    private fun saveDeepLinkMemoryImmediately(bitmap: Bitmap, profileFilename: String?) {
+        val savedUri = saveBitmapToGallery(bitmap, currentLat, currentLng, deepLinkAddress.trim())
+        if (savedUri != null) {
+            try {
+                val dbHelper = MemoryDatabaseHelper(this)
+                val memory = Memory(
+                    photoUri = savedUri.toString(),
+                    address = deepLinkAddress.trim(),
+                    lat = currentLat,
+                    lng = currentLng,
+                    date = System.currentTimeMillis(),
+                    profileSticker = profileFilename // 보낸 사람의 프로필이 박힘!
+                )
+                dbHelper.insertMemory(memory)
+                runOnUiThread {
+                    dismissInvitation()
+                    showSaveSuccessDialog()
+                }
+                    
+            } catch (e: Exception) {
+                Log.e("DB_INSERT", "딥링크 저장 실패", e)
+            }
+        }
+    }
+
+    private fun showSaveSuccessDialog() {
+        val dialog = android.app.Dialog(this)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_save_success, null)
+        dialog.setContentView(dialogView)
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+
+        dialogView.findViewById<Button>(R.id.btn_save_go_map).setOnClickListener {
+            dialog.dismiss()
+            startActivity(Intent(this, MemoryMapActivity::class.java))
+        }
+
+        dialogView.findViewById<Button>(R.id.btn_save_close).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun dismissInvitation() {
+        runOnUiThread {
+            statusDotsTimer?.cancel()
+            invitationDialog?.dismiss()
+            invitationDialog = null
+        }
+    }
+
 
     private fun setupButtons() {
         findViewById<View>(R.id.btn_camera).setOnClickListener {
@@ -174,6 +397,11 @@ class MainActivity : AppCompatActivity() {
             }
             startActivity(intent)
         }
+
+        findViewById<View>(R.id.btn_profile_settings).setOnClickListener {
+            showProfileManagerDialog()
+        }
+
     }
 
     // 📸 스샷로직
@@ -277,10 +505,13 @@ class MainActivity : AppCompatActivity() {
                     address = addressText.text.toString().trim(),
                     lat = currentLat,
                     lng = currentLng,
-                    date = System.currentTimeMillis()
+                    date = System.currentTimeMillis(),
+                    profileSticker = ProfileStickerManager.getSelectedProfileFilename(this)
                 )
                 dbHelper.insertMemory(memory)
                 Log.d("DB_INSERT", "메인 스샷 저장 성공")
+                // ✨ 저장 성공 시 대시보드 즉시 갱신
+                runOnUiThread { refreshDashboard() }
             } catch (e: Exception) {
                 Log.e("DB_INSERT", "내 추억지도 자동 저장 실패", e)
             }
@@ -289,9 +520,11 @@ class MainActivity : AppCompatActivity() {
         if (shareAfter && savedUri != null) {
             shareImage(savedUri, currentLat, currentLng, addressText.text.toString())
         } else if (savedUri != null) {
-            Toast.makeText(this, "스샷 저장 및 추억지도에 등록 완료", Toast.LENGTH_SHORT).show()
+            val msg = if (AppConfig.IS_TEST_MODE) "보관함에 저장 완료 ✨" else "스샷 저장 및 추억지도에 등록 완료"
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
     }
+
 
     private fun saveBitmapToGallery(bitmap: Bitmap, lat: Double, lng: Double, address: String): Uri? {
         try {
@@ -299,7 +532,7 @@ class MainActivity : AppCompatActivity() {
             val values = ContentValues().apply {
                 put(MediaStore.Images.Media.DISPLAY_NAME, filename)
                 put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/NewDateMapDiary")
+                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/HereWithYou")
             }
 
             // Exif Metadata Injector용 임시 파일 🕵️‍♂️
@@ -311,7 +544,10 @@ class MainActivity : AppCompatActivity() {
             try {
                 val exif = ExifInterface(tempFile.absolutePath)
                 val encodedAddr = java.net.URLEncoder.encode(address, "UTF-8")
-                val jsonMeta = "{\"lat\":$lat, \"lng\":$lng, \"addr\":\"$encodedAddr\"}"
+                val sender = java.net.URLEncoder.encode(ProfileStickerManager.getMyName(this), "UTF-8")
+                val receiver = java.net.URLEncoder.encode(ProfileStickerManager.getPartnerName(this), "UTF-8")
+                val profile = ProfileStickerManager.getSelectedProfileFilename(this) ?: ""
+                val jsonMeta = "{\"lat\":$lat, \"lng\":$lng, \"addr\":\"$encodedAddr\", \"sender\":\"$sender\", \"receiver\":\"$receiver\", \"profile\":\"$profile\"}"
                 exif.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, jsonMeta)
                 exif.saveAttributes()
             } catch (e: Exception) {
@@ -353,7 +589,7 @@ class MainActivity : AppCompatActivity() {
             val values = ContentValues().apply {
                 put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
                 put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/NewDateMapDiary")
+                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/HereWithYou")
             }
             val imageUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values) ?: throw Exception("MediaStore insert failed")
             contentResolver.openOutputStream(imageUri).use { output ->
@@ -396,10 +632,21 @@ class MainActivity : AppCompatActivity() {
 
             cardView.findViewById<TextView>(R.id.card_message).text = "오늘의 로맨틱한 순간"
             cardView.findViewById<TextView>(R.id.card_address).text = addressText.text
-            cardView.findViewById<TextView>(R.id.card_date).text =
-                SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(Date())
+            val sdf = SimpleDateFormat("yy.MM.dd", Locale.KOREA).apply {
+                timeZone = java.util.TimeZone.getTimeZone("Asia/Seoul")
+            }
+            cardView.findViewById<TextView>(R.id.card_date).text = sdf.format(Date())
 
-            updateCardQRCode(cardView, currentLat, currentLng, addressText.text.toString())
+            // 🛡️ [비공개 테스트 모드] 카드 레이아웃 단순화
+            if (AppConfig.IS_TEST_MODE) {
+                cardView.findViewById<View>(R.id.card_rating_container)?.visibility = View.GONE
+                cardView.findViewById<View>(R.id.card_qr_code)?.visibility = View.GONE
+                cardView.findViewById<View>(R.id.card_watermark)?.visibility = View.GONE
+                cardView.findViewById<View>(R.id.card_premium_border)?.visibility = View.GONE
+                cardView.findViewById<View>(R.id.card_premium_bg)?.visibility = View.GONE
+            } else {
+                updateCardQRCode(cardView, currentLat, currentLng, addressText.text.toString())
+            }
         } else {
             // 빈 사진일 경우 다꾸 초대장 이미지를 플레이스홀더로 사용
             imgView.setImageResource(R.drawable.bg_invitation)
@@ -408,12 +655,91 @@ class MainActivity : AppCompatActivity() {
             val lp = imgView.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
             lp.width = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_PARENT
             lp.height = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT
-            lp.dimensionRatio = null
             imgView.layoutParams = lp
+        }
+        
+        // 🚀 [웰컴 복구] 설치 후 최초 실행 시 1회만 자동 복구 수행
+        checkAndPerformInitialRestore()
+    }
 
-            cardView.findViewById<TextView>(R.id.card_message).text = ""
-            cardView.findViewById<TextView>(R.id.card_address).text = addressText.text
-            cardView.findViewById<TextView>(R.id.card_date).text = ""
+    private fun checkAndPerformInitialRestore() {
+        val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
+        val isRestoreDone = prefs.getBoolean("initial_restore_done", false)
+        
+        if (!isRestoreDone) {
+            val storagePermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                Manifest.permission.READ_MEDIA_IMAGES
+            } else {
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            }
+
+            if (ContextCompat.checkSelfPermission(this, storagePermission) == PackageManager.PERMISSION_GRANTED) {
+                performBackgroundRestore()
+            }
+        }
+    }
+
+    private fun performBackgroundRestore() {
+        thread {
+            try {
+                // 1️⃣ 프로필 스티커 파일들부터 갤러리에서 앱 내부로 먼저 복사 (선행 필수!)
+                ProfileStickerManager.restoreProfileFromGallery(this)
+
+                val dbHelper = MemoryDatabaseHelper(this)
+                val projection = arrayOf(MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME)
+                
+                val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ? AND ${MediaStore.Images.Media.DISPLAY_NAME} LIKE ?"
+                val selectionArgs = arrayOf("%Pictures/HereWithYou%", "DateMapDiary_Card_%")
+                
+                val cursor = contentResolver.query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    projection, selection, selectionArgs, null
+                )
+
+                var restoredCount = 0
+                cursor?.use { c ->
+                    val idCol = c.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                    while (c.moveToNext()) {
+                        val id = c.getLong(idCol)
+                        val uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id.toString())
+                        
+                        if (dbHelper.getMemoryByUri(uri.toString()) == null) {
+                            contentResolver.openInputStream(uri)?.use { input ->
+                                val exif = ExifInterface(input)
+                                val description = exif.getAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION)
+                                if (description != null) {
+                                    val json = JSONObject(description)
+                                    val lat = json.optDouble("lat", 0.0)
+                                    val lng = json.optDouble("lng", 0.0)
+                                    val profile = json.optString("profile", "")
+                                    val addrEncoded = json.optString("addr", "")
+                                    val addr = try { java.net.URLDecoder.decode(addrEncoded, "UTF-8") } catch (e: Exception) { addrEncoded }
+                                    
+                                    val memory = Memory(
+                                        photoUri = uri.toString(),
+                                        address = addr,
+                                        lat = lat,
+                                        lng = lng,
+                                        date = System.currentTimeMillis(),
+                                        profileSticker = if (profile.isNotEmpty()) profile else null
+                                    )
+                                    dbHelper.insertMemory(memory)
+                                    restoredCount++
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                getSharedPreferences("app_settings", MODE_PRIVATE).edit()
+                    .putBoolean("initial_restore_done", true).apply()
+                
+                if (restoredCount > 0) {
+                    runOnUiThread { Toast.makeText(this, "${restoredCount}개의 추억을 복구했습니다! ✨", Toast.LENGTH_LONG).show() }
+                }
+            } catch (e: Exception) {
+                Log.e("AUTO_RESTORE", "Restore failed", e)
+            }
         }
     }
 
@@ -421,20 +747,15 @@ class MainActivity : AppCompatActivity() {
         val container = findViewById<FrameLayout>(R.id.card_preview_container)
         container.removeAllViews()
 
-        val cardView = layoutInflater.inflate(
-            R.layout.item_memory_card_04,
-            container,
-            false
-        )
-
+        val cardView = layoutInflater.inflate(R.layout.item_memory_card_04, container, false)
         val imgView = cardView.findViewById<ImageView>(R.id.card_image)
         imgView.setImageResource(R.drawable.bg_invitation)
         imgView.scaleType = ImageView.ScaleType.FIT_CENTER
         imgView.adjustViewBounds = true
+        
         val lp = imgView.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
         lp.width = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_PARENT
         lp.height = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT
-        lp.dimensionRatio = null
         imgView.layoutParams = lp
 
         cardView.findViewById<TextView>(R.id.card_message).text = ""
@@ -442,7 +763,6 @@ class MainActivity : AppCompatActivity() {
         cardView.findViewById<TextView>(R.id.card_date).text = ""
 
         updateCardQRCode(cardView, currentLat, currentLng, deepLinkAddress)
-
         findViewById<View>(R.id.btn_create_card).visibility = View.GONE
         container.addView(cardView)
     }
@@ -451,17 +771,19 @@ class MainActivity : AppCompatActivity() {
     // 📍 위치 / 지도
     // ===============================
     private fun requestLocationPermission() {
-        val granted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
+        val permissions = mutableListOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
+        } else {
+            permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
 
-        if (!granted) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQ_LOCATION
-            )
+        val missing = permissions.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (missing.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, missing.toTypedArray(), REQ_LOCATION)
         } else {
             startMap()
         }
@@ -472,14 +794,14 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
             when (requestCode) {
-                REQ_LOCATION -> startMap()
+                REQ_LOCATION -> {
+                    startMap()
+                    checkAndPerformInitialRestore()
+                }
                 REQ_CAMERA -> openCamera()
-            }
-        } else {
-            if (requestCode == REQ_CAMERA) {
-                Toast.makeText(this, "카메라 권한이 필요합니다", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -711,4 +1033,197 @@ class MainActivity : AppCompatActivity() {
             null
         }
     }
+
+    private fun processProfileSticker(uri: Uri) {
+        // 🔥 [최적화] 비트맵 디코딩 및 변환 작업을 백그라운드에서 실행
+        kotlin.concurrent.thread {
+            try {
+                runOnUiThread {
+                    Toast.makeText(this, "💑 프로필 스티커 생성 중...", Toast.LENGTH_SHORT).show()
+                }
+
+                val inputStream = contentResolver.openInputStream(uri)
+                val original = BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
+
+                // 🔄 [회전 보정] 사진 똑바로 세우기
+                val rotationInputStream = contentResolver.openInputStream(uri)
+                val exif = rotationInputStream?.let { androidx.exifinterface.media.ExifInterface(it) }
+                val orientation = exif?.getAttributeInt(androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION, androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL)
+                rotationInputStream?.close()
+
+                val matrix = android.graphics.Matrix()
+                when (orientation) {
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                }
+                val rotated = if (orientation != androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL) {
+                    Bitmap.createBitmap(original, 0, 0, original.width, original.height, matrix, true)
+                } else original
+
+                // 🎨 스티커 생성 (가장 최신 튜닝 버전: 풍성한 머리카락 + 프로필 스타일)
+                FaceStickerUtil.createFaceSticker(rotated) { sticker ->
+                    runOnUiThread {
+                        if (sticker != null) {
+                            ProfileStickerManager.saveProfileSticker(this, sticker)
+                            Toast.makeText(this, "새 프로필이 등록되었습니다! ✨", Toast.LENGTH_SHORT).show()
+                            
+                            // 🔄 [자동 새로고침] 다이얼로그가 열려있다면 즉시 반영
+                            activeProfileList?.let { list ->
+                                list.clear()
+                                list.addAll(ProfileStickerManager.getProfileStickers(this))
+                                activeProfileAdapter?.notifyDataSetChanged()
+                            }
+                        } else {
+                            Toast.makeText(this, "얼굴을 찾을 수 없습니다. 정면 사진을 사용해 주세요.", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("PROFILE_ERROR", e.message ?: "")
+            }
+        }
+    }
+
+    private fun showProfileManagerDialog() {
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.TransparentBottomSheetDialog)
+        activeProfileDialog = dialog
+        val view = layoutInflater.inflate(R.layout.dialog_profile_manager, null)
+        
+        val rvList = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rv_profile_list)
+        val btnAdd = view.findViewById<View>(R.id.btn_add_profile)
+        val btnApply = view.findViewById<View>(R.id.btn_apply_profile)
+
+        val profiles = ProfileStickerManager.getProfileStickers(this).toMutableList()
+        activeProfileList = profiles
+        
+        rvList.layoutManager = androidx.recyclerview.widget.GridLayoutManager(this@MainActivity, 3)
+        val adapter = object : androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
+            inner class ProfileViewHolder(v: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(v) {
+                val img = v.findViewById<ImageView>(R.id.img_profile_sticker)
+                val indicator = v.findViewById<View>(R.id.bg_selected_indicator)
+                val btnDelete = v.findViewById<View>(R.id.btn_delete_profile)
+            }
+
+            override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
+                return ProfileViewHolder(layoutInflater.inflate(R.layout.item_profile_sticker, parent, false))
+            }
+
+            override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
+                val h = holder as ProfileViewHolder
+                val file = profiles[position]
+                val selected = ProfileStickerManager.getSelectedProfileFilename(this@MainActivity)
+                
+                com.bumptech.glide.Glide.with(this@MainActivity).load(file).into(h.img)
+                h.indicator.visibility = if (file.name == selected) View.VISIBLE else View.INVISIBLE
+                
+                h.itemView.setOnClickListener {
+                    ProfileStickerManager.setSelectedProfile(this@MainActivity, file.name)
+                    notifyDataSetChanged()
+                }
+                
+                h.btnDelete.setOnClickListener {
+                    androidx.appcompat.app.AlertDialog.Builder(this@MainActivity)
+                        .setTitle("프로필 삭제")
+                        .setMessage("이 프로필을 삭제할까요?")
+                        .setPositiveButton("삭제") { _, _ ->
+                            ProfileStickerManager.deleteProfileSticker(this@MainActivity, file.name)
+                            profiles.clear()
+                            profiles.addAll(ProfileStickerManager.getProfileStickers(this@MainActivity))
+                            notifyDataSetChanged()
+                        }
+                        .setNegativeButton("취소", null)
+                        .show()
+                }
+            }
+            override fun getItemCount() = profiles.size
+        }
+        activeProfileAdapter = adapter
+        rvList.adapter = adapter
+
+        btnAdd.setOnClickListener {
+            // 🔥 [개선] 다이얼로그를 닫지 않고 바로 선택기 실행!
+            pickProfileImage.launch("image/*")
+        }
+        
+        btnApply.setOnClickListener {
+            val currentSelected = ProfileStickerManager.getSelectedProfileFilename(this)
+            if (currentSelected.isNullOrEmpty()) {
+                Toast.makeText(this, "먼저 적용할 프로필을 선택해 주세요!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "닉네임과 프로필 핀이 적용되었습니다! ✨", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+        }
+
+        dialog.setContentView(view)
+        dialog.setOnDismissListener {
+            activeProfileDialog = null
+            activeProfileAdapter = null
+            activeProfileList = null
+        }
+        dialog.show()
+    }
+    
+    // ===============================
+    // 👣 Footprint Analytics Dashboard Logic
+    // ===============================
+    private fun refreshDashboard() {
+        try {
+            val dbHelper = MemoryDatabaseHelper(this)
+            val memories = dbHelper.getAllMemories()
+            
+            // 1. 총 발자국 개수
+            findViewById<TextView>(R.id.text_memory_count).text = "${memories.size}개"
+
+            if (memories.isEmpty()) {
+                findViewById<TextView>(R.id.text_hot_spot).text = "기록 없음"
+                findViewById<TextView>(R.id.text_latest_date).text = "-"
+                return
+            }
+
+            // 2. 자주 가는 곳 (Hot Spot) 분석: '동/읍/면' 단위를 우선하여 더 상세하게!
+            val areaMap = mutableMapOf<String, Int>()
+            memories.forEach { m ->
+                val addr = m.address
+                val parts = addr.split(" ")
+                parts.forEach { part ->
+                    // 대한민국 주소 체계상 가장 체감도가 높은 '동/읍/면'과 '구' 단위를 수집
+                    if (part.endsWith("동") || part.endsWith("읍") || part.endsWith("면") || part.endsWith("구")) {
+                        areaMap[part] = areaMap.getOrDefault(part, 0) + 1
+                    }
+                }
+            }
+            // 가장 빈도가 높은 지역 추출 (없으면 '시' 단위라도 검색)
+            var hotSpot = areaMap.maxByOrNull { it.value }?.key
+            
+            if (hotSpot == null) {
+                val cityMap = mutableMapOf<String, Int>()
+                memories.forEach { m ->
+                    m.address.split(" ").forEach { part ->
+                        if (part.endsWith("시") || part.endsWith("군")) {
+                            cityMap[part] = cityMap.getOrDefault(part, 0) + 1
+                        }
+                    }
+                }
+                hotSpot = cityMap.maxByOrNull { it.value }?.key ?: "탐색 중"
+            }
+            findViewById<TextView>(R.id.text_hot_spot).text = hotSpot
+
+            // 3. 마지막 기록 (Latest Activity)
+            val latestMemory = memories.maxByOrNull { it.date }
+            latestMemory?.let {
+                val sdf = SimpleDateFormat("yy.MM.dd", Locale.KOREA).apply {
+                    timeZone = java.util.TimeZone.getTimeZone("Asia/Seoul")
+                }
+                val timeText = sdf.format(Date(it.date))
+                findViewById<TextView>(R.id.text_latest_date).text = timeText
+            }
+            
+        } catch (e: Exception) {
+            Log.e("DASHBOARD", "Analytics failed", e)
+        }
+    }
 }
+

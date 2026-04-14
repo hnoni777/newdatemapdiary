@@ -15,3 +15,21 @@
 
 # AndroidX Core (needed for some reflection)
 -keep class androidx.core.app.CoreComponentFactory { *; }
+
+# Kakao SDK v2
+-keep class com.kakao.sdk.** { *; }
+-keep interface com.kakao.sdk.** { *; }
+-dontwarn com.kakao.sdk.**
+
+# ML Kit
+-keep class com.google.mlkit.** { *; }
+-dontwarn com.google.mlkit.**
+
+# Native Libraries (needed for Kakao Maps)
+-keep class com.kakao.vectormap.internal.** { *; }
+-keepnames class com.kakao.vectormap.internal.** { *; }
+
+# Suppress R8 warnings for optional dependencies
+-dontwarn org.bouncycastle.jsse.**
+-dontwarn org.conscrypt.**
+-dontwarn org.openjsse.**

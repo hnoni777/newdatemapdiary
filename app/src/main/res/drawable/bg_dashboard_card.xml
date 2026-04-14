@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    
+    <!-- 🪟 Subtle Glass Effect -->
+    <gradient
+        android:startColor="#33FFFFFF"
+        android:centerColor="#26FFFFFF"
+        android:endColor="#1AFFFFFF"
+        android:angle="135" />
+    
+    <!-- ✨ Premium Gold Border -->
+    <stroke
+        android:width="1.2dp"
+        android:color="#E6D7B0" /> 
+        
+    <corners android:radius="24dp" />
+</shape>

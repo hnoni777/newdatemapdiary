@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_dark_premium"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="프로필 설정"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/kyobo_hand_family" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="지도 핀으로 사용할 프로필과 닉네임을 설정하세요!"
+        android:textColor="#BBBBBB"
+        android:textSize="12sp"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="@font/kyobo_hand_family" />
+
+
+
+    <!-- 프로필 리스트 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_profile_list"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <Button
+        android:id="@+id/btn_add_profile"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="➕ 새 프로필 스티커 만들기"
+        android:backgroundTint="#333333"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/kyobo_hand_family" />
+
+    <Button
+        android:id="@+id/btn_apply_profile"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="✨ 이 프로필로 확정하기"
+        android:backgroundTint="#FFD700"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/kyobo_hand_family" />
+
+</LinearLayout>

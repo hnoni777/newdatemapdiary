@@ -1,0 +1,9 @@
+﻿
+    override fun onDestroy() {
+        super.onDestroy()
+        flightAnimator?.cancel()
+        cachedAirplaneBitmap?.recycle()
+        cachedAirplaneBitmap = null
+        mapView.finish()
+    }
+}

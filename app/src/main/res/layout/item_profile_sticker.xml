@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="100dp"
+    android:layout_height="match_parent"
+    android:padding="4dp">
+
+    <View
+        android:id="@+id/bg_selected_indicator"
+        android:layout_width="92dp"
+        android:layout_height="92dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_vehicle_item_selector"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/img_profile_sticker"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="6dp"
+        android:scaleType="centerInside" />
+
+    <ImageView
+        android:id="@+id/btn_delete_profile"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="top|end"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:padding="4dp"
+        android:background="@drawable/bg_romantic_button"
+        android:backgroundTint="#FF5252"
+        android:tint="@android:color/white" />
+</FrameLayout>

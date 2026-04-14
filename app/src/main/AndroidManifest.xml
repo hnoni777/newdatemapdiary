@@ -17,6 +17,7 @@
     </queries>
 
     <application
+        android:name=".NewDateMapDiaryApplication"
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_app_launcher_v9"
@@ -53,6 +54,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="newdatemapdiary" android:host="share" />
+            </intent-filter>
+
+            <!-- 🔗 [코부장 수정] 카카오톡 공유 앱 실행을 위한 필수 스킴 설정 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="kakaolink" android:scheme="kakao6cc7070982d3684fcac142f3f8f4a691" />
             </intent-filter>
         </activity>
         <activity android:name=".GalleryActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"/>

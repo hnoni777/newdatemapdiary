@@ -104,18 +104,20 @@
         android:elevation="12dp"
         android:gravity="center">
 
-        <!-- 2D 버튼 -->
+        <!-- 2D 버튼 (컨테이너 전체 터치 가능하도록 개선) -->
         <LinearLayout
+            android:id="@+id/btn_view_normal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center">
-            <ImageButton
-                android:id="@+id/btn_view_normal"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+            <ImageView
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:src="@drawable/ic_view_normal"
-                android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="2D"
                 android:scaleType="centerInside"/>
             <TextView
@@ -127,19 +129,21 @@
                 android:textStyle="bold"/>
         </LinearLayout>
 
-        <!-- sky 버튼 -->
+        <!-- sky 버튼 (컨테이너 전체 터치 가능하도록 개선) -->
         <LinearLayout
+            android:id="@+id/btn_view_skyview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginTop="14dp">
-            <ImageButton
-                android:id="@+id/btn_view_skyview"
+            android:layout_marginTop="14dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+            <ImageView
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:src="@drawable/ic_view_skyview"
-                android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="sky"
                 android:scaleType="centerInside"/>
             <TextView

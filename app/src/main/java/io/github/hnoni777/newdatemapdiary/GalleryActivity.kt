@@ -157,6 +157,7 @@ class GalleryActivity : AppCompatActivity() {
     }
 
     private fun loadSavedImages() {
+        // 🚀 [최적화] 이제 복구는 MainActivity에서 최초 1회만 수행하므로 여기서는 목록만 불러옵니다.
         imagesByDate.clear()
         
         val projection = arrayOf(
@@ -164,8 +165,8 @@ class GalleryActivity : AppCompatActivity() {
             MediaStore.Images.Media.DATE_ADDED
         )
 
-        val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?"
-        val selectionArgs = arrayOf("%NewDateMapDiary%")
+        val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ? AND ${MediaStore.Images.Media.DISPLAY_NAME} LIKE ?"
+        val selectionArgs = arrayOf("%HereWithYou%", "DateMapDiary_Card_%")
         val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
 
         try {
@@ -188,7 +189,6 @@ class GalleryActivity : AppCompatActivity() {
                         id
                     )
                     
-                    // Convert timestamp to yyyy-MM-dd
                     val calendar = java.util.Calendar.getInstance()
                     calendar.timeInMillis = dateAddedSecs * 1000L
                     val year = calendar.get(java.util.Calendar.YEAR)
@@ -207,7 +207,6 @@ class GalleryActivity : AppCompatActivity() {
             android.util.Log.e("Gallery", "MediaStore query failed", e)
         }
 
-        // Initialize with today's date
         val today = java.util.Calendar.getInstance()
         updateCalendarUI()
         updateGalleryForDate(

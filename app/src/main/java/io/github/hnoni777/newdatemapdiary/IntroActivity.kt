@@ -28,7 +28,7 @@ class IntroActivity : AppCompatActivity() {
         dot4 = findViewById(R.id.dot4)
         dot5 = findViewById(R.id.dot5)
 
-        val pages = listOf(
+        val allPages = listOf(
             IntroPageItem(
                 R.drawable.intro_hero_couple,
                 "둘만의 소중한 데이트 기록",
@@ -56,10 +56,24 @@ class IntroActivity : AppCompatActivity() {
             )
         )
 
+        // 🛡️ [비공개 테스트 모드] 5개 챕터 중 1번, 5번만 노출
+        val pages = if (AppConfig.IS_TEST_MODE) {
+            listOf(allPages[0], allPages[4])
+        } else {
+            allPages
+        }
+
         viewPager.adapter = IntroPagerAdapter(pages)
 
         // Initialize indicator for the first page
         updateIndicator(0)
+
+        // 🛡️ [비공개 테스트 모드] 점(Indicator) 개수도 2개로 맞춤
+        if (AppConfig.IS_TEST_MODE) {
+            dot3.visibility = View.GONE
+            dot4.visibility = View.GONE
+            dot5.visibility = View.GONE
+        }
 
         val btnAction = findViewById<Button>(R.id.btn_take_photo)
         btnAction.text = "추억 남기기"
@@ -75,8 +89,14 @@ class IntroActivity : AppCompatActivity() {
             finish()
         }
 
-        findViewById<TextView>(R.id.btn_how_to_use).setOnClickListener {
-            startActivity(Intent(this@IntroActivity, ManualActivity::class.java))
+        // 🛡️ [비공개 테스트 모드] 앱 설명 링크(사용법) 은닉
+        val btnHowToUse = findViewById<TextView>(R.id.btn_how_to_use)
+        if (AppConfig.IS_TEST_MODE) {
+            btnHowToUse.visibility = View.GONE
+        } else {
+            btnHowToUse.setOnClickListener {
+                startActivity(Intent(this@IntroActivity, ManualActivity::class.java))
+            }
         }
     }
 

@@ -11,8 +11,8 @@ android {
         applicationId = "io.github.hnoni777.newdatemapdiary"
         minSdk = 26
         targetSdk = 35
-        versionCode = 167
-        versionName = "1.14.0 SkyView Elite"
+        versionCode = 170
+        versionName = "1.15.1 Beta"
     }
 
     signingConfigs {
@@ -35,11 +35,11 @@ android {
             )
         }
         debug {
-            // ✅ 배포용 디버그 빌드에서도 용량 최적화를 위해 활성화합니다.
+            // ✅ [코부장 긴급 수선] IDE에서의 원활한 설치와 디버깅을 위해 true로 변경
+            isDebuggable = true 
             signingConfig = signingConfigs.getByName("release")
-            isDebuggable = false
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -74,6 +74,9 @@ dependencies {
     // ✅ 카카오 지도 SDK (Vector Map, 공식)
     implementation("com.kakao.maps.open:android:2.13.0")
 
+    // 🔗 카카오톡 공유 SDK (지도 초대장 보내기)
+    implementation("com.kakao.sdk:v2-share:2.18.0")
+
     // 🖼️ Glide for Premium Image Loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
@@ -86,4 +89,8 @@ dependencies {
 
     // 💰 Google Play Billing Library (Premium Stickers)
     implementation("com.android.billingclient:billing-ktx:7.1.1")
+
+    // 🤖 ML Kit Selfie Segmentation (Face Stickers)
+    implementation("com.google.mlkit:segmentation-selfie:16.0.0-beta6")
+    implementation("com.google.mlkit:face-detection:16.1.6")
 }

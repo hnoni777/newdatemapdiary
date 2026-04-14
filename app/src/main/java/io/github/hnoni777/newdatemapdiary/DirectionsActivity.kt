@@ -43,9 +43,6 @@ class DirectionsActivity : AppCompatActivity() {
             // 💡 [Edge-to-Edge] 시스템 바 영역까지 화면 확장
             WindowCompat.setDecorFitsSystemWindows(window, false)
             
-            // 💡 SDK 중복 초기화 방지 및 안전성 확보
-            KakaoMapSdk.init(this, "6cc7070982d3684fcac142f3f8f4a691")
-            
             setContentView(R.layout.activity_directions)
 
             destLat = intent.getDoubleExtra("lat", 0.0)

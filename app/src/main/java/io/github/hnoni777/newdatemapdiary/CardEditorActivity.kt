@@ -5,6 +5,13 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.BitmapFactory
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
+import android.graphics.Shader
+import android.graphics.BitmapShader
+import android.graphics.PorterDuffXfermode
+import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -13,6 +20,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,6 +33,12 @@ class CardEditorActivity : AppCompatActivity() {
     private var lat: Double = 0.0
     private var lng: Double = 0.0
     private var currentRating: Int = 0
+
+    private val pickFaceStickerImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            processFaceSticker(it)
+        }
+    }
 
     private var currentSelectedSticker: View? = null
     private var scaleFactor = 1f
@@ -39,6 +53,7 @@ class CardEditorActivity : AppCompatActivity() {
 
     private lateinit var billingManager: BillingManager
     private var isPremiumPurchased = false
+    private var chosenMarkerProfileFilename: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +94,16 @@ class CardEditorActivity : AppCompatActivity() {
 
         isPremiumPurchased = true
         showCardPreview()
+
+        // 🛡️ [비공개 테스트 모드] 에디터 도구함 봉쇄
+        if (AppConfig.IS_TEST_MODE) {
+            findViewById<View>(R.id.btn_category_theme)?.visibility = View.GONE
+            findViewById<View>(R.id.btn_category_sticker)?.visibility = View.GONE
+            findViewById<View>(R.id.btn_category_draw)?.visibility = View.GONE
+            findViewById<View>(R.id.btn_category_marker)?.visibility = View.GONE
+            // 📝 [부장님 특별 지시] 문구 수정(텍스트) 기능은 열어둠
+            findViewById<View>(R.id.btn_category_text)?.visibility = View.VISIBLE
+        }
     }
 
     private fun setupPanels() {
@@ -89,6 +114,7 @@ class CardEditorActivity : AppCompatActivity() {
         val panelTheme = findViewById<View>(R.id.panel_theme)
         val panelSticker = findViewById<View>(R.id.panel_sticker)
         val panelDraw = findViewById<View>(R.id.panel_draw)
+        val panelMarker = findViewById<View>(R.id.panel_marker)
 
         fun getDrawingView(): DrawingView? {
             val container = findViewById<FrameLayout>(R.id.card_preview_container)
@@ -104,6 +130,7 @@ class CardEditorActivity : AppCompatActivity() {
             panelTheme.visibility = View.GONE
             panelSticker.visibility = View.GONE
             panelDraw.visibility = View.GONE
+            panelMarker.visibility = View.GONE
 
             // Show target panel
             panel.visibility = View.VISIBLE
@@ -116,6 +143,11 @@ class CardEditorActivity : AppCompatActivity() {
                     dv.visibility = View.VISIBLE
                     dv.bringToFront()
                 }
+            }
+
+            // 📍 지도 핀 패널일 경우 리스트 로드
+            if (panel == panelMarker) {
+                setupMarkerProfileList()
             }
 
             // Show Tray & Overlay (Transparent)
@@ -142,14 +174,21 @@ class CardEditorActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_category_theme).setOnClickListener { showPanel(panelTheme) }
         findViewById<View>(R.id.btn_category_sticker).setOnClickListener { showPanel(panelSticker) }
         findViewById<View>(R.id.btn_category_draw).setOnClickListener { showPanel(panelDraw) }
+        findViewById<View>(R.id.btn_category_marker).setOnClickListener { showPanel(panelMarker) }
 
         findViewById<View>(R.id.btn_done_text).setOnClickListener { hidePanels() }
         findViewById<View>(R.id.btn_done_theme).setOnClickListener { hidePanels() }
         findViewById<View>(R.id.btn_done_sticker).setOnClickListener { hidePanels() }
         findViewById<View>(R.id.btn_done_draw).setOnClickListener { hidePanels() }
+        findViewById<View>(R.id.btn_done_marker).setOnClickListener { hidePanels() }
 
         // Close when clicking outside on overlay (now transparent)
         dimOverlay.setOnClickListener { hidePanels() }
+
+        // 📸 [NEW] Create Face Sticker Button
+        findViewById<View>(R.id.btn_create_face_sticker).setOnClickListener {
+            pickFaceStickerImage.launch("image/*")
+        }
     }
 
     private fun setupButtons() {
@@ -161,8 +200,12 @@ class CardEditorActivity : AppCompatActivity() {
             takeScreenshot(true)
         }
 
-        // 🎨 Theme Selection
-        // 🎨 Effects Selection (Merged into Basic)
+        // 🎨 Premium Theme Selection
+        findViewById<View>(R.id.btn_effect_premium_leather).setOnClickListener { applyCardEffect("premium_leather") }
+        findViewById<View>(R.id.btn_effect_premium_glass).setOnClickListener { applyCardEffect("premium_glass") }
+        findViewById<View>(R.id.btn_effect_premium_film).setOnClickListener { applyCardEffect("premium_film") }
+
+        // 🎨 Basic Theme Selection
         findViewById<View>(R.id.btn_effect_basic).setOnClickListener { applyCardEffect("basic") }
         findViewById<View>(R.id.btn_effect_oatmeal).setOnClickListener { applyCardEffect("oatmeal") }
         findViewById<View>(R.id.btn_effect_matcha).setOnClickListener { applyCardEffect("matcha") }
@@ -331,6 +374,23 @@ class CardEditorActivity : AppCompatActivity() {
                 layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
             }
             frame.addView(img)
+
+            // ✨ [프리미엄 자물쇠 배지] 가시성을 해치지 않게 우측 하단에 작게 표시
+            if (isPremium) {
+                val lockView = TextView(this).apply {
+                    text = "🔒"
+                    textSize = 8f
+                    alpha = 0.7f
+                    layoutParams = FrameLayout.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        gravity = android.view.Gravity.BOTTOM or android.view.Gravity.END
+                    }
+                }
+                frame.addView(lockView)
+            }
+
             return frame
         }
 
@@ -374,6 +434,23 @@ class CardEditorActivity : AppCompatActivity() {
                 layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
             }
             frame.addView(tv)
+
+            // ✨ [프리미엄 자물쇠 배지]
+            if (isPremium) {
+                val lockView = TextView(this).apply {
+                    text = "🔒"
+                    textSize = 8f
+                    alpha = 0.7f
+                    layoutParams = FrameLayout.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        gravity = android.view.Gravity.BOTTOM or android.view.Gravity.END
+                    }
+                }
+                frame.addView(lockView)
+            }
+
             return frame
         }
 
@@ -442,6 +519,23 @@ class CardEditorActivity : AppCompatActivity() {
                 layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT)
             }
             frame.addView(tv)
+
+            // ✨ [프리미엄 자물쇠 배지]
+            if (isPremium) {
+                val lockView = TextView(this).apply {
+                    text = "🔒"
+                    textSize = 7f // 레터링은 옆으로 기니까 조금 더 작게
+                    alpha = 0.6f
+                    layoutParams = FrameLayout.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        gravity = android.view.Gravity.TOP or android.view.Gravity.END // 레터링은 우측 상단이 나을 수 있음
+                    }
+                }
+                frame.addView(lockView)
+            }
+
             return frame
         }
 
@@ -480,17 +574,31 @@ class CardEditorActivity : AppCompatActivity() {
             R.drawable.img_premium_hamster,
             //R.drawable.stk_premium_bear,
             R.drawable.stk_premium_penguin,
+            R.drawable.img_premium_dog2,
+            R.drawable.img_premium_rabbit2,
+            R.drawable.img_premium_cat2,
             R.drawable.stk_premium_swan,
             R.drawable.stk_premium_chick,
             R.drawable.stk_premium_cat_paw,
             R.drawable.stk_premium_bee,
             R.drawable.stk_premium_butterfly,
-
+            R.drawable.milk,
+            R.drawable.suninjang,
 
             // 💎 감성 소품 (Romantic Objects)
             R.drawable.stk_premium_heart_red,
+            R.drawable.heate1,
+            R.drawable.heate2,
+            R.drawable.heate3,
             R.drawable.stk_premium_white_heart,
             R.drawable.stk_premium_camera,
+            R.drawable.img_premium_magicbong,
+            R.drawable.img_premium_muffine,
+            R.drawable.img_premium_crown,
+            R.drawable.img_premium_flower,
+            R.drawable.img_premium_donnut,
+            R.drawable.img_premium_riborn,
+            R.drawable.img_premium_moon,
             R.drawable.stk_premium_diamond,
             R.drawable.stk_premium_crown,
             R.drawable.stk_premium_ring,
@@ -501,6 +609,15 @@ class CardEditorActivity : AppCompatActivity() {
             R.drawable.stk_premium_palette,
             R.drawable.stk_premium_cake,
             R.drawable.stk_premium_coffee,
+            R.drawable.shup,
+            R.drawable.jogae,
+            R.drawable.jamul,
+            R.drawable.snow,
+            R.drawable.hyang,
+            R.drawable.kiss,
+            R.drawable.bottle,
+            R.drawable.loveshot,
+            R.drawable.key,
             R.drawable.stk_premium_strawberry,
             R.drawable.stk_premium_cherry,
             R.drawable.stk_premium_apple,
@@ -559,8 +676,10 @@ class CardEditorActivity : AppCompatActivity() {
 
         cardView.findViewById<ImageView>(R.id.card_image).setImageURI(photoUri)
         cardView.findViewById<TextView>(R.id.card_address).text = address
-        cardView.findViewById<TextView>(R.id.card_date).text =
-            SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(Date())
+        val sdf = SimpleDateFormat("yy.MM.dd", Locale.KOREA).apply {
+            timeZone = java.util.TimeZone.getTimeZone("Asia/Seoul")
+        }
+        cardView.findViewById<TextView>(R.id.card_date).text = sdf.format(Date())
 
         // Capture the beautiful Kyobo hand font securely from the XML inflated view
         if (calligraphyFont == null) {
@@ -576,7 +695,19 @@ class CardEditorActivity : AppCompatActivity() {
 
         container.addView(cardView)
         updateCardMessageText()
-        showQRCodeOnStickerLayer(cardView)
+
+        // 🛡️ [비공개 테스트 모드] 에디터 내 카드 단순화
+        if (AppConfig.IS_TEST_MODE) {
+            cardView.findViewById<View>(R.id.card_rating_container)?.visibility = View.GONE
+            cardView.findViewById<View>(R.id.card_qr_code)?.visibility = View.GONE
+            cardView.findViewById<View>(R.id.card_watermark)?.visibility = View.GONE
+            cardView.findViewById<View>(R.id.card_premium_border)?.visibility = View.GONE
+            cardView.findViewById<View>(R.id.card_premium_bg)?.visibility = View.GONE
+            cardView.findViewById<View>(R.id.sticker_container)?.visibility = View.GONE
+            cardView.findViewById<View>(R.id.card_drawing_view)?.visibility = View.GONE
+        } else {
+            showQRCodeOnStickerLayer(cardView)
+        }
 
         // ⭐ 감성 별점 (Rating) 로직
         val star1 = cardView.findViewById<ImageView>(R.id.star_1)
@@ -716,6 +847,10 @@ class CardEditorActivity : AppCompatActivity() {
         val cardDate = cardView.findViewById<TextView>(R.id.card_date)
         val cardWatermark = cardView.findViewById<TextView>(R.id.card_watermark)
         val cardImage = cardView.findViewById<ImageView>(R.id.card_image)
+        val skinOverlay = cardView.findViewById<ImageView>(R.id.card_skin_overlay)
+
+        // 💎 [Premium Optimization] Reset skin overlay visibility for all themes by default
+        skinOverlay?.visibility = View.GONE
 
         when (effect) {
             "basic" -> {
@@ -756,6 +891,7 @@ class CardEditorActivity : AppCompatActivity() {
                     cardMessage.typeface = android.graphics.Typeface.DEFAULT
                 }
 
+                skinOverlay?.visibility = View.GONE
                 stopSakuraEffect()
             }
             "oatmeal" -> {
@@ -989,6 +1125,7 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
+                skinOverlay?.visibility = View.GONE
             }
             "midnight" -> {
                 cardMessage.setTextColor(Color.parseColor("#FFFFFF"))
@@ -1010,7 +1147,86 @@ class CardEditorActivity : AppCompatActivity() {
                 textLayout.setBackgroundColor(Color.TRANSPARENT)
                 cardView.setCardBackgroundColor(Color.TRANSPARENT)
                 cardView.cardElevation = 24 * resources.displayMetrics.density
+                skinOverlay?.visibility = View.GONE
                 Toast.makeText(this, "🖤 압도적인 포스 미드나잇 플래티넘 테마 적용!", Toast.LENGTH_SHORT).show()
+            }
+            "premium_leather" -> {
+                cardMessage.setTextColor(Color.parseColor("#3A2A1D")) // Dark leather brown text
+                cardAddress.setTextColor(Color.parseColor("#7D6F63"))
+                cardDate.setTextColor(Color.parseColor("#9E9287"))
+                cardWatermark?.setTextColor(Color.parseColor("#C4A27A")) // Gold text for watermark
+                try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#1A3A2A1D")) } catch(e: Exception){}
+
+                contentLayout.tag = "premium_leather"
+                val defaultPadding = (24 * resources.displayMetrics.density).toInt()
+                contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
+                contentLayout.setBackgroundColor(Color.TRANSPARENT)
+                
+                val premiumBg = cardView.findViewById<ImageView>(R.id.card_premium_bg)
+                premiumBg?.setImageResource(android.R.color.transparent)
+                premiumBg?.setBackgroundResource(R.drawable.bg_prem_leather)
+                
+                val premiumBorder = cardView.findViewById<View>(R.id.card_premium_border)
+                premiumBorder?.visibility = View.VISIBLE
+                premiumBorder?.setBackgroundResource(R.drawable.bg_prem_leather_border)
+                
+                textLayout.setBackgroundColor(Color.TRANSPARENT)
+                cardView.setCardBackgroundColor(Color.TRANSPARENT)
+                cardView.cardElevation = 24 * resources.displayMetrics.density
+                skinOverlay?.visibility = View.GONE
+                Toast.makeText(this, "💼 한정판 화이트 레더 다이어리 적용!", Toast.LENGTH_SHORT).show()
+            }
+            "premium_glass" -> {
+                cardMessage.setTextColor(Color.parseColor("#1A1A24")) // Navy dark text
+                cardAddress.setTextColor(Color.parseColor("#666677"))
+                cardDate.setTextColor(Color.parseColor("#888899"))
+                cardWatermark?.setTextColor(Color.parseColor("#A3C2D1")) 
+                try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#22FFFFFF")) } catch(e: Exception){}
+
+                contentLayout.tag = "premium_glass"
+                val defaultPadding = (24 * resources.displayMetrics.density).toInt()
+                contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
+                contentLayout.setBackgroundColor(Color.TRANSPARENT)
+                
+                val premiumBg = cardView.findViewById<ImageView>(R.id.card_premium_bg)
+                premiumBg?.setImageResource(android.R.color.transparent)
+                premiumBg?.setBackgroundResource(R.drawable.bg_prem_glass)
+                
+                val premiumBorder = cardView.findViewById<View>(R.id.card_premium_border)
+                premiumBorder?.visibility = View.VISIBLE
+                premiumBorder?.setBackgroundResource(R.drawable.bg_prem_glass_border)
+                
+                textLayout.setBackgroundColor(Color.TRANSPARENT)
+                cardView.setCardBackgroundColor(Color.TRANSPARENT)
+                cardView.cardElevation = 24 * resources.displayMetrics.density
+                skinOverlay?.visibility = View.GONE
+                Toast.makeText(this, "🧊 한정판 프로스트 글래스 테마 적용!", Toast.LENGTH_SHORT).show()
+            }
+            "premium_film" -> {
+                cardMessage.setTextColor(Color.parseColor("#F5E6CC")) // Warm vintage
+                cardAddress.setTextColor(Color.parseColor("#C2A98A"))
+                cardDate.setTextColor(Color.parseColor("#9E8362"))
+                cardWatermark?.setTextColor(Color.parseColor("#FFD700")) // Gold foil
+                try { (cardAddress.parent as? View)?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#33000000")) } catch(e: Exception){}
+
+                contentLayout.tag = "premium_film"
+                val defaultPadding = (24 * resources.displayMetrics.density).toInt()
+                contentLayout.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
+                contentLayout.setBackgroundColor(Color.TRANSPARENT)
+                
+                val premiumBg = cardView.findViewById<ImageView>(R.id.card_premium_bg)
+                premiumBg?.setImageResource(android.R.color.transparent)
+                premiumBg?.setBackgroundResource(R.drawable.bg_prem_film)
+                
+                val premiumBorder = cardView.findViewById<View>(R.id.card_premium_border)
+                premiumBorder?.visibility = View.VISIBLE
+                premiumBorder?.setBackgroundResource(R.drawable.bg_prem_film_border)
+                
+                textLayout.setBackgroundColor(Color.TRANSPARENT)
+                cardView.setCardBackgroundColor(Color.TRANSPARENT)
+                cardView.cardElevation = 24 * resources.displayMetrics.density
+                skinOverlay?.visibility = View.GONE
+                Toast.makeText(this, "🎞️ 한정판 빈티지 필름 골드 적용!", Toast.LENGTH_SHORT).show()
             }
             "purple" -> {
                 cardMessage.setTextColor(Color.parseColor("#FAFAF5"))
@@ -1706,30 +1922,57 @@ class CardEditorActivity : AppCompatActivity() {
         cardView.draw(canvas)
         val savedUri = saveBitmapToGallery(bitmap, lat, lng, address)
         if (savedUri != null) {
+            val dbHelper = MemoryDatabaseHelper(this)
+            val memory = Memory(
+                photoUri = savedUri.toString(),
+                address = address.trim(),
+                lat = lat,
+                lng = lng,
+                date = System.currentTimeMillis(),
+                rating = currentRating,
+                profileSticker = chosenMarkerProfileFilename ?: ProfileStickerManager.getSelectedProfileFilename(this)
+            )
             try {
                 // DB에 추억 저장 (내 추억지도용)
-                val dbHelper = MemoryDatabaseHelper(this)
-                val memory = Memory(
-                    photoUri = savedUri.toString(),
-                    address = address.trim(),
-                    lat = lat,
-                    lng = lng,
-                    date = System.currentTimeMillis(),
-                    rating = currentRating
-                )
                 dbHelper.insertMemory(memory)
                 Log.d("DB_INSERT", "내 추억지도 저장 성공: ${address.trim()}")
             } catch (e: Exception) {
                 Log.e("DB_INSERT", "내 추억지도 저장 실패", e)
             }
-        }
 
-        if (shareAfter && savedUri != null) {
-            Toast.makeText(this, "추억 카드를 보냅니다...", Toast.LENGTH_SHORT).show()
-            shareImage(savedUri, lat, lng, address)
-        } else if (savedUri != null) {
-            Toast.makeText(this, "갤러리 및 추억지도에 저장되었습니다! ✨", Toast.LENGTH_SHORT).show()
+            if (shareAfter) {
+                // 💡 [대표님 지시] 지도에서와 동일한 공유 선택창 표시
+                showShareSelectionDialog(memory, savedUri)
+            } else {
+                val msg = if (AppConfig.IS_TEST_MODE) "보관함에 저장되었습니다! ✨" else "갤러리 및 추억지도에 저장되었습니다! ✨"
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            }
         }
+    }
+
+    private fun showShareSelectionDialog(memory: Memory, imageUri: Uri) {
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.TransparentBottomSheetDialog)
+        val view = layoutInflater.inflate(R.layout.dialog_share_selection, null)
+        
+        // 카드 이미지만 공유
+        view.findViewById<View>(R.id.btn_share_card_direct).setOnClickListener {
+            dialog.dismiss()
+            shareImage(imageUri, memory.lat, memory.lng, memory.address ?: "")
+        }
+        
+        // 🛡️ [비공개 테스트 모드] 상대방 지도에 흔적 남기기(카카오 공유) 숨기기
+        if (AppConfig.IS_TEST_MODE) {
+            view.findViewById<View>(R.id.btn_share_pin_direct)?.visibility = View.GONE
+        } else {
+            // 카카오 지도로 보내기 (핀 포함)
+            view.findViewById<View>(R.id.btn_share_pin_direct).setOnClickListener {
+                dialog.dismiss()
+                shareToLoverViaKakao(memory)
+            }
+        }
+        
+        dialog.setContentView(view)
+        dialog.show()
     }
 
     private fun saveBitmapToGallery(bitmap: Bitmap, lat: Double, lng: Double, address: String): Uri? {
@@ -1738,7 +1981,7 @@ class CardEditorActivity : AppCompatActivity() {
             val values = ContentValues().apply {
                 put(MediaStore.Images.Media.DISPLAY_NAME, filename)
                 put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/NewDateMapDiary")
+                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/HereWithYou")
             }
 
             val tempFile = java.io.File(cacheDir, "temp_card_exif.jpg")
@@ -1750,7 +1993,10 @@ class CardEditorActivity : AppCompatActivity() {
             try {
                 val exif = androidx.exifinterface.media.ExifInterface(tempFile.absolutePath)
                 val encodedAddr = java.net.URLEncoder.encode(address, "UTF-8")
-                val jsonMeta = "{\"lat\":$lat, \"lng\":$lng, \"addr\":\"$encodedAddr\"}"
+                val sender = java.net.URLEncoder.encode(ProfileStickerManager.getMyName(this), "UTF-8")
+                val receiver = java.net.URLEncoder.encode(ProfileStickerManager.getPartnerName(this), "UTF-8")
+                val profile = chosenMarkerProfileFilename ?: ProfileStickerManager.getSelectedProfileFilename(this) ?: ""
+                val jsonMeta = "{\"lat\":$lat, \"lng\":$lng, \"addr\":\"$encodedAddr\", \"sender\":\"$sender\", \"receiver\":\"$receiver\", \"profile\":\"$profile\"}"
                 exif.setAttribute(androidx.exifinterface.media.ExifInterface.TAG_IMAGE_DESCRIPTION, jsonMeta)
                 exif.saveAttributes()
             } catch (e: Exception) {
@@ -1821,8 +2067,340 @@ class CardEditorActivity : AppCompatActivity() {
             Toast.makeText(this, "공유를 실패했습니다.", Toast.LENGTH_SHORT).show()
         }
     }
-}
 
+    private fun processFaceSticker(uri: Uri) {
+        try {
+            val loadingToast = Toast.makeText(this, "📸 얼굴 분석 중... 잠시만 기다려주세요!", Toast.LENGTH_SHORT)
+            loadingToast.show()
+
+            // Load Bitmap from URI
+            val inputStream = contentResolver.openInputStream(uri)
+            val original = BitmapFactory.decodeStream(inputStream)
+            inputStream?.close()
+
+            if (original == null) {
+                Toast.makeText(this, "이미지를 불러오지 못했습니다.", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            // 🔥 [회전 보정] 사진의 EXIF 정보를 읽어서 똑바로 세움
+            val rotationInputStream = contentResolver.openInputStream(uri)
+            val exif = rotationInputStream?.let { androidx.exifinterface.media.ExifInterface(it) }
+            val orientation = exif?.getAttributeInt(androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION, androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL)
+            rotationInputStream?.close()
+
+            val matrix = Matrix()
+            when (orientation) {
+                androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+            }
+            
+            val rotatedBitmap = if (orientation != androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL) {
+                Bitmap.createBitmap(original, 0, 0, original.width, original.height, matrix, true)
+            } else original
+
+            // Downscale for faster processing if too large
+            val maxDim = 1000
+            val scaledOriginal = if (rotatedBitmap.width > maxDim || rotatedBitmap.height > maxDim) {
+                val ratio = rotatedBitmap.width.toFloat() / rotatedBitmap.height
+                val newW = if (ratio > 1) maxDim else (maxDim * ratio).toInt()
+                val newH = if (ratio > 1) (maxDim / ratio).toInt() else maxDim
+                Bitmap.createScaledBitmap(rotatedBitmap, newW, newH, true)
+            } else rotatedBitmap
+
+            FaceStickerUtil.createFaceSticker(scaledOriginal) { stickerBitmap ->
+                runOnUiThread {
+                    loadingToast.cancel()
+                    if (stickerBitmap != null) {
+                        addFaceSticker(stickerBitmap)
+                        Toast.makeText(this, "🎉 나만의 얼굴 스티커 탄생!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "얼굴을 찾지 못했거나 분석에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("FACE_STICKER", "Error processing sticker", e)
+            Toast.makeText(this, "오류가 발생했습니다: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun addFaceSticker(bitmap: Bitmap) {
+        try {
+            val container = findViewById<FrameLayout>(R.id.card_preview_container)
+            if (container.childCount > 0) {
+                val cardView = container.getChildAt(0) as? androidx.cardview.widget.CardView
+                val stickerLayer = cardView?.findViewById<ViewGroup>(R.id.sticker_container) ?: return
+
+                val stickerWrapper = FrameLayout(this).apply {
+                    layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
+                        setMargins(150, 450, 0, 0)
+                    }
+                }
+
+                // Main Image
+                val imgView = ImageView(this).apply {
+                    setImageBitmap(bitmap)
+                    val size = (100 * resources.displayMetrics.density).toInt() // Initial size
+                    layoutParams = FrameLayout.LayoutParams(size, size).apply {
+                        setMargins(30, 30, 30, 30)
+                    }
+                    scaleType = ImageView.ScaleType.FIT_CENTER
+                }
+
+                val closeButton = ImageView(this).apply {
+                    setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
+                    layoutParams = FrameLayout.LayoutParams(60, 60).apply {
+                        gravity = android.view.Gravity.TOP or android.view.Gravity.END
+                    }
+                    setBackgroundResource(R.drawable.bg_romantic_button)
+                    backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#FF5252"))
+                    setColorFilter(Color.WHITE)
+                    setOnClickListener {
+                        stickerLayer.removeView(stickerWrapper)
+                        if (currentSelectedSticker == stickerWrapper) {
+                            currentSelectedSticker = null
+                        }
+                    }
+                }
+
+                stickerWrapper.addView(imgView)
+                stickerWrapper.addView(closeButton)
+
+                var dX = 0f
+                var dY = 0f
+                val finalScale = container.scaleX
+                stickerWrapper.setOnTouchListener { view, event ->
+                    when (event.actionMasked) {
+                        android.view.MotionEvent.ACTION_DOWN -> {
+                            selectSticker(view)
+                            view.parent?.requestDisallowInterceptTouchEvent(true)
+                            dX = view.x - event.rawX / finalScale
+                            dY = view.y - event.rawY / finalScale
+                        }
+                        android.view.MotionEvent.ACTION_MOVE -> {
+                            if (event.pointerCount == 1) {
+                                view.parent?.requestDisallowInterceptTouchEvent(true)
+                                view.x = (event.rawX / finalScale) + dX
+                                view.y = (event.rawY / finalScale) + dY
+                            }
+                        }
+                        android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                            view.parent?.requestDisallowInterceptTouchEvent(false)
+                        }
+                    }
+                    true
+                }
+
+                stickerLayer.addView(stickerWrapper)
+                selectSticker(stickerWrapper)
+            }
+        } catch (e: Exception) {
+            Log.e("STICKER_ERROR", "Face sticker add failed: ${e.message}")
+        }
+    }
+
+    private fun setupMarkerProfileList() {
+        val rv = findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rv_editor_profile_list)
+        val profiles = ProfileStickerManager.getProfileStickers(this)
+        
+        // 💑 "기본 핀"과 현재 저장된 프로필들을 합침
+        val items = mutableListOf<String?>(null) // null 이면 '전역 설정 따름' 또는 '기본'
+        profiles.forEach { items.add(it.name) }
+
+        rv.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false)
+        rv.adapter = object : androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
+            override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
+                val view = android.view.LayoutInflater.from(parent.context).inflate(R.layout.item_profile_sticker, parent, false)
+                return object : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {}
+            }
+
+            override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
+                val filename = items[position]
+                val img = holder.itemView.findViewById<android.widget.ImageView>(R.id.img_profile_sticker)
+                val indicator = holder.itemView.findViewById<android.view.View>(R.id.bg_selected_indicator)
+                val btnDelete = holder.itemView.findViewById<android.view.View>(R.id.btn_delete_profile)
+                
+                btnDelete.visibility = android.view.View.GONE // 여기서는 삭제 기능 비활성화
+
+                if (filename == null) {
+                    com.bumptech.glide.Glide.with(holder.itemView.context).clear(img)
+                    img.setImageResource(R.drawable.ic_red_heart_marker)
+                    img.setPadding(20, 20, 20, 20)
+                } else {
+                    val file = java.io.File(java.io.File(holder.itemView.context.filesDir, "profile_stickers"), filename)
+                    com.bumptech.glide.Glide.with(holder.itemView.context)
+                        .load(file)
+                        .into(img)
+                    img.setPadding(0, 0, 0, 0)
+                }
+
+                // 선택된 항목 표시
+                indicator.visibility = if (chosenMarkerProfileFilename == filename) android.view.View.VISIBLE else android.view.View.INVISIBLE
+                
+                holder.itemView.setOnClickListener {
+                    chosenMarkerProfileFilename = filename
+                    notifyDataSetChanged()
+                }
+            }
+
+            override fun getItemCount() = items.size
+        }
+    }
+
+    // region 💌 [Share Logic from MemoryMapActivity]
+    
+    private fun shareToLoverViaKakao(target: Memory) {
+        val shareDialog = com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.TransparentBottomSheetDialog)
+        val shareView = layoutInflater.inflate(R.layout.dialog_share_names, null)
+        val etSender = shareView.findViewById<android.widget.EditText>(R.id.et_share_sender)
+        val etReceiver = shareView.findViewById<android.widget.EditText>(R.id.et_share_receiver)
+        val btnConfirm = shareView.findViewById<android.widget.Button>(R.id.btn_confirm_share)
+        
+        // 💡 [대표님 지시] 특정 이름을 기본값으로 채우지 않고 힌트(입력하세요)가 보이도록 함
+        
+        btnConfirm.setOnClickListener {
+            val senderName = etSender.text.toString().trim()
+            val receiverName = etReceiver.text.toString().trim()
+            if (senderName.isNotEmpty() && receiverName.isNotEmpty()) {
+                ProfileStickerManager.setMyName(this, senderName)
+                ProfileStickerManager.setPartnerName(this, receiverName)
+                shareDialog.dismiss()
+                proceedToShare(target, senderName, receiverName)
+            }
+        }
+        shareDialog.setContentView(shareView)
+        shareDialog.show()
+    }
+
+    private fun createShareCoverGraphic(senderName: String, receiverName: String): Bitmap {
+        val size = 1000
+        val result = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(result)
+        val bgPaint = android.graphics.Paint().apply {
+            shader = android.graphics.LinearGradient(0f, 0f, 0f, size.toFloat(),
+                intArrayOf(Color.parseColor("#1A1A1A"), Color.parseColor("#000000")),
+                null, android.graphics.Shader.TileMode.CLAMP)
+        }
+        canvas.drawRect(0f, 0f, size.toFloat(), size.toFloat(), bgPaint)
+        
+        val logoPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#BBFFFFFF")
+            textSize = 34f
+            letterSpacing = 0.4f
+            textAlign = android.graphics.Paint.Align.CENTER
+            try { typeface = android.graphics.Typeface.create("serif", android.graphics.Typeface.BOLD) } catch (e: Exception) {}
+        }
+        canvas.drawText("H E R E   W I T H   Y O U", size / 2f, 100f, logoPaint)
+        
+        val textPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            textAlign = android.graphics.Paint.Align.CENTER
+            try { typeface = androidx.core.content.res.ResourcesCompat.getFont(this@CardEditorActivity, R.font.kyobo_hand_family) } catch (e: Exception) {}
+        }
+        textPaint.textSize = 62f
+        canvas.drawText("${senderName}님이", size / 2f, size / 2f - 60f, textPaint)
+        textPaint.apply { textSize = 68f; color = Color.parseColor("#FFD700") }
+        canvas.drawText("${receiverName}님에게", size / 2f, size / 2f + 20f, textPaint)
+        textPaint.apply { textSize = 54f; color = Color.WHITE }
+        canvas.drawText("소중한 추억의 장소를 공유합니다 📍", size / 2f, size / 2f + 110f, textPaint)
+        
+        return result
+    }
+
+    private fun proceedToShare(target: Memory, senderName: String, receiverName: String) {
+        Toast.makeText(this, "우리만의 소중한 장소 공유를 준비합니다 ✨", Toast.LENGTH_SHORT).show()
+        kotlin.concurrent.thread {
+            try {
+                val uri = Uri.parse(target.photoUri)
+                val originalBitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+                
+                val myProfileBitmap = if (!target.profileSticker.isNullOrEmpty()) {
+                    ProfileStickerManager.getProfileBitmap(this@CardEditorActivity, target.profileSticker!!)
+                } else {
+                    ProfileStickerManager.getSelectedProfileBitmap(this@CardEditorActivity)
+                }
+                
+                val coverBitmap = createShareCoverGraphic(senderName, receiverName)
+                
+                val coverFile = java.io.File(cacheDir, "share_cover.jpg")
+                coverFile.outputStream().use { coverBitmap.compress(Bitmap.CompressFormat.JPEG, 90, it) }
+                
+                val originalFile = java.io.File(cacheDir, "share_original.jpg")
+                originalFile.outputStream().use { originalBitmap.compress(Bitmap.CompressFormat.JPEG, 85, it) }
+                
+                val profileFile = if (myProfileBitmap != null) {
+                    val f = java.io.File(cacheDir, "sh_prof.png")
+                    f.outputStream().use { myProfileBitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                    f
+                } else null
+                
+                runOnUiThread { uploadAndShareTriple(coverFile, originalFile, profileFile, target) }
+            } catch (e: Exception) { e.printStackTrace() }
+        }
+    }
+
+    private fun uploadAndShareTriple(coverFile: java.io.File, originalFile: java.io.File, profileFile: java.io.File?, target: Memory) {
+        com.kakao.sdk.share.ShareClient.instance.uploadImage(originalFile) { oResult, oError ->
+            if (oError != null || oResult == null) {
+                runOnUiThread { Toast.makeText(this@CardEditorActivity, "이미지 업로드에 실패했습니다. 네트워크를 확인해주세요! 😢", Toast.LENGTH_SHORT).show() }
+                return@uploadImage
+            }
+            val oUrl = oResult.infos.original.url
+            
+            if (profileFile != null) {
+                com.kakao.sdk.share.ShareClient.instance.uploadImage(profileFile) { pResult, pError ->
+                    if (pError != null || pResult == null) {
+                        com.kakao.sdk.share.ShareClient.instance.uploadImage(coverFile) { cResult, cError ->
+                            val cUrl = cResult?.infos?.original?.url ?: ""
+                            sendKakaoLinkWithProfile(cUrl, oUrl, "", target)
+                        }
+                    } else {
+                        val pUrl = pResult.infos.original.url
+                        com.kakao.sdk.share.ShareClient.instance.uploadImage(coverFile) { cResult, cError ->
+                            val cUrl = cResult?.infos?.original?.url ?: ""
+                            sendKakaoLinkWithProfile(cUrl, oUrl, pUrl, target)
+                        }
+                    }
+                }
+            } else {
+                com.kakao.sdk.share.ShareClient.instance.uploadImage(coverFile) { cResult, cError ->
+                    val cUrl = cResult?.infos?.original?.url ?: ""
+                    sendKakaoLinkWithProfile(cUrl, oUrl, "", target)
+                }
+            }
+        }
+    }
+
+    private fun sendKakaoLinkWithProfile(coverUrl: String, originalUrl: String, profileUrl: String, target: Memory) {
+        val executionParams = mutableMapOf(
+            "lat" to target.lat.toString(),
+            "lng" to target.lng.toString(),
+            "addr" to (target.address ?: ""),
+            "img" to originalUrl
+        )
+        if (profileUrl.isNotEmpty()) {
+            executionParams["profile"] = profileUrl
+        }
+        
+        val feedTemplate = com.kakao.sdk.template.model.FeedTemplate(
+            content = com.kakao.sdk.template.model.Content(
+                title = "소중한 추억 ✨",
+                description = "지도로 우리만의 비밀 장소를 확인해보세요!",
+                imageUrl = coverUrl,
+                link = com.kakao.sdk.template.model.Link(androidExecutionParams = executionParams)
+            ),
+            buttons = listOf(com.kakao.sdk.template.model.Button("추억 확인하기", com.kakao.sdk.template.model.Link(androidExecutionParams = executionParams)))
+        )
+        
+        com.kakao.sdk.share.ShareClient.instance.shareDefault(this, feedTemplate) { result, error ->
+            if (error == null && result != null) startActivity(result.intent)
+        }
+    }
+    // endregion
+
+}
 class FlowLayout @JvmOverloads constructor(
     context: android.content.Context,
     attrs: android.util.AttributeSet? = null,

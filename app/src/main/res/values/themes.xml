@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.HereWithYou" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.HereWithYou" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#FFD700</item>
+        <item name="android:statusBarColor">#000000</item>
+    </style>
 
-    <style name="RoundedImageView" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+    <style name="RoundedImageView" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">12dp</item>
     </style>
@@ -22,5 +25,13 @@
 
     <style name="TextAppearance.CalendarWidget.Date" parent="android:TextAppearance.DeviceDefault.Small">
         <item name="android:textColor">#221018</item>
+    </style>
+
+    <!-- 🎨 [코부장 전 전담] 팝업창 외곽 흰색 바탕 제거를 위한 투명 테마 -->
+    <style name="TransparentBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/TransparentBottomSheetStyle</item>
+    </style>
+    <style name="TransparentBottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
     </style>
 </resources>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_dark_premium"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="💌 흔적 남기기"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp"
+        android:fontFamily="@font/kyobo_hand_family" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="보내는 사람"
+        android:textColor="#FFD700"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/kyobo_hand_family" />
+
+    <EditText
+        android:id="@+id/et_share_sender"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_dialog_section_dark"
+        android:paddingHorizontal="16dp"
+        android:textColor="#FFFFFF"
+        android:hint="입력하세요"
+        android:textColorHint="#66FFFFFF"
+        android:maxLines="1"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/kyobo_hand_family" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="받는 사람"
+        android:textColor="#FFD700"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/kyobo_hand_family" />
+
+    <EditText
+        android:id="@+id/et_share_receiver"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_dialog_section_dark"
+        android:paddingHorizontal="16dp"
+        android:textColor="#FFFFFF"
+        android:hint="입력하세요"
+        android:textColorHint="#66FFFFFF"
+        android:maxLines="1"
+        android:layout_marginBottom="24dp"
+        android:fontFamily="@font/kyobo_hand_family" />
+
+    <Button
+        android:id="@+id/btn_confirm_share"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="추억 흔적 남기기"
+        android:backgroundTint="#FFD700"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/kyobo_hand_family" />
+
+</LinearLayout>

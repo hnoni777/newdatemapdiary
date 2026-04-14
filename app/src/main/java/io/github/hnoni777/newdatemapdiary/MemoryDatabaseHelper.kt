@@ -12,13 +12,14 @@ data class Memory(
     val lat: Double,
     val lng: Double,
     val date: Long,
-    val rating: Int = 0 // ✨ 신규: 별점 점수 (0~3)
+    val rating: Int = 0,
+    val profileSticker: String? = null // ✨ 신규: 저장 당시 사용된 프로필 스티커 파일명
 )
 
 class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         const val DATABASE_NAME = "memories.db"
-        const val DATABASE_VERSION = 2 // ✨ DB 버전 업 (별점 기능 추가)
+        const val DATABASE_VERSION = 3 // ✨ DB 버전 업 (프로필 스티커 필드 추가)
         const val TABLE_MEMORIES = "memories"
         
         const val COLUMN_ID = "id"
@@ -28,6 +29,7 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
         const val COLUMN_LNG = "lng"
         const val COLUMN_DATE = "date"
         const val COLUMN_RATING = "rating"
+        const val COLUMN_PROFILE_STICKER = "profile_sticker"
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -39,7 +41,8 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
                 $COLUMN_LAT REAL,
                 $COLUMN_LNG REAL,
                 $COLUMN_DATE INTEGER,
-                $COLUMN_RATING INTEGER DEFAULT 0
+                $COLUMN_RATING INTEGER DEFAULT 0,
+                $COLUMN_PROFILE_STICKER TEXT
             )
         """.trimIndent()
         db.execSQL(createTable)
@@ -47,8 +50,11 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if (oldVersion < 2) {
-            // 버전 1 -> 2 업그레이드 시 rating 컬럼을 추가하며, 기존 데이터는 0(별 없음)으로 기본값 처리
             db.execSQL("ALTER TABLE $TABLE_MEMORIES ADD COLUMN $COLUMN_RATING INTEGER DEFAULT 0")
+        }
+        if (oldVersion < 3) {
+            // 버전 2 -> 3 업그레이드 시 profile_sticker 컬럼 추가
+            db.execSQL("ALTER TABLE $TABLE_MEMORIES ADD COLUMN $COLUMN_PROFILE_STICKER TEXT")
         }
     }
 
@@ -61,6 +67,7 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
             put(COLUMN_LNG, memory.lng)
             put(COLUMN_DATE, memory.date)
             put(COLUMN_RATING, memory.rating)
+            put(COLUMN_PROFILE_STICKER, memory.profileSticker) // 저장 시점의 프로필 정보 기록
         }
         return db.insert(TABLE_MEMORIES, null, values)
     }
@@ -72,9 +79,11 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
         
         if (cursor.moveToFirst()) {
             do {
-                // 이 전 버전에 없는 컬럼도 대비 (안정성)
                 val ratingIndex = cursor.getColumnIndex(COLUMN_RATING)
                 val rating = if (ratingIndex != -1) cursor.getInt(ratingIndex) else 0
+
+                val profileIndex = cursor.getColumnIndex(COLUMN_PROFILE_STICKER)
+                val profileSticker = if (profileIndex != -1) cursor.getString(profileIndex) else null
 
                 val memory = Memory(
                     id = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID)),
@@ -83,7 +92,8 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
                     lat = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LAT)),
                     lng = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LNG)),
                     date = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_DATE)),
-                    rating = rating
+                    rating = rating,
+                    profileSticker = profileSticker
                 )
                 memories.add(memory)
             } while (cursor.moveToNext())
@@ -118,6 +128,9 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
         if (cursor.moveToFirst()) {
             val ratingIndex = cursor.getColumnIndex(COLUMN_RATING)
             val rating = if (ratingIndex != -1) cursor.getInt(ratingIndex) else 0
+            
+            val profileIndex = cursor.getColumnIndex(COLUMN_PROFILE_STICKER)
+            val profileSticker = if (profileIndex != -1) cursor.getString(profileIndex) else null
 
             memory = Memory(
                 id = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID)),
@@ -126,7 +139,8 @@ class MemoryDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABAS
                 lat = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LAT)),
                 lng = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_LNG)),
                 date = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_DATE)),
-                rating = rating
+                rating = rating,
+                profileSticker = profileSticker
             )
         }
         cursor.close()
