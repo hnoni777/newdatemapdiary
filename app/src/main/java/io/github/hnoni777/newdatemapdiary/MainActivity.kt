@@ -735,7 +735,10 @@ class MainActivity : AppCompatActivity() {
                     .putBoolean("initial_restore_done", true).apply()
                 
                 if (restoredCount > 0) {
-                    runOnUiThread { Toast.makeText(this, "${restoredCount}개의 추억을 복구했습니다! ✨", Toast.LENGTH_LONG).show() }
+                    runOnUiThread { 
+                        Toast.makeText(this, "${restoredCount}개의 추억을 복구했습니다! ✨", Toast.LENGTH_LONG).show()
+                        refreshDashboard()
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("AUTO_RESTORE", "Restore failed", e)
