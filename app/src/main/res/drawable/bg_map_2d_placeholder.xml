@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+    <!-- 배경색 -->
+    <path
+        android:fillColor="#151A15"
+        android:pathData="M0,0h400v400h-400z" />
+    <!-- 도로 1 -->
+    <path
+        android:strokeColor="#2F382F"
+        android:strokeWidth="6"
+        android:pathData="M-50,120 L450,180 M350,-50 L280,450 M-50,300 L450,260" />
+    <!-- 도로 2 -->
+    <path
+        android:strokeColor="#252A25"
+        android:strokeWidth="3"
+        android:pathData="M120,-50 L160,450 M-50,220 L450,190 M200,-50 L230,450 M-50,50 L450,100" />
+    <!-- 공원 영역 -->
+    <path
+        android:fillColor="#1A241A"
+        android:pathData="M80,80 L200,80 L200,200 L80,200 Z M280,250 L380,250 L380,350 L280,350 Z"
+        android:strokeAlpha="0.5" />
+</vector>

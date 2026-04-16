@@ -116,6 +116,12 @@ class MainActivity : AppCompatActivity() {
             requestLocationPermission()
         }
 
+        // 💌 시작 시 초대장 & 위치정보 즉시 로드
+        showCardPreview()
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fetchAndShowMyLocation()
+        }
+
         // ✨ [NEW] 대시보드 초기화 및 자동 갱신
         refreshDashboard()
 
@@ -123,6 +129,17 @@ class MainActivity : AppCompatActivity() {
         if (AppConfig.IS_TEST_MODE) {
             findViewById<View>(R.id.btn_memory_map)?.visibility = View.GONE
             findViewById<View>(R.id.btn_profile_settings)?.visibility = View.GONE
+        }
+    }
+    
+    override fun onBackPressed() {
+        if (photoUri != null) {
+            // 📸 [사진 촬영 미리보기 상태]: 메인 대시보드로 즉시 복귀
+            photoUri = null
+            showCardPreview()
+        } else {
+            // 🏠 [일반 메인 상태]: 기본 뒤로가기 동작 (앱 종료/백그라운드)
+            super.onBackPressed()
         }
     }
 
@@ -322,6 +339,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun dismissInvitation() {
+        runOnUiThread {
+            statusDotsTimer?.cancel()
+            invitationDialog?.dismiss()
+            invitationDialog = null
+        }
+    }
+
     private fun showSaveSuccessDialog() {
         val dialog = android.app.Dialog(this)
         val dialogView = layoutInflater.inflate(R.layout.dialog_save_success, null)
@@ -336,18 +361,8 @@ class MainActivity : AppCompatActivity() {
         dialogView.findViewById<Button>(R.id.btn_save_close).setOnClickListener {
             dialog.dismiss()
         }
-
         dialog.show()
     }
-
-    private fun dismissInvitation() {
-        runOnUiThread {
-            statusDotsTimer?.cancel()
-            invitationDialog?.dismiss()
-            invitationDialog = null
-        }
-    }
-
 
     private fun setupButtons() {
         findViewById<View>(R.id.btn_camera).setOnClickListener {
@@ -402,6 +417,35 @@ class MainActivity : AppCompatActivity() {
             showProfileManagerDialog()
         }
 
+        // 🗺️ 지도 팝업 트리거
+        findViewById<View>(R.id.btn_show_map_popup).setOnClickListener {
+            toggleMapPopup(true)
+        }
+        findViewById<View>(R.id.btn_close_map).setOnClickListener {
+            toggleMapPopup(false)
+        }
+    }
+
+    private fun toggleMapPopup(show: Boolean) {
+        val popup = findViewById<View>(R.id.map_popup_layer)
+        if (show) {
+            if (popup.visibility == View.VISIBLE) return
+            popup.visibility = View.VISIBLE
+            popup.translationY = -popup.height.toFloat()
+            popup.animate()
+                .translationY(0f)
+                .setDuration(500)
+                .setInterpolator(android.view.animation.DecelerateInterpolator())
+                .withEndAction { startMap() }
+                .start()
+        } else {
+            popup.animate()
+                .translationY(-popup.height.toFloat())
+                .setDuration(400)
+                .setInterpolator(android.view.animation.AccelerateInterpolator())
+                .withEndAction { popup.visibility = View.GONE }
+                .start()
+        }
     }
 
     // 📸 스샷로직
@@ -609,58 +653,100 @@ class MainActivity : AppCompatActivity() {
     // ===============================
     private fun showCardPreview() {
         val container = findViewById<FrameLayout>(R.id.card_preview_container)
+        val btnCreate = findViewById<View>(R.id.btn_create_card)
+        val dashboard = findViewById<View>(R.id.couple_dashboard)
+        val twinButtons = findViewById<View>(R.id.twin_button_container)
+        val mapBanner = findViewById<View>(R.id.btn_show_map_popup)
+        val dashboardFrame = findViewById<View>(R.id.dashboard_3d_frame)
+        val floatingBar = findViewById<View>(R.id.floating_action_bar)
+        val cardWrapper = findViewById<View>(R.id.card_inner_wrapper)
+        val scrollView = findViewById<androidx.core.widget.NestedScrollView>(R.id.main_nested_scroll)
         
-        // 💡 [코부장 최적화] 이미 카드가 있다면 새로 그리지 않고 내용만 바꿉니다. (성능 향상)
-        val cardView = if (container.childCount > 0) {
-            container.getChildAt(0)
-        } else {
-            val v = layoutInflater.inflate(R.layout.item_memory_card_04, container, false)
-            container.addView(v)
-            v
-        }
+        container.removeAllViews()
+        container.scaleX = 1.0f // ✨ 스케일 고정 (영역 틀어짐 방지)
+        container.scaleY = 1.0f
+        container.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
 
-        val imgView = cardView.findViewById<ImageView>(R.id.card_image)
-        if(photoUri != null) {
+        if (photoUri != null) {
+            // 📸 [사진 촬영 후]: 늘어짐 방지 및 QR 밀착
+            btnCreate.visibility = View.VISIBLE
+            dashboard.visibility = View.GONE
+            twinButtons?.visibility = View.GONE
+            mapBanner.visibility = View.GONE
+            dashboardFrame.visibility = View.GONE
+            floatingBar?.visibility = View.GONE
+            
+            // 🏁 [공백 차단] 고무줄처럼 늘어나는 성질 제거
+            scrollView.isFillViewport = false
+            
+            val wrapParams = cardWrapper.layoutParams as? FrameLayout.LayoutParams
+            wrapParams?.setMargins(0, 0, 0, 0)
+            cardWrapper.layoutParams = wrapParams
+            
+            val btnParams = btnCreate.layoutParams as? LinearLayout.LayoutParams
+            btnParams?.topMargin = 0
+            btnCreate.layoutParams = btnParams
+            
+            val cardView = layoutInflater.inflate(R.layout.item_memory_card_04, container, false)
+            cardView.findViewById<View>(R.id.card_content_layout)?.setPadding(20.dpToPx(), 20.dpToPx(), 20.dpToPx(), 0)
+            container.addView(cardView)
+
+            val imgView = cardView.findViewById<ImageView>(R.id.card_image)
             imgView.setImageURI(photoUri)
-            imgView.scaleType = ImageView.ScaleType.FIT_CENTER
-            imgView.adjustViewBounds = true
-            val lp = imgView.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
-            lp.width = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_PARENT
-            lp.height = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT
-            lp.dimensionRatio = null
-            imgView.layoutParams = lp
+            
+            // 🖋️ [폰트/타이포 최적화]
+            val cardMessage = cardView.findViewById<TextView>(R.id.card_message)
+            val cardAddress = cardView.findViewById<TextView>(R.id.card_address)
+            val cardDate = cardView.findViewById<TextView>(R.id.card_date)
 
-            cardView.findViewById<TextView>(R.id.card_message).text = "오늘의 로맨틱한 순간"
-            cardView.findViewById<TextView>(R.id.card_address).text = addressText.text
-            val sdf = SimpleDateFormat("yy.MM.dd", Locale.KOREA).apply {
+            cardMessage.text = "우리의 소중한 순간 ✨"
+            
+            val currentAddr = if (addressText.text.isNullOrEmpty() || addressText.text == "위치를 찾는 중...") {
+                "현재 위치 탐색 중"
+            } else {
+                addressText.text.toString()
+            }
+            cardAddress.text = currentAddr
+            
+            val sdf = SimpleDateFormat("yyyy년 MM월 dd일", Locale.KOREA).apply {
                 timeZone = java.util.TimeZone.getTimeZone("Asia/Seoul")
             }
-            cardView.findViewById<TextView>(R.id.card_date).text = sdf.format(Date())
+            cardDate.text = sdf.format(Date())
 
-            // 🛡️ [비공개 테스트 모드] 카드 레이아웃 단순화
-            if (AppConfig.IS_TEST_MODE) {
-                cardView.findViewById<View>(R.id.card_rating_container)?.visibility = View.GONE
-                cardView.findViewById<View>(R.id.card_qr_code)?.visibility = View.GONE
-                cardView.findViewById<View>(R.id.card_watermark)?.visibility = View.GONE
-                cardView.findViewById<View>(R.id.card_premium_border)?.visibility = View.GONE
-                cardView.findViewById<View>(R.id.card_premium_bg)?.visibility = View.GONE
-            } else {
-                updateCardQRCode(cardView, currentLat, currentLng, addressText.text.toString())
-            }
+            // 📏 [공백 해결] 강제 스케일링 로직 제거 - 영역 늘어남 방지
+            updateCardQRCode(cardView, currentLat, currentLng, currentAddr)
         } else {
-            // 빈 사진일 경우 다꾸 초대장 이미지를 플레이스홀더로 사용
-            imgView.setImageResource(R.drawable.bg_invitation)
-            imgView.scaleType = ImageView.ScaleType.FIT_CENTER
-            imgView.adjustViewBounds = true
-            val lp = imgView.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
-            lp.width = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_PARENT
-            lp.height = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT
-            imgView.layoutParams = lp
+            // 💌 [메인 화면 복구]
+            scrollView.isFillViewport = true
+            
+            val wrapParams = cardWrapper.layoutParams as? FrameLayout.LayoutParams
+            wrapParams?.setMargins(8.dpToPx(), 8.dpToPx(), 8.dpToPx(), 8.dpToPx())
+            cardWrapper.layoutParams = wrapParams
+            
+            val btnParams = btnCreate.layoutParams as? LinearLayout.LayoutParams
+            btnParams?.topMargin = 6.dpToPx()
+            btnCreate.layoutParams = btnParams
+
+            btnCreate.visibility = View.GONE
+            dashboard.visibility = View.VISIBLE
+            twinButtons?.visibility = View.VISIBLE
+            mapBanner.visibility = View.VISIBLE
+            dashboardFrame.visibility = View.VISIBLE
+            floatingBar?.visibility = View.VISIBLE 
+            container.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+
+            val imgView = ImageView(this).apply {
+                layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, 300.dpToPx())
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                setImageResource(R.drawable.bg_invitation)
+            }
+            container.addView(imgView)
         }
-        
-        // 🚀 [웰컴 복구] 설치 후 최초 실행 시 1회만 자동 복구 수행
-        checkAndPerformInitialRestore()
+        container.visibility = View.VISIBLE
     }
+
+    // 도우미 확장함수
+    private fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
 
     private fun checkAndPerformInitialRestore() {
         val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
@@ -788,7 +874,8 @@ class MainActivity : AppCompatActivity() {
         if (missing.isNotEmpty()) {
             ActivityCompat.requestPermissions(this, missing.toTypedArray(), REQ_LOCATION)
         } else {
-            startMap()
+            fetchAndShowMyLocation()
+            // Map starts only when popup opens.
         }
     }
 
@@ -801,7 +888,7 @@ class MainActivity : AppCompatActivity() {
         if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
             when (requestCode) {
                 REQ_LOCATION -> {
-                    startMap()
+                    fetchAndShowMyLocation()
                     checkAndPerformInitialRestore()
                 }
                 REQ_CAMERA -> openCamera()
@@ -965,6 +1052,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         mapView.resume()
+        refreshDashboard() // 🔄 대시보드 및 헤더 프로필 실시간 반영
     }
 
     override fun onPause() {
@@ -1156,6 +1244,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "먼저 적용할 프로필을 선택해 주세요!", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "닉네임과 프로필 핀이 적용되었습니다! ✨", Toast.LENGTH_SHORT).show()
+                refreshDashboard() // 🆕 [헤더 프로필 즉시 갱신]
                 dialog.dismiss()
             }
         }
@@ -1172,17 +1261,30 @@ class MainActivity : AppCompatActivity() {
     // ===============================
     // 👣 Footprint Analytics Dashboard Logic
     // ===============================
+    // 🏠 대시보드 데이터 갱신
+    // ===============================
     private fun refreshDashboard() {
         try {
             val dbHelper = MemoryDatabaseHelper(this)
             val memories = dbHelper.getAllMemories()
             
+            // 🆕 [헤더 프로필 스티커 갱신] 부장님 지시사항 반영
+            val profileImg = findViewById<ImageView>(R.id.img_header_profile)
+            if (profileImg != null) {
+                val selectedBitmap = ProfileStickerManager.getSelectedProfileBitmap(this)
+                if (selectedBitmap != null) {
+                    profileImg.setImageBitmap(selectedBitmap)
+                } else {
+                    profileImg.setImageResource(R.drawable.ic_white_profile)
+                }
+            }
+
             // 1. 총 발자국 개수
-            findViewById<TextView>(R.id.text_memory_count).text = "${memories.size}개"
+            findViewById<TextView>(R.id.text_memory_count)?.text = "${memories.size}개"
 
             if (memories.isEmpty()) {
-                findViewById<TextView>(R.id.text_hot_spot).text = "기록 없음"
-                findViewById<TextView>(R.id.text_latest_date).text = "-"
+                findViewById<TextView>(R.id.text_hot_spot)?.text = "기록 없음"
+                findViewById<TextView>(R.id.text_latest_date)?.text = "-"
                 return
             }
 

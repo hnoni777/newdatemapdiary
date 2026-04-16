@@ -11,7 +11,7 @@
     
     <!-- ✨ Premium Gold Border -->
     <stroke
-        android:width="1.2dp"
+        android:width="0.8dp"
         android:color="#E6D7B0" /> 
         
     <corners android:radius="24dp" />
