@@ -1,368 +1,74 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 🔥 [코부장 긴급 조치] 브라우저가 예전 화면을 기억하지 못하도록 강력하게 캐시를 차단합니다! -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <!-- 🚀 [Speed Optimized]: 2026-03-29 01:50 AM - SkyView Elite Edition -->
-    <title>HereWithYou - 1.15.3 Preview Optimizer</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap"
-        rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #0D0D0D;
-            --accent-gold: #C9A96E;
-            --text-white: #FFFFFF;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --theme-oatmeal: #F8F5F0;
-            --theme-matcha: #F0F8F1;
-            --theme-peach: #FFF0F0;
-            --theme-lavender: #F5F0F8;
-            --theme-midnight: #1A1D24;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-white);
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-
-        /* Hero Section with Custom Image */
-        .hero {
-            position: relative;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 0 20px;
-            background: #0D0D0D; /* Fallback Color */
-            background: linear-gradient(rgba(13, 13, 13, 0.75), rgba(13, 13, 13, 0.95)), 
-                        url('hero_masterpiece_preview_1774150315656.png') no-repeat center center/cover;
-            background-attachment: fixed;
-        }
-
-        .hero-content {
-            z-index: 10;
-            max-width: 900px;
-            animation: fadeIn 1.2s ease-out;
-        }
-
-        .brand-label {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-            letter-spacing: 8px;
-            color: var(--accent-gold);
-            font-weight: 700;
-            text-transform: uppercase;
-            text-shadow: 0 0 20px rgba(201, 169, 110, 0.5);
-        }
-
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 5rem;
-            line-height: 1.1;
-            margin-bottom: 24px;
-            color: var(--text-white);
-            letter-spacing: -2px;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-
-        h1 span {
-            color: #FFF;
-            text-shadow: 0 0 15px rgba(255,255,255,0.4), 0 0 30px var(--accent-gold);
-            font-style: italic;
-        }
-
-        .subtitle {
-            font-size: 1.25rem;
-            color: rgba(255, 255, 255, 0.85);
-            margin-bottom: 48px;
-            font-weight: 300;
-            max-width: 750px;
-            margin-left: auto;
-            margin-right: auto;
-            text-shadow: 0 2px 20px rgba(0,0,0,0.9);
-            line-height: 1.8;
-        }
-
-        .cta-group {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-        }
-
-        .btn {
-            padding: 18px 45px;
-            border-radius: 50px;
-            font-weight: 700;
-            text-decoration: none;
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-            font-size: 1.05rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-primary {
-            background-color: var(--accent-gold);
-            color: #1A1A1A;
-            box-shadow: 0 10px 40px rgba(201, 169, 110, 0.4);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-5px) scale(1.05);
-            background-color: #d4bc8d;
-        }
-
-        .btn-outline {
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            backdrop-filter: blur(5px);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--accent-gold);
-            color: var(--accent-gold);
-        }
-
-        /* Theme Gallery Section */
-        .themes-section {
-            padding: 120px 20px;
-            background: #111;
-            text-align: center;
-        }
-
-        .themes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 60px auto 0;
-        }
-
-        .theme-card {
-            padding: 40px 20px;
-            border-radius: 24px;
-            transition: all 0.4s;
-            cursor: help;
-        }
-
-        .theme-card:hover { transform: translateY(-10px); }
-
-        .oatmeal { background: var(--theme-oatmeal); color: #8C7851; }
-        .matcha { background: var(--theme-matcha); color: #4F6F52; }
-        .peach { background: var(--theme-peach); color: #D24545; }
-        .lavender { background: var(--theme-lavender); color: #5D3587; }
-        .midnight { background: var(--theme-midnight); color: #F8F0E5; }
-
-        .theme-card h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 10px; }
-        .theme-card p { font-size: 0.9rem; opacity: 0.8; }
-
-        /* Features Section */
-        .features {
-            padding: 140px 20px;
-            text-align: center;
-        }
-
-        .section-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 3.5rem;
-            margin-bottom: 40px;
-            color: var(--text-white);
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 32px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .feature-item {
-            background: var(--glass-bg);
-            padding: 64px 40px;
-            border-radius: 32px;
-            transition: all 0.5s;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            text-align: left;
-        }
-
-        .feature-item:hover {
-            transform: translateY(-12px);
-            border-color: var(--accent-gold);
-        }
-
-        .feature-icon {
-            font-size: 2.8rem;
-            margin-bottom: 24px;
-            display: block;
-        }
-
-        .feature-item h3 {
-            font-size: 1.5rem;
-            margin-bottom: 16px;
-            color: var(--accent-gold);
-            font-family: 'Playfair Display', serif;
-        }
-
-        /* Recovery Section styling */
-        .recovery-archive {
-            background: #000;
-            padding: 100px 20px;
-        }
-
-        .archive-item {
-            border-left: 2px solid var(--accent-gold);
-            padding-left: 30px;
-            margin-bottom: 40px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            text-align: left;
-        }
-
-        .archive-item h4 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            color: var(--accent-gold);
-            margin-bottom: 8px;
-        }
-
-        /* Footer */
-        footer {
-            padding: 60px 20px;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.9rem;
-            background: #000;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 3rem; }
-            .cta-group { flex-direction: column; }
-            .section-title { font-size: 2.5rem; }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123e4b">
+  <meta name="description" content="사진으로 남기는 나만의 낚시 기록. 피싱스팟 다이어리에서 출조 카드, 나의 출조지도, 물때와 조과 계측을 만나보세요.">
+  <title>피싱스팟 다이어리 | 낚시 기록·출조지도</title>
+  <link rel="canonical" href="https://hnoni777.github.io/newdatemapdiary/">
+  <style>
+    :root{color-scheme:light;--ink:#163c48;--muted:#5b737a;--accent:#136f77;--line:#d7e4e4;--paper:#f5f8f7}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif;line-height:1.75;word-break:keep-all}
+    a{color:inherit;text-underline-offset:4px}a:focus-visible{outline:3px solid #d39931;outline-offset:5px}
+    .wrap{width:min(1080px,calc(100% - 48px));margin:auto}.skip{position:absolute;left:16px;top:-100px;padding:8px 14px;background:white}.skip:focus{top:10px;z-index:10}
+    header{border-bottom:1px solid var(--line);background:#ffffffb3}.nav{min-height:84px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{text-decoration:none;font-weight:800;font-size:18px;letter-spacing:-.6px}.brand span{color:var(--accent)}nav{display:flex;gap:26px;font-size:14px}nav a{text-decoration:none}
+    .hero{padding:88px 0 82px;display:grid;grid-template-columns:1.2fr .8fr;align-items:center;gap:64px}.eyebrow{color:var(--accent);font-size:13px;font-weight:800;letter-spacing:.13em}
+    h1{font-size:clamp(38px,5.3vw,61px);line-height:1.25;letter-spacing:-2.8px;margin:18px 0 24px}h1 span{color:var(--accent)}.lead{font-size:17px;max-width:500px;color:var(--muted);margin:0 0 30px}
+    .actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.button{display:inline-flex;justify-content:center;align-items:center;min-height:50px;padding:11px 23px;border:1px solid var(--accent);border-radius:12px;text-decoration:none;font-weight:700;font-size:14px}.primary{background:var(--accent);color:white}.secondary{background:white}.platform{font-size:12px;color:var(--muted);margin-top:15px}
+    .illustration{padding:28px 22px;background:#e0eeee;border-radius:36px;transform:rotate(2deg)}.diary{background:white;border:1px solid #d5e3e4;border-radius:24px;overflow:hidden;box-shadow:0 16px 35px #153b4810;transform:rotate(-2deg)}
+    .seascape{height:176px;position:relative;overflow:hidden;background:linear-gradient(#bfdde2 0%,#e4eff0 50%,#3f8991 51%,#24616d 100%)}.sun{position:absolute;top:30px;right:39px;width:35px;height:35px;background:#f5d992;border-radius:50%}.wave{position:absolute;bottom:28px;left:-10%;width:120%;height:55px;border:1px solid #b0d8d680;border-radius:50%}.wave.two{bottom:7px;left:-25%;width:150%}.seascape small{position:absolute;left:20px;top:17px;color:#163c48;font-weight:700;font-size:11px;letter-spacing:1px}
+    .entry{padding:25px}.entry .label{font-size:12px;color:var(--muted)}.entry h2{font-size:23px;margin:4px 0 18px;letter-spacing:-.6px}.metrics{display:flex;border-top:1px solid var(--line);padding-top:15px;gap:38px}.metric small{font-size:11px;color:var(--muted);display:block}.metric strong{font-size:19px}.example-note{font-size:11px;color:var(--muted);margin:16px 0 0}
+    section{scroll-margin-top:24px}.features{padding:34px 0 78px}.section-title{font-size:27px;letter-spacing:-1px;margin:0 0 25px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.feature{padding:28px;background:white;border:1px solid var(--line);border-radius:18px}.number{font-size:12px;color:var(--accent);font-weight:800;letter-spacing:1px}.feature h3{font-size:19px;margin:12px 0 10px;letter-spacing:-.5px}.feature p{font-size:14px;color:var(--muted);margin:0}
+    .support{padding:0 0 76px}.support-box{padding:36px;background:#123e4b;border-radius:22px;color:#fff;display:grid;grid-template-columns:1fr 1fr;gap:36px}.support h2{font-size:25px;margin:0 0 12px}.support p{font-size:14px;color:#d0e3e5;margin:0 0 13px}.support a{overflow-wrap:anywhere}.support .policy{border-left:1px solid #ffffff30;padding-left:36px}.support h3{font-size:17px;margin:3px 0 12px}
+    footer{border-top:1px solid var(--line);padding:24px 0 30px;font-size:12px;color:var(--muted)}.footer-inner{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+    @media(max-width:760px){.wrap{width:calc(100% - 36px)}.nav{min-height:72px;gap:14px}.brand{font-size:16px}nav{gap:15px;font-size:12px}.hero{padding:48px 0;grid-template-columns:1fr;gap:35px}h1{letter-spacing:-1.7px}.lead{font-size:16px}.illustration{width:min(360px,100%);margin:0 auto}.grid{grid-template-columns:1fr}.feature{padding:24px}.features{padding:18px 0 45px}.support{padding-bottom:44px}.support-box{grid-template-columns:1fr;padding:27px;gap:27px}.support .policy{border-left:0;border-top:1px solid #ffffff30;padding:24px 0 0}.section-title{font-size:24px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
 </head>
-
 <body>
-
-    <section class="hero">
-        <div class="hero-content">
-            <div class="brand-label">HereWithYou - 1.15.3 Preview Optimizer</div>
-            <h1>Beyond the Map, <br> <span>Into the Blue Sky.</span></h1>
-            <p class="subtitle">더 선명해진 <strong>항공 뷰(SkyView) 기본 탑재</strong>와 초슬림 UI 시스템으로 <br> 당신의 추억 지도를 더욱 웅장하고 세련되게 기록하세요.</p>
-
-            <div class="cta-group">
-                <a href="NewDateMapDiary_v1.15.3_TightPreviewUI.apk" class="btn btn-primary">V1.15.3 배포 빌드 다운로드</a>
-                <a href="#features" class="btn btn-outline">새로운 기능 보기</a>
-            </div>
+  <a class="skip" href="#main">본문으로 이동</a>
+  <header><div class="wrap nav">
+    <a class="brand" href="./">피싱스팟 <span>다이어리</span></a>
+    <nav aria-label="주요 메뉴"><a href="#features">앱 소개</a><a href="#support">문의</a><a href="privacy_policy.html">개인정보처리방침</a></nav>
+  </div></header>
+  <main id="main" class="wrap">
+    <section class="hero" aria-labelledby="headline">
+      <div>
+        <div class="eyebrow">FISHING SPOT DIARY</div>
+        <h1>오늘의 손맛을,<br><span>나만의 기록으로.</span></h1>
+        <p class="lead">사진 한 장에 담긴 낚시의 순간.<br>출조 카드를 꾸미고, 지도 위에 나의 포인트와 조과를 차곡차곡 남겨보세요.</p>
+        <div class="actions">
+          <a class="button primary" href="https://play.google.com/store/apps/details?id=io.github.hnoni777.fishingspotdiary">Google Play에서 만나보기 ↗</a>
+          <a class="button secondary" href="#features">주요 기능 살펴보기</a>
         </div>
+        <p class="platform">Android 앱 · 피싱스팟 다이어리</p>
+      </div>
+      <div class="illustration" aria-label="출조 기록 예시">
+        <div class="diary">
+          <div class="seascape" aria-hidden="true"><small>MY FISHING DIARY</small><div class="sun"></div><div class="wave"></div><div class="wave two"></div></div>
+          <div class="entry"><div class="label">소중한 하루의 기록</div><h2>다시 찾고 싶은 나의 포인트</h2>
+            <div class="metrics"><div class="metric"><small>어종</small><strong>광어</strong></div><div class="metric"><small>조과 크기</small><strong>48 cm</strong></div></div>
+            <p class="example-note">출조 기록을 표현한 예시입니다.</p>
+          </div>
+        </div>
+      </div>
     </section>
-
-    <!-- Theme Gallery -->
-    <section id="themes" class="themes-section">
-        <h2 class="section-title">The Romantic Palette</h2>
-        <div class="themes-grid">
-            <div class="theme-card oatmeal">
-                <h3>Oatmeal Mood</h3>
-                <p>#F8F5F0 - 따뜻한 크림과 브라운의 조화. 포근한 일상 감성.</p>
-            </div>
-            <div class="theme-card matcha">
-                <h3>Matcha Forest</h3>
-                <p>#F0F8F1 - 연한 민트와 딥그린. 싱그럽고 건강한 자연 감성.</p>
-            </div>
-            <div class="theme-card peach">
-                <h3>Peach Blush</h3>
-                <p>#FFF0F0 - 사랑스러운 핑크와 로즈. 부드러운 봄의 감성.</p>
-            </div>
-            <div class="theme-card lavender">
-                <h3>Lavender Sunset</h3>
-                <p>#F5F0F8 - 연한 라벤더와 퍼플. 몽환적이고 감성적인 무드.</p>
-            </div>
-            <div class="theme-card midnight">
-                <h3>Midnight Charcoal</h3>
-                <p>#1A1D24 - 차가운 블랙과 얼음 화이트. 세련되고 시크한 다크 감성.</p>
-            </div>
-        </div>
+    <section id="features" class="features" aria-labelledby="features-title">
+      <h2 class="section-title" id="features-title">낚시의 순간부터, 다음 출조까지</h2>
+      <div class="grid">
+        <article class="feature"><div class="number">01 / RECORD</div><h3>나만의 출조 카드</h3><p>낚시 사진을 카드로 꾸미고 출조갤러리에 보관하세요. 어종, 채비, 미끼와 메모도 함께 기록할 수 있어요.</p></article>
+        <article class="feature"><div class="number">02 / EXPLORE</div><h3>지도에 쌓이는 출조 기록</h3><p>내가 다녀온 포인트와 날짜별 카드를 한곳에서 확인하세요. 추천스팟을 살펴보며 다음 출조를 준비해보세요.</p></article>
+        <article class="feature"><div class="number">03 / FISHING</div><h3>낚시를 위한 도구</h3><p>물때 정보를 확인하고 조과 크기재기로 기록을 남겨보세요. 어종 인식과 조과랭킹도 함께 이용할 수 있어요.</p></article>
+      </div>
     </section>
-
-    <section id="features" class="features">
-        <h2 class="section-title" style="margin-bottom: 80px;">Artisan Features</h2>
-        <div class="feature-grid">
-            <div class="feature-item">
-                <span class="feature-icon">🖌️</span>
-                <h3>Artist Drawing</h3>
-                <p>6가지 감성 컬러 팔레트와 3단계 펜 굵기로 사진 위에 직접 손글씨를 남기세요. 당신만의 예술 작품이 완성됩니다.</p>
-            </div>
-            <div class="feature-item">
-                <span class="feature-icon">✨</span>
-                <h3>Premium Icons</h3>
-                <p>코부장이 직접 엄선한 50여종의 고퀄리티 3D 프리미엄 스티커와 베이직 팩이 완벽하게 지원됩니다.</p>
-            </div>
-            <div class="feature-item">
-                <span class="feature-icon">🚀</span>
-                <h3>Top-Speed Build</h3>
-                <p>데이터 유실 없는 안전한 저장과 위치 자동 보정 로직이 탑재되어 소중한 추억을 0.1초도 놓치지 않습니다.</p>
-            </div>
-            <div class="feature-item">
-                <span class="feature-icon">🗂️</span>
-                <h3>Memory Archive</h3>
-                <p>지하철역 부하 분산 기술이 적용된 로맨틱 지도 위에서 우리가 걸어온 자취를 한눈에 발견할 수 있습니다.</p>
-            </div>
-        </div>
+    <section id="support" class="support" aria-labelledby="support-title">
+      <div class="support-box">
+        <div><h2 id="support-title">도움이 필요하신가요?</h2><p>앱 이용 문의나 개선 의견을 이메일로 보내주세요.<br>사용 중인 앱 버전과 상황을 함께 알려주시면 확인에 도움이 됩니다.</p><a href="mailto:parkdam6@gmail.com">parkdam6@gmail.com</a></div>
+        <div class="policy"><h3>개인정보처리방침</h3><p>개인정보 처리에 관한 안내는 아래 페이지에서 확인할 수 있습니다.</p><a href="privacy_policy.html">개인정보처리방침 보기 ↗</a></div>
+      </div>
     </section>
-
-    <section id="recovery" class="recovery-archive">
-        <div class="archive-item">
-            <h4>v1.15.3 - [Preview Optimizer & QR Tighten]</h4>
-            <p>사진 촬영 후 카드 미리보기 시 하단 5개 메뉴를 숨기고, 레이아웃을 QR코드에 바짝 압착한 UI 최적화 버전입니다.</p>
-            <a href="NewDateMapDiary_v1.15.3_TightPreviewUI.apk" style="color: var(--accent-gold); text-decoration: underline;">Latest Master APK (v1.15.3)</a>
-        </div>
-
-        <div class="archive-item">
-            <h4>v1.14.0 - [SkyView Elite Edition]</h4>
-            <p>항공 뷰(SkyView) 기본 탑재 및 울트라 슬림 뷰 체인저가 적용된 초정밀 지도 에디션입니다.</p>
-        </div>
-
-        <div class="archive-item">
-            <h4>v1.13.0 - [Artist Drawing Masterpiece]</h4>
-            <p>디지털 손편지(직접 그리기) 기능과 5대 테마가 완벽 통합된 배포 빌드입니다.</p>
-            <a href="NewDateMapDiary_v1.13.0_Final.apk" style="color: var(--accent-gold); text-decoration: underline;">Previous APK (v13)</a>
-        </div>
-
-        <div class="archive-item">
-            <h4>v1.12.0 - [Ghost Cleaner Edition]</h4>
-            <p>스티커 용량 최적화와 고스트 픽셀 제거 로직이 적용된 버전입니다.</p>
-        </div>
-    </section>
-
-    <footer>
-        <p>&copy; 2026 HereWithYou. Crafted by Manager Kodari & Creative Director Yeong-ja.</p>
-    </footer>
-
+  </main>
+  <footer><div class="wrap footer-inner"><span>© 2026 피싱스팟 다이어리</span><span>기록으로 남기는 나의 낚시 이야기</span></div></footer>
 </body>
 </html>
